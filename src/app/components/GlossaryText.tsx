@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { GLOSSARY } from '../../content/glossary.js';
 import type { GlossaryColor, GlossaryTerm } from '../../content/glossary.js';
 import { useContent } from '../i18n/useContent.js';
@@ -34,51 +35,106 @@ const COLOR_CLASS: Record<GlossaryColor, string> = {
   neutral: 'text-slate-200 decoration-slate-400/50',
 };
 
+/** Fundo solido e discreto do cabecalho, por familia de recurso. */
+const BADGE_BG: Record<GlossaryColor, string> = {
+  oxygen: 'bg-oxygen/10', power: 'bg-power/10', food: 'bg-food/10',
+  radiation: 'bg-radiation/10', science: 'bg-science/10',
+  lifeSupport: 'bg-life/10', gravity: 'bg-gravity/10', neutral: 'bg-white/5',
+};
+
 const BY_ID = new Map<string, GlossaryTerm>(GLOSSARY.map((g) => [g.id, g]));
 const PATTERN = /\[\[([^\]]+)\]\]/g;
 
+/**
+ * Janela de definicao.
+ *
+ * NAO usa glassmorphism no conteudo, de proposito. Vidro e um efeito de
+ * FUNDO: funciona sobre foto ou gradiente, e falha sobre texto corrido,
+ * que e o conteudo de maior frequencia da tela. O resultado era texto
+ * legivel por cima de texto legivel, e nenhum blur conserta isso.
+ *
+ * Entao: vidro e escurecimento no FUNDO, painel SOLIDO na frente.
+ *
+ * Vai por portal no <body> porque os cards usam backdrop-filter, e um
+ * elemento com backdrop-filter vira bloco de contencao -- `position:
+ * fixed` dentro dele deixa de ser relativo a janela e fica preso no card.
+ */
 function Popover({
   entry, label, short, onClose,
 }: {
   entry: GlossaryTerm; label: string; short: string; onClose: () => void;
 }): JSX.Element {
-  const ref = useRef<HTMLDivElement>(null);
   const t = useT();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
   const Icon = iconFor(entry.icon);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent): void => { if (e.key === 'Escape') onClose(); };
-    const onClick = (e: MouseEvent): void => {
-      if (ref.current !== null && !ref.current.contains(e.target as Node)) onClose();
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key !== 'Tab' || panelRef.current === null) return;
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>('button');
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (first === undefined || last === undefined) return;
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     };
     document.addEventListener('keydown', onKey);
-    // timeout: nao fecha com o mesmo clique que abriu
-    const t = window.setTimeout(() => { document.addEventListener('mousedown', onClick); }, 0);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.removeEventListener('mousedown', onClick);
-      window.clearTimeout(t);
-    };
+    return () => { document.removeEventListener('keydown', onKey); };
   }, [onClose]);
 
-  return (
-    <div
-      ref={ref}
-      role="dialog"
-      aria-label={label}
-      className="absolute left-1/2 top-full z-50 mt-2 w-64 -translate-x-1/2 rounded-2xl glass-strong p-3 animate-fade-in"
-    >
-      <div className="flex items-start gap-2">
-        <div className="min-w-0 flex-1">
-          <div className={`flex items-center gap-2 text-sm font-extrabold ${COLOR_CLASS[entry.color]}`}>
-            <Icon size={16} aria-hidden />
-            <span className="capitalize">{label}</span>
-          </div>
-          <p className="mt-1 text-[13px] leading-snug text-slate-200">{short}</p>
+  return createPortal(
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-5 animate-fade-in">
+      {/* O vidro mora AQUI: escurece e borra o que esta atras, garantindo
+          contraste para o painel, qualquer que seja o conteudo da tela. */}
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-label={t('common.close')}
+        onClick={onClose}
+        className="absolute inset-0 bg-space-950/85 backdrop-blur-md"
+      />
+
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/20
+                   bg-space-850 shadow-[0_24px_60px_-12px_rgba(0,0,0,.9)]"
+      >
+        <div className={`flex items-center gap-3 border-b border-white/10 px-5 py-4 ${BADGE_BG[entry.color]}`}>
+          <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white/10 ${COLOR_CLASS[entry.color]}`}>
+            <Icon size={22} aria-hidden />
+          </span>
+          <h2 id={titleId} className={`font-display text-xl font-extrabold capitalize ${COLOR_CLASS[entry.color]}`}>
+            {label}
+          </h2>
         </div>
-        <SpeakButton text={`${label}. ${short}`} label={t('glossary.listenAria', { term: label })} />
+
+        {/* Texto maior que o do corpo: e uma definicao para crianca de 10
+            anos, lida uma vez e fechada. */}
+        <p className="px-5 py-5 text-[1.05rem] font-semibold leading-relaxed text-slate-50">
+          {short}
+        </p>
+
+        <div className="flex items-center gap-2 border-t border-white/10 px-4 py-3">
+          <SpeakButton text={`${label}. ${short}`} label={t('glossary.listenAria', { term: label })} />
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            className="btn-primary ml-auto px-5 py-2.5 text-sm"
+          >
+            {t('common.close')}
+          </button>
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

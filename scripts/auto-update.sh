@@ -180,9 +180,24 @@ if [[ "$MODE" == "preview" ]]; then
 fi
 start_server || exit 1
 
+# Vigia tambem a SAUDE do processo. Um supervisor que so reage ao Git
+# deixa a instancia morta no ar sem ninguem perceber -- foi o que
+# aconteceu quando um comando externo matou o vite.
+server_healthy() {
+  [[ -n "$SERVER_PID" ]] && kill -0 "$SERVER_PID" 2>/dev/null \
+    && curl -sf -o /dev/null --max-time 3 "http://localhost:$PORT/"
+}
+
 LAST_SEEN="$(git rev-parse HEAD)"
 while true; do
   sleep "$INTERVAL"
+
+  if ! server_healthy; then
+    warn "a instancia nao esta respondendo — subindo de novo"
+    stop_server
+    start_server || err "nao consegui subir; tento em ${INTERVAL}s"
+  fi
+
   REMOTE="$(remote_head || true)"
   if [[ -z "$REMOTE" ]]; then warn "nao consegui falar com o Git; tento de novo em ${INTERVAL}s"; continue; fi
   [[ "$REMOTE" == "$(git rev-parse HEAD)" ]] && continue
