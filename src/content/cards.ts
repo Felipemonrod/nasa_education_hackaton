@@ -22,19 +22,20 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     cooldownDays: 3,
     title: 'Poeira nos paineis',
-    text: 'O [[regolito]] cobriu os [[painel solar]]. A geracao de [[energia]] caiu.',
+    text: 'O [[regolith]] cobriu os [[solar_panel]]. A geracao de [[power]] caiu.',
     options: [
       {
         id: 'eva_clean',
         label: 'Sair de traje e limpar',
         effects: [
-          { stat: 'power', delta: 9 },
+          { stat: 'lifeSupport', delta: 1 },
+          { stat: 'power', delta: 7 },
           { stat: 'oxygen', delta: -4 },
           { stat: 'dose', delta: 3 },
         ],
         outcome: {
           line: 'Paineis limpos. A geracao voltou ao normal.',
-          why: 'Cada ciclo da [[eclusa]] joga ar fora, e la nao existe a [[blindagem]] da base: a [[dose]] sobe. Limpar funciona, mas voce paga em ar e em radiacao.',
+          why: 'Cada ciclo da [[airlock]] joga ar fora, e la nao existe a [[shielding]] da base: a [[dose]] sobe. Limpar funciona, mas voce paga em ar e em radiacao.',
           verdict: 'mixed',
         },
       },
@@ -48,7 +49,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Recuperacao parcial, sem ninguem sair.',
-          why: 'A poeira lunar e afiada e eletrostatica: soprar devolve parte da luz aos paineis, mas espalha gra~os abrasivos sobre a [[blindagem]].',
+          why: 'A poeira lunar e afiada e eletrostatica: soprar devolve parte da luz aos paineis, mas espalha gra~os abrasivos sobre a [[shielding]].',
           verdict: 'mixed',
         },
       },
@@ -58,7 +59,7 @@ export const CARDS: readonly Card[] = [
         effects: [{ stat: 'power', delta: -6 }],
         outcome: {
           line: 'A geracao continuou caindo.',
-          why: 'Sem chuva e sem vento, nada limpa um painel na Lua. Poeira nao sai sozinha: adiar e escolher perder [[energia]] todos os dias.',
+          why: 'Sem chuva e sem vento, nada limpa um painel na Lua. Poeira nao sai sozinha: adiar e escolher perder [[power]] todos os dias.',
           verdict: 'bad',
           mistake: 'Voce tratou um problema que piora sozinho como se ele pudesse esperar.',
         },
@@ -71,7 +72,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'day',
     title: 'Enlace perdido',
-    text: 'A [[antena]] perdeu o apontamento. Nenhum dado esta chegando a Terra.',
+    text: 'A [[antenna]] perdeu o apontamento. Nenhum dado esta chegando a Terra.',
     options: [
       {
         id: 'realign',
@@ -83,7 +84,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Enlace restabelecido. Os dados subiram.',
-          why: 'Dado que nao chega a Terra e dado perdido: a base nao tem espaco para guardar tudo. A [[EVA]] custou ar e [[dose]], mas salvou a [[ciencia]] da semana.',
+          why: 'Dado que nao chega a Terra e dado perdido: a base nao tem espaco para guardar tudo. A [[eva]] custou ar e [[dose]], mas salvou a [[science]] da semana.',
           verdict: 'good',
         },
       },
@@ -110,7 +111,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Reserva no ar, consumindo muito.',
-          why: 'A antena de reserva e menor: gasta mais [[energia]] para enviar menos dados. Redundancia sempre custa, por isso ela e a segunda opcao e nao a primeira.',
+          why: 'A antena de reserva e menor: gasta mais [[power]] para enviar menos dados. Redundancia sempre custa, por isso ela e a segunda opcao e nao a primeira.',
           verdict: 'mixed',
         },
       },
@@ -122,7 +123,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'day',
     title: 'Micro-vazamento',
-    text: 'Sensor acusa perda lenta de pressao na [[eclusa]].',
+    text: 'Sensor acusa perda lenta de pressao na [[airlock]].',
     options: [
       {
         id: 'seal_now',
@@ -134,7 +135,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Vazamento fechado no mesmo turno.',
-          why: 'Em vacuo, um furo pequeno cresce: a propria passagem do ar desgasta a borda. Selar cedo custou 2 de [[oxigenio]]; esperar custaria muito mais.',
+          why: 'Em vacuo, um furo pequeno cresce: a propria passagem do ar desgasta a borda. Selar cedo custou 2 de [[oxygen]]; esperar custaria muito mais.',
           verdict: 'good',
         },
       },
@@ -157,7 +158,7 @@ export const CARDS: readonly Card[] = [
         modifiers: [{ stat: 'oxygen', perSlot: -1, slots: 4, label: 'Eclusa fora de operacao' }],
         outcome: {
           line: 'Perda contida, saidas limitadas.',
-          why: 'Sem pressao na [[eclusa]], o vazamento para. Mas cada [[EVA]] passa a gastar ar extra para repressurizar tudo de novo.',
+          why: 'Sem pressao na [[airlock]], o vazamento para. Mas cada [[eva]] passa a gastar ar extra para repressurizar tudo de novo.',
           verdict: 'mixed',
         },
       },
@@ -170,19 +171,19 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     cooldownDays: 2,
     title: 'Filtros do reciclador',
-    text: 'Os filtros de agua estao saturados. A [[eletrolise]] rende menos.',
+    text: 'Os filtros de agua estao saturados. A [[electrolysis]] rende menos.',
     options: [
       {
         id: 'full',
         label: 'Manutencao completa',
         effects: [
-          { stat: 'lifeSupport', delta: 2 },
+          { stat: 'lifeSupport', delta: 4 },
           { stat: 'power', delta: -5 },
           { stat: 'oxygen', delta: 5 },
         ],
         outcome: {
           line: 'Reciclador em plena eficiencia.',
-          why: 'Quase todo o [[oxigenio]] da base vem da agua por [[eletrolise]]. Filtro limpo = mais agua util = mais ar. Agua e ar sao o mesmo problema aqui.',
+          why: 'Quase todo o [[oxygen]] da base vem da agua por [[electrolysis]]. Filtro limpo = mais agua util = mais ar. Agua e ar sao o mesmo problema aqui.',
           verdict: 'good',
         },
       },
@@ -196,7 +197,7 @@ export const CARDS: readonly Card[] = [
         modifiers: [{ stat: 'oxygen', perSlot: -1, slots: 2, label: 'Filtro parcialmente saturado' }],
         outcome: {
           line: 'Resolveu metade do problema.',
-          why: 'Economizar [[energia]] na manutencao parece esperto, mas o filtro continua sujo e segue cobrando [[oxigenio]] nos turnos seguintes.',
+          why: 'Economizar [[power]] na manutencao parece esperto, mas o filtro continua sujo e segue cobrando [[oxygen]] nos turnos seguintes.',
           verdict: 'mixed',
         },
       },
@@ -219,7 +220,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'day',
     title: 'Tempestade solar fraca',
-    text: 'O monitor acusa [[tempestade solar]] de classe baixa a caminho.',
+    text: 'O monitor acusa [[solar_storm]] de classe baixa a caminho.',
     options: [
       {
         id: 'shelter',
@@ -231,7 +232,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Tripulacao protegida, operacoes paradas.',
-          why: 'O [[abrigo central]] tem mais massa em volta, e massa e o que para [[radiacao]]. O preco foi um turno sem trabalho de campo.',
+          why: 'O [[central_shelter]] tem mais massa em volta, e massa e o que para [[radiation]]. O preco foi um turno sem trabalho de campo.',
           verdict: 'good',
         },
       },
@@ -259,7 +260,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Blindagem melhor para as proximas.',
-          why: 'Voce transformou um aviso em investimento: [[regolito]] e de graca e esta no chao. Quem reforca antes paga menos [[dose]] nas tempestades seguintes.',
+          why: 'Voce transformou um aviso em investimento: [[regolith]] e de graca e esta no chao. Quem reforca antes paga menos [[dose]] nas tempestades seguintes.',
           verdict: 'good',
         },
       },
@@ -290,7 +291,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Turno perdido, dose quase toda barrada.',
-          why: 'Nenhuma blindagem para 100% das particulas: sempre entra um pouco. Mas a diferenca entre estar no [[abrigo central]] e fora dele e enorme.',
+          why: 'Nenhuma blindagem para 100% das particulas: sempre entra um pouco. Mas a diferenca entre estar no [[central_shelter]] e fora dele e enorme.',
           verdict: 'good',
         },
       },
@@ -315,7 +316,7 @@ export const CARDS: readonly Card[] = [
         effects: [{ stat: 'power', delta: -10 }],
         outcome: {
           line: 'Protegidos, com custo alto de energia.',
-          why: 'O [[rover]] tem paredes de agua: hidrogenio para particulas melhor que metal. Manter suporte de vida nele por um turno custa muita [[energia]].',
+          why: 'O [[rover]] tem paredes de agua: hidrogenio para particulas melhor que metal. Manter suporte de vida nele por um turno custa muita [[power]].',
           verdict: 'good',
         },
       },
@@ -327,7 +328,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'day',
     title: 'Reforco de blindagem',
-    text: 'Sacos de [[regolito]] podem engrossar a [[blindagem]] da base.',
+    text: 'Sacos de [[regolith]] podem engrossar a [[shielding]] da base.',
     options: [
       {
         id: 'full_crew',
@@ -340,7 +341,7 @@ export const CARDS: readonly Card[] = [
         modifiers: [{ stat: 'power', perSlot: -1, slots: 2, label: 'Tripulacao cansada' }],
         outcome: {
           line: 'Blindagem bem mais grossa.',
-          why: 'Voce pagou [[dose]] hoje para pagar muito menos todos os dias. Blindagem nao e consumida: ela atenua. Quanto mais massa, menos [[radiacao]] entra.',
+          why: 'Voce pagou [[dose]] hoje para pagar muito menos todos os dias. Blindagem nao e consumida: ela atenua. Quanto mais massa, menos [[radiation]] entra.',
           verdict: 'good',
         },
       },
@@ -364,7 +365,7 @@ export const CARDS: readonly Card[] = [
         effects: [{ stat: 'shielding', delta: -2 }],
         outcome: {
           line: 'A blindagem segue degradando.',
-          why: '[[micrometeorito]] e poeira raspam a cobertura todo dia. Sem reforco, a [[dose]] diaria sobe sozinha pelo resto da missao.',
+          why: '[[micrometeoroid]] e poeira raspam a cobertura todo dia. Sem reforco, a [[dose]] diaria sobe sozinha pelo resto da missao.',
           verdict: 'bad',
         },
       },
@@ -377,7 +378,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     requires: [{ stat: 'food', op: 'lte', value: 70 }],
     title: 'Fotoperiodo da estufa',
-    text: 'A [[estufa]] rende mais com mais horas de luz, e luz custa [[energia]].',
+    text: 'A [[greenhouse]] rende mais com mais horas de luz, e luz custa [[power]].',
     options: [
       {
         id: 'more_light',
@@ -388,7 +389,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Colheita adiantada.',
-          why: 'Na base, [[comida]] e [[energia]] convertida em planta. Toda caloria no prato saiu de um [[painel solar]] primeiro.',
+          why: 'Na base, [[food]] e [[power]] convertida em planta. Toda caloria no prato saiu de um [[solar_panel]] primeiro.',
           verdict: 'mixed',
         },
       },
@@ -401,7 +402,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Energia preservada, pratos menores.',
-          why: 'Racionar funciona por pouco tempo: tripulacao com menos caloria erra mais em [[EVA]]. Voce comprou energia com margem de seguranca.',
+          why: 'Racionar funciona por pouco tempo: tripulacao com menos caloria erra mais em [[eva]]. Voce comprou energia com margem de seguranca.',
           verdict: 'mixed',
         },
       },
@@ -436,7 +437,7 @@ export const CARDS: readonly Card[] = [
         chains: 'rover_battery_fix',
         outcome: {
           line: 'Diagnostico rodando. Resultado em seguida.',
-          why: 'Consertar antes de medir e chute. Diagnostico custa [[energia]] e um turno, e evita trocar a peca errada.',
+          why: 'Consertar antes de medir e chute. Diagnostico custa [[power]] e um turno, e evita trocar a peca errada.',
           verdict: 'good',
         },
       },
@@ -512,7 +513,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     cooldownDays: 3,
     title: 'Checagem dos trajes',
-    text: 'Os trajes de [[EVA]] precisam de teste de pressao.',
+    text: 'Os trajes de [[eva]] precisam de teste de pressao.',
     options: [
       {
         id: 'full_check',
@@ -538,7 +539,7 @@ export const CARDS: readonly Card[] = [
         modifiers: [{ stat: 'oxygen', perSlot: -1, slots: 3, label: 'Traje com vedacao suspeita' }],
         outcome: {
           line: 'Economia agora, vazamento pequeno depois.',
-          why: 'Amostragem serve para lote de parafuso, nao para equipamento que mantem gente viva. Um traje nao testado vaza em cada [[EVA]].',
+          why: 'Amostragem serve para lote de parafuso, nao para equipamento que mantem gente viva. Um traje nao testado vaza em cada [[eva]].',
           verdict: 'bad',
         },
       },
@@ -560,7 +561,7 @@ export const CARDS: readonly Card[] = [
         id: 'wake_crew',
         label: 'Acordar a tripulacao e inspecionar',
         effects: [
-          { stat: 'lifeSupport', delta: 2 },
+          { stat: 'lifeSupport', delta: 3 },
           { stat: 'power', delta: -4 },
           { stat: 'food', delta: -1 },
         ],
@@ -576,7 +577,7 @@ export const CARDS: readonly Card[] = [
         effects: [{ stat: 'oxygen', delta: -7 }],
         outcome: {
           line: 'Era real. Horas de ar perdidas.',
-          why: 'Silenciar alarme nao e decisao de engenharia, e aposta. Em [[suporte de vida]], o custo de checar errado e muito menor que o de ignorar certo.',
+          why: 'Silenciar alarme nao e decisao de engenharia, e aposta. Em [[life_support]], o custo de checar errado e muito menor que o de ignorar certo.',
           verdict: 'bad',
           mistake: 'Voce desligou o aviso em vez de investigar a causa.',
         },
@@ -610,13 +611,13 @@ export const CARDS: readonly Card[] = [
         id: 'swap',
         label: 'Trocar o cartucho agora',
         effects: [
-          { stat: 'lifeSupport', delta: 2 },
+          { stat: 'lifeSupport', delta: 4 },
           { stat: 'power', delta: -3 },
           { stat: 'oxygen', delta: 5 },
         ],
         outcome: {
           line: 'Ar limpo de novo.',
-          why: 'O perigo em cabine fechada nao e so faltar [[oxigenio]]: e sobrar gas carbonico. O [[scrubber]] e o que impede o ar de ficar toxico.',
+          why: 'O perigo em cabine fechada nao e so faltar [[oxygen]]: e sobrar gas carbonico. O [[scrubber]] e o que impede o ar de ficar toxico.',
           verdict: 'good',
         },
       },
@@ -631,7 +632,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Cartucho reaproveitado com calor.',
-          why: 'Regenerar gasta [[energia]] mas nao gasta estoque. Em missao longe da Terra, o consumivel que voce nao tem vale mais que o watt que voce tem.',
+          why: 'Regenerar gasta [[power]] mas nao gasta estoque. Em missao longe da Terra, o consumivel que voce nao tem vale mais que o watt que voce tem.',
           verdict: 'good',
         },
       },
@@ -654,7 +655,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'night',
     title: 'Impacto na cupula',
-    text: 'Um [[micrometeorito]] furou a camada externa da [[blindagem]].',
+    text: 'Um [[micrometeoroid]] furou a camada externa da [[shielding]].',
     options: [
       {
         id: 'patch_now',
@@ -667,7 +668,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Furo fechado na mesma noite.',
-          why: 'A Lua nao tem atmosfera para queimar pedrinhas: elas chegam inteiras a 20 km/s. Remendar no escuro custa [[dose]], mas limita o dano a [[blindagem]].',
+          why: 'A Lua nao tem atmosfera para queimar pedrinhas: elas chegam inteiras a 20 km/s. Remendar no escuro custa [[dose]], mas limita o dano a [[shielding]].',
           verdict: 'good',
         },
       },
@@ -680,7 +681,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Modulo fechado ate amanhecer.',
-          why: 'Esperar a luz reduz o risco da equipe e aumenta a [[dose]] de todos, porque a [[blindagem]] fica fina por mais tempo. Nao existe escolha sem custo aqui.',
+          why: 'Esperar a luz reduz o risco da equipe e aumenta a [[dose]] de todos, porque a [[shielding]] fica fina por mais tempo. Nao existe escolha sem custo aqui.',
           verdict: 'mixed',
         },
       },
@@ -694,7 +695,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Vedacao feita sem ninguem sair.',
-          why: 'Selar por dentro protege o ar, mas a massa que para [[radiacao]] precisa estar do lado de fora. Voce resolveu pressao, nao blindagem.',
+          why: 'Selar por dentro protege o ar, mas a massa que para [[radiation]] precisa estar do lado de fora. Voce resolveu pressao, nao blindagem.',
           verdict: 'mixed',
         },
       },
@@ -714,7 +715,7 @@ export const CARDS: readonly Card[] = [
         effects: [{ stat: 'power', delta: -10 }],
         outcome: {
           line: 'Base inteira em temperatura segura.',
-          why: 'Os turnos seguem o relogio [[UTC]] da base, nao o Sol: a tripulacao fecha as escotilhas para dormir mesmo com o Sol la fora. Mas o frio real vem do equipamento parado e da sombra.',
+          why: 'Os turnos seguem o relogio [[utc]] da base, nao o Sol: a tripulacao fecha as escotilhas para dormir mesmo com o Sol la fora. Mas o frio real vem do equipamento parado e da sombra.',
           verdict: 'mixed',
         },
       },
@@ -728,7 +729,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Energia salva, estufa e laboratorio frios.',
-          why: 'Planta e amostra tambem precisam de temperatura. Economia que congela a [[estufa]] vira falta de [[comida]] dois dias depois.',
+          why: 'Planta e amostra tambem precisam de temperatura. Economia que congela a [[greenhouse]] vira falta de [[food]] dois dias depois.',
           verdict: 'mixed',
         },
       },
@@ -742,7 +743,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Aquecimento quase gratis.',
-          why: 'Calor residual e energia que voce ja pagou uma vez. O preco foi abrir dutos na parede, e cada duto e um caminho a menos de [[blindagem]].',
+          why: 'Calor residual e energia que voce ja pagou uma vez. O preco foi abrir dutos na parede, e cada duto e um caminho a menos de [[shielding]].',
           verdict: 'good',
         },
       },
@@ -754,7 +755,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'night',
     title: 'Inventario de racoes',
-    text: 'A contagem de [[comida]] no sistema nao fecha com a prateleira.',
+    text: 'A contagem de [[food]] no sistema nao fecha com a prateleira.',
     options: [
       {
         id: 'recount',
@@ -803,13 +804,13 @@ export const CARDS: readonly Card[] = [
     phase: 'night',
     cooldownDays: 3,
     title: 'Limpeza da eclusa',
-    text: '[[regolito]] acumulado nas vedacoes da [[eclusa]].',
+    text: '[[regolith]] acumulado nas vedacoes da [[airlock]].',
     options: [
       {
         id: 'deep_clean',
         label: 'Limpeza completa das vedacoes',
         effects: [
-          { stat: 'lifeSupport', delta: 2 },
+          { stat: 'lifeSupport', delta: 3 },
           { stat: 'power', delta: -4 },
           { stat: 'oxygen', delta: -1 },
           { stat: 'shielding', delta: 2 },
@@ -842,7 +843,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Vedacao comprometida, ar escapando.',
-          why: 'Poeira acumulada vira vazamento permanente na [[eclusa]], e vazamento em sistema fechado nao se recupera.',
+          why: 'Poeira acumulada vira vazamento permanente na [[airlock]], e vazamento em sistema fechado nao se recupera.',
           verdict: 'bad',
         },
       },
@@ -866,7 +867,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Exposicao contida. Agenda cientifica atrasada.',
-          why: 'A [[dose]] nunca diminui: so da para parar de somar. Menos [[EVA]] e o unico freio disponivel, e ciencia na Lua depende de sair.',
+          why: 'A [[dose]] nunca diminui: so da para parar de somar. Menos [[eva]] e o unico freio disponivel, e ciencia na Lua depende de sair.',
           verdict: 'good',
         },
       },
@@ -894,7 +895,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Mais horas protegidas, sem parar tudo.',
-          why: 'Em vez de cortar trabalho, voce mudou onde a tripulacao descansa. Mesma missao, menos horas sob [[radiacao]].',
+          why: 'Em vez de cortar trabalho, voce mudou onde a tripulacao descansa. Mesma missao, menos horas sob [[radiation]].',
           verdict: 'good',
         },
       },
@@ -911,7 +912,7 @@ export const CARDS: readonly Card[] = [
     track: 'science',
     phase: 'day',
     title: 'Cratera a 12 km',
-    text: 'Anomalia magnetica no fundo de uma [[cratera]] a 12 km da base.',
+    text: 'Anomalia magnetica no fundo de uma [[crater]] a 12 km da base.',
     options: [
       {
         id: 'rover_trip',
@@ -925,7 +926,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Medicoes no local. Anomalia confirmada.',
-          why: 'Medir no lugar e o unico jeito de separar sinal de artefato. Doze quilometros de ida e volta sao horas de [[EVA]] e muita bateria.',
+          why: 'Medir no lugar e o unico jeito de separar sinal de artefato. Doze quilometros de ida e volta sao horas de [[eva]] e muita bateria.',
           verdict: 'good',
         },
       },
@@ -966,7 +967,7 @@ export const CARDS: readonly Card[] = [
     track: 'science',
     phase: 'day',
     title: 'Impacto fresco',
-    text: 'Um [[micrometeorito]] maior abriu uma marca nova a 4 km.',
+    text: 'Um [[micrometeoroid]] maior abriu uma marca nova a 4 km.',
     options: [
       {
         id: 'collect',
@@ -1007,7 +1008,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     requires: [{ stat: 'power', op: 'gte', value: 40 }],
     title: 'Gelo em sombra permanente',
-    text: 'Ha agua congelada no fundo de uma [[sombra permanente]].',
+    text: 'Ha agua congelada no fundo de uma [[permanent_shadow]].',
     options: [
       {
         id: 'descend',
@@ -1021,7 +1022,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Nucleo de gelo coletado a -180 C.',
-          why: 'Esse gelo nunca viu o Sol: ele guarda o registro de bilhoes de anos. E tambem agua, ou seja, [[oxigenio]] e combustivel futuros.',
+          why: 'Esse gelo nunca viu o Sol: ele guarda o registro de bilhoes de anos. E tambem agua, ou seja, [[oxygen]] e combustivel futuros.',
           verdict: 'good',
         },
       },
@@ -1088,7 +1089,7 @@ export const CARDS: readonly Card[] = [
     track: 'science',
     phase: 'night',
     title: 'Analise de regolito',
-    text: 'O espectrometro pode ler a composicao do [[regolito]] coletado.',
+    text: 'O espectrometro pode ler a composicao do [[regolith]] coletado.',
     options: [
       {
         id: 'long_run',
@@ -1129,7 +1130,7 @@ export const CARDS: readonly Card[] = [
     track: 'lifeSupport',
     phase: 'day',
     title: 'Expandir o cultivo',
-    text: 'Mais area de [[estufa]] significa [[suporte de vida]] mais estavel.',
+    text: 'Mais area de [[greenhouse]] significa [[life_support]] mais estavel.',
     options: [
       {
         id: 'full_expand',
@@ -1142,7 +1143,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Area de cultivo dobrada.',
-          why: 'Planta devolve [[oxigenio]] e [[comida]] ao mesmo tempo: ela fecha dois ciclos. O investimento sai do estoque de sementes e de muita [[energia]].',
+          why: 'Planta devolve [[oxygen]] e [[food]] ao mesmo tempo: ela fecha dois ciclos. O investimento sai do estoque de sementes e de muita [[power]].',
           verdict: 'good',
         },
       },
@@ -1156,7 +1157,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Metade da area, metade do custo.',
-          why: 'Expansao escala quase linear aqui, entao meia expansao e uma escolha honesta quando a [[energia]] esta curta.',
+          why: 'Expansao escala quase linear aqui, entao meia expansao e uma escolha honesta quando a [[power]] esta curta.',
           verdict: 'good',
         },
       },
@@ -1221,7 +1222,7 @@ export const CARDS: readonly Card[] = [
     track: 'lifeSupport',
     phase: 'night',
     title: 'Redundancia do gerador',
-    text: 'A base depende de uma unica fonte de [[energia]].',
+    text: 'A base depende de uma unica fonte de [[power]].',
     options: [
       {
         id: 'second_unit',
@@ -1233,7 +1234,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Duas fontes independentes no ar.',
-          why: 'Ponto unico de falha e o maior risco de qualquer base: se a fonte cair, [[oxigenio]], calor e agua caem juntos. Redundancia custa caro e paga uma vez.',
+          why: 'Ponto unico de falha e o maior risco de qualquer base: se a fonte cair, [[oxygen]], calor e agua caem juntos. Redundancia custa caro e paga uma vez.',
           verdict: 'good',
         },
       },
@@ -1259,7 +1260,7 @@ export const CARDS: readonly Card[] = [
     track: 'lifeSupport',
     phase: 'night',
     title: 'Ampliar o abrigo central',
-    text: 'O [[abrigo central]] e pequeno para a tripulacao inteira.',
+    text: 'O [[central_shelter]] e pequeno para a tripulacao inteira.',
     options: [
       {
         id: 'regolith_expand',
@@ -1273,7 +1274,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Abrigo maior e mais protegido.',
-          why: 'Mesma obra resolve dois problemas: espaco para todos e mais massa contra [[radiacao]]. Decisoes que atacam dois recursos de uma vez sao as melhores do jogo.',
+          why: 'Mesma obra resolve dois problemas: espaco para todos e mais massa contra [[radiation]]. Decisoes que atacam dois recursos de uma vez sao as melhores do jogo.',
           verdict: 'good',
         },
       },
@@ -1287,7 +1288,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Cabe mais gente, sem mais protecao.',
-          why: 'Organizacao e de graca e sempre vale. Mas quem define quanta [[radiacao]] entra e a massa da parede, nao o layout.',
+          why: 'Organizacao e de graca e sempre vale. Mas quem define quanta [[radiation]] entra e a massa da parede, nao o layout.',
           verdict: 'mixed',
         },
       },
@@ -1315,7 +1316,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Tanques e despensa reabastecidos.',
-          why: 'A descida custa [[energia]] para guiar e frear a capsula. Voce comprou folga de sobrevivencia e perdeu a chance desta janela para equipamento.',
+          why: 'A descida custa [[power]] para guiar e frear a capsula. Voce comprou folga de sobrevivencia e perdeu a chance desta janela para equipamento.',
           verdict: 'good',
         },
       },
@@ -1379,7 +1380,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Galeria de 200 m mapeada.',
-          why: 'Tubo de lava e o abrigo natural mais cobicado da Lua: metros de rocha em cima param [[radiacao]] e [[micrometeorito]] de graca. Mapear por dentro e perigoso e vale muito.',
+          why: 'Tubo de lava e o abrigo natural mais cobicado da Lua: metros de rocha em cima param [[radiation]] e [[micrometeoroid]] de graca. Mapear por dentro e perigoso e vale muito.',
           verdict: 'good',
         },
       },
@@ -1444,7 +1445,7 @@ export const CARDS: readonly Card[] = [
     track: 'lifeSupport',
     phase: 'day',
     title: 'Oxigenio do regolito',
-    text: 'O forno pode arrancar [[oxigenio]] do proprio [[regolito]] lunar.',
+    text: 'O forno pode arrancar [[oxygen]] do proprio [[regolith]] lunar.',
     options: [
       {
         id: 'full_batch',
@@ -1456,7 +1457,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Oxigenio extraido direto do solo.',
-          why: 'Quase metade do peso do [[regolito]] e oxigenio preso em oxido. Mas o regolito que entra no forno e o mesmo que estava na parede: aqui [[suporte de vida]] e [[blindagem]] disputam o mesmo material.',
+          why: 'Quase metade do peso do [[regolith]] e oxigenio preso em oxido. Mas o regolito que entra no forno e o mesmo que estava na parede: aqui [[life_support]] e [[shielding]] disputam o mesmo material.',
           verdict: 'good',
         },
       },
@@ -1470,7 +1471,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Processo validado em pequena escala.',
-          why: 'Validar antes de escalar evita gastar muito [[regolito]] num processo mal ajustado. Rende pouco e ensina o suficiente.',
+          why: 'Validar antes de escalar evita gastar muito [[regolith]] num processo mal ajustado. Rende pouco e ensina o suficiente.',
           verdict: 'good',
         },
       },
@@ -1523,18 +1524,19 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     cooldownDays: 3,
     title: 'Rastreamento dos paineis',
-    text: 'Os [[painel solar]] sairam do angulo otimo em relacao ao Sol.',
+    text: 'Os [[solar_panel]] sairam do angulo otimo em relacao ao Sol.',
     options: [
       {
         id: 'recalibrate',
         label: 'Recalibrar o rastreamento',
         effects: [
-          { stat: 'power', delta: 7 },
+          { stat: 'lifeSupport', delta: 1 },
+          { stat: 'power', delta: 5 },
           { stat: 'oxygen', delta: -2 },
         ],
         outcome: {
           line: 'Paineis de volta ao angulo otimo.',
-          why: 'Perto do equador lunar o Sol passa quase de lado: alguns graus de erro custam um quinto da [[energia]]. Apontar bem e a melhoria mais barata que existe.',
+          why: 'Perto do equador lunar o Sol passa quase de lado: alguns graus de erro custam um quinto da [[power]]. Apontar bem e a melhoria mais barata que existe.',
           verdict: 'good',
         },
       },
@@ -1567,12 +1569,12 @@ export const CARDS: readonly Card[] = [
         label: 'Ciclo completo de equalizacao',
         effects: [
           { stat: 'lifeSupport', delta: 2 },
-          { stat: 'power', delta: 5 },
+          { stat: 'power', delta: 4 },
           { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Banco de baterias equalizado.',
-          why: 'Num banco, a celula mais fraca limita todas as outras. Equalizar nao cria [[energia]]: devolve a capacidade que o desequilibrio escondia.',
+          why: 'Num banco, a celula mais fraca limita todas as outras. Equalizar nao cria [[power]]: devolve a capacidade que o desequilibrio escondia.',
           verdict: 'good',
         },
       },
@@ -1611,13 +1613,13 @@ export const CARDS: readonly Card[] = [
         id: 'controlled',
         label: 'Degelo controlado, lento',
         effects: [
-          { stat: 'lifeSupport', delta: 2 },
+          { stat: 'lifeSupport', delta: 3 },
           { stat: 'power', delta: -4 },
           { stat: 'oxygen', delta: 5 },
         ],
         outcome: {
           line: 'Agua recuperada e gases capturados.',
-          why: 'Derreter devagar deixa capturar os gases volateis antes de escaparem. Essa agua vira [[oxigenio]] por [[eletrolise]] depois.',
+          why: 'Derreter devagar deixa capturar os gases volateis antes de escaparem. Essa agua vira [[oxygen]] por [[electrolysis]] depois.',
           verdict: 'good',
         },
       },
@@ -1631,7 +1633,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Agua obtida, volateis perdidos.',
-          why: 'Pressa gastou mais [[energia]] e deixou escapar justamente a parte que carregava a informacao de bilhoes de anos.',
+          why: 'Pressa gastou mais [[power]] e deixou escapar justamente a parte que carregava a informacao de bilhoes de anos.',
           verdict: 'mixed',
         },
       },
@@ -1722,19 +1724,20 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     cooldownDays: 2,
     title: 'Tratar a estufa',
-    text: 'A [[estufa]] precisa de poda, rega e checagem de nutrientes.',
+    text: 'A [[greenhouse]] precisa de poda, rega e checagem de nutrientes.',
     options: [
       {
         id: 'full_tending',
         label: 'Trato completo',
         effects: [
+          { stat: 'lifeSupport', delta: 2 },
           { stat: 'food', delta: 6 },
           { stat: 'power', delta: -4 },
           { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Plantas saudaveis, colheita no prazo.',
-          why: 'Planta em [[gravidade]] baixa cresce torta e a agua nao escorre do jeito esperado: sem alguem cuidando toda semana, a [[estufa]] para de produzir.',
+          why: 'Planta em [[gravity]] baixa cresce torta e a agua nao escorre do jeito esperado: sem alguem cuidando toda semana, a [[greenhouse]] para de produzir.',
           verdict: 'good',
         },
       },
@@ -1757,7 +1760,58 @@ export const CARDS: readonly Card[] = [
         effects: [{ stat: 'food', delta: -3 }],
         outcome: {
           line: 'Parte da producao se perdeu.',
-          why: '[[comida]] e o unico recurso que voce produz devagar e perde rapido. Uma semana sem trato custa mais do que uma semana de trabalho.',
+          why: '[[food]] e o unico recurso que voce produz devagar e perde rapido. Uma semana sem trato custa mais do que uma semana de trabalho.',
+          verdict: 'bad',
+        },
+      },
+    ],
+  },
+
+  {
+    id: 'regolith_topup',
+    kind: 'routine',
+    role: 'basic',
+    phase: 'day',
+    cooldownDays: 3,
+    title: 'Repor a cobertura',
+    text: 'A camada de [[regolith]] sobre a base afinou. Da para repor sacos.',
+    options: [
+      {
+        id: 'topup_all',
+        label: 'Repor a cobertura inteira',
+        effects: [
+          { stat: 'shielding', delta: 6 },
+          { stat: 'oxygen', delta: -3 },
+          { stat: 'power', delta: -2 },
+          { stat: 'dose', delta: 2 },
+        ],
+        outcome: {
+          line: 'Cobertura de volta na espessura de projeto.',
+          why: 'A [[dose]] ja absorvida nunca desce: a unica coisa sob seu controle e quanta entra de amanha em diante. Repor [[shielding]] cedo vale muito mais que repor tarde.',
+          verdict: 'good',
+        },
+      },
+      {
+        id: 'topup_quarters',
+        label: 'Repor so sobre os dormitorios',
+        effects: [
+          { stat: 'shielding', delta: 3 },
+          { stat: 'oxygen', delta: -1 },
+          { stat: 'dose', delta: 1 },
+        ],
+        outcome: {
+          line: 'Area de descanso reforcada.',
+          why: 'Um terco do dia e passado dormindo: proteger o dormitorio cobre um terco da exposicao com pouco trabalho.',
+          verdict: 'good',
+        },
+      },
+      {
+        id: 'postpone',
+        label: 'Adiar a reposicao',
+        effects: [{ stat: 'shielding', delta: -2 }],
+        outcome: {
+          line: 'A camada seguiu afinando.',
+          why: 'Blindagem nao avisa quando acaba de proteger: ela so deixa passar um pouco mais por dia. O custo de adiar aparece dias depois, na [[dose]].',
           verdict: 'bad',
         },
       },
@@ -1878,7 +1932,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Serie temporal inteira recalculada.',
-          why: 'Processar tudo de novo com a calibracao atual melhora todas as medidas de uma vez. Caro em [[energia]], seguro em [[dose]].',
+          why: 'Processar tudo de novo com a calibracao atual melhora todas as medidas de uma vez. Caro em [[power]], seguro em [[dose]].',
           verdict: 'good',
         },
       },
@@ -1917,7 +1971,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Valvulas conferidas uma a uma.',
-          why: 'Valvula travada e a falha mais comum em [[suporte de vida]]. Revisar antes e o que separa manutencao de emergencia.',
+          why: 'Valvula travada e a falha mais comum em [[life_support]]. Revisar antes e o que separa manutencao de emergencia.',
           verdict: 'good',
         },
       },

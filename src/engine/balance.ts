@@ -69,8 +69,8 @@ export const DEFAULT_BALANCE: Balance = {
 
   // Blindagem degrada 2/dia: poeira abrasiva + micrometeoritos. Sem isso a
   // dose nunca chegava perto de 100 e a condicao de derrota era decorativa.
-  shieldingDecayPerDay: 2,
-  doseBaseDaily: 14,
+  shieldingDecayPerDay: 3,
+  doseBaseDaily: 16,
   shieldingEfficacy: 0.9,
 
   declaredTrackBias: 0.7,

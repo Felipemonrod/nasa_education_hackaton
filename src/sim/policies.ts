@@ -26,7 +26,7 @@ function survivalScore(stats: Stats): number {
   for (const value of basics) score += Math.sqrt(value) * 4;
   score += Math.min(...basics) * 2.5;
   score -= stats.dose * 2.2;
-  score += stats.shielding * 0.35;
+  score += stats.shielding * 0.8;
   return score;
 }
 
@@ -112,7 +112,7 @@ export const adaptivePolicy: Policy = {
     const lowest = Math.min(...basics);
     const daysLeft = state.config.days - state.day;
     const endgame = daysLeft <= 1;
-    const comfortable = lowest >= COMFORT && state.stats.dose <= 55;
+    const comfortable = lowest >= COMFORT && state.stats.dose <= 50;
     const needPerDay = (100 - state.stats[track]) / Math.max(1, daysLeft + 1);
     const objectiveWorthChasing = comfortable && !endgame && needPerDay <= 11;
 
@@ -126,7 +126,7 @@ export const adaptivePolicy: Policy = {
       for (const value of [stats.oxygen, stats.power, stats.food]) {
         if (value < SAFETY_FLOOR) score -= 400;
       }
-      if (stats.dose > 85) score -= 400;
+      if (stats.dose > 72) score -= 400;
 
       // Nao agrava o recurso que ja esta mais baixo.
       for (const effect of option.effects) {

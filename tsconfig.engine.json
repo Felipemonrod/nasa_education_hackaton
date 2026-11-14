@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": ["node"]
+  },
+  "//": [
+    "SEM 'DOM' de proposito. Esta e a fronteira arquitetural do projeto, e ela",
+    "e verificada pelo compilador, nao pela disciplina de quem escreve: se",
+    "alguem usar window, document, fetch ou localStorage dentro de engine,",
+    "content, sim ou i18n/core, `npm run typecheck` falha."
+  ],
+  "include": ["src/engine", "src/content", "src/sim", "src/i18n", "tests"]
+}

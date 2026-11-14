@@ -4,15 +4,15 @@ import { buildIndex, consumeCard, getCard, initialDeck, requirementsMet, returnC
 import type { CardIndex } from './deck.js';
 import { nextInt } from './rng.js';
 import {
-  adjust, applyEffects, dailyDose, findLossCause, hasReachedObjective,
+  adjust, applyEffects, applyEffectsMitigated, dailyDose, findLossCause, hasReachedObjective,
 } from './resources.js';
 import { resolveSlot, slotSpec, slotsPerPhase } from './schedule.js';
 import {
   ALL_STATS, MVP_DAY_PLAN, SCHEMA_VERSION,
 } from './types.js';
 import type {
-  ActiveModifier, Card, CardOption, EngineContext, LogEntry, MissionObjective,
-  PresentedSlot, RunConfig, RunState, Stats,
+  ActiveModifier, Card, CardOption, Effect, EngineContext, Loadout, LogEntry,
+  MissionObjective, Modifier, PresentedSlot, RunConfig, RunState, Stat, Stats,
 } from './types.js';
 
 export interface CreateRunOptions {
@@ -21,9 +21,16 @@ export interface CreateRunOptions {
   readonly days?: number;
   readonly capsuleDay?: number;
   readonly tutorial?: boolean;
-  /** Bonus dos 3 cards iniciais (comandante + estrutura + equipamento). */
-  readonly startingBonuses?: readonly { readonly stat: keyof Stats; readonly delta: number }[];
+  readonly loadout?: Loadout;
+  /** Bonus inicial dos 3 cards levados na viagem. */
+  readonly startingBonuses?: readonly Effect[];
+  /** Modificador passivo que vale pela missao inteira. */
+  readonly startingModifiers?: readonly Modifier[];
+  /** Amortecimento de perdas concedido pelos cards iniciais. */
+  readonly mitigation?: Readonly<Partial<Record<Stat, number>>>;
 }
+
+const NO_LOADOUT: Loadout = { commanderId: 'none', structureId: 'none', equipmentId: 'none' };
 
 export interface Engine {
   readonly index: CardIndex;
@@ -45,6 +52,7 @@ export function createRun(engine: Engine, options: CreateRunOptions): RunState {
     objective: options.objective,
     capsuleDay: options.capsuleDay ?? 5,
     tutorial: options.tutorial ?? false,
+    loadout: options.loadout ?? NO_LOADOUT,
   };
 
   let cursor = 0;
@@ -71,6 +79,14 @@ export function createRun(engine: Engine, options: CreateRunOptions): RunState {
     stats = adjust(stats, bonus.stat, bonus.delta);
   }
 
+  const missionSlots = days * config.plan.length;
+  const startingModifiers: ActiveModifier[] = (options.startingModifiers ?? []).map((m) => ({
+    stat: m.stat,
+    perSlot: m.perSlot,
+    slotsLeft: m.slots > 0 ? m.slots : missionSlots,
+    label: m.label,
+  }));
+
   return {
     version: SCHEMA_VERSION,
     seed: options.seed,
@@ -82,13 +98,14 @@ export function createRun(engine: Engine, options: CreateRunOptions): RunState {
     deck: initialDeck(engine.index),
     activeTemporal: null,
     pendingSequential: [],
-    modifiers: [],
+    modifiers: startingModifiers,
     grantedTrackMilestones: [],
     current: null,
     log: [],
     status: 'running',
     result: null,
     fallbackUses: 0,
+    mitigation: options.mitigation ?? {},
   };
 }
 
@@ -255,8 +272,8 @@ export function applyDecision(
   const statsBefore = input.stats;
   let state: RunState = input;
 
-  // 1. efeitos da opcao
-  state = { ...state, stats: applyEffects(state.stats, option.effects) };
+  // 1. efeitos da opcao, amortecidos pelos cards iniciais
+  state = { ...state, stats: applyEffectsMitigated(state.stats, option.effects, state.mitigation) };
 
   // modificadores novos entram para os proximos slots
   if (option.modifiers !== undefined && option.modifiers.length > 0) {

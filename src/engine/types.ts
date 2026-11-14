@@ -5,7 +5,7 @@
  * Date.now() ou Math.random(). Tudo que vem de fora entra como input.
  */
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /** Recursos basicos: zerar = derrota. */
 export type BasicResource = 'oxygen' | 'power' | 'food';
@@ -139,6 +139,13 @@ export const MVP_DAY_PLAN: readonly SlotSpec[] = [
 // Estado da partida
 // ---------------------------------------------------------------------------
 
+/** Os 3 cards levados na viagem. Guardados no save para a tela de resumo. */
+export interface Loadout {
+  readonly commanderId: string;
+  readonly structureId: string;
+  readonly equipmentId: string;
+}
+
 export interface RunConfig {
   readonly days: number;
   readonly plan: readonly SlotSpec[];
@@ -148,6 +155,7 @@ export interface RunConfig {
   /** Dia em que a capsula de suprimentos desce (MVP: 5). */
   readonly capsuleDay: number;
   readonly tutorial: boolean;
+  readonly loadout: Loadout;
 }
 
 export interface DeckState {
@@ -226,6 +234,12 @@ export interface RunState {
   readonly result: RunResult | null;
   /** Telemetria: quantas vezes o deck precisou do fallback. */
   readonly fallbackUses: number;
+  /**
+   * Mitigacao concedida pelos cards iniciais: reduz a MAGNITUDE de perdas
+   * no stat indicado (e de ganhos de dose), nunca abaixo de zero. Nao
+   * transforma perda em ganho -- so amortece.
+   */
+  readonly mitigation: Readonly<Partial<Record<Stat, number>>>;
 }
 
 // ---------------------------------------------------------------------------

@@ -32,7 +32,7 @@ console.log(`  dose/dia com blindagem 50: ${Math.round(DEFAULT_BALANCE.doseBaseD
 const objectives: MissionObjective[] = ['science', 'habitat'];
 for (const objective of objectives) {
   console.log(`\n=== MONTE CARLO - objetivo: ${objective} (${RUNS} partidas por politica) ===`);
-  console.log('  politica    vitoria   p/tempo  p/objetivo | O2   ENE  COM  DOSE | dia-morte  fallback  trilho');
+  console.log('  politica    vitoria   p/tempo  p/objetivo | O2   ENE  COM  DOSE | dia-morte  fallback  trilho  dose-fim  min-basico');
   for (const policy of POLICIES) {
     const r = evaluate(policy, objective, RUNS);
     const causes = r.lossCauses;
@@ -40,7 +40,8 @@ for (const objective of objectives) {
       `  ${r.policy.padEnd(10)} ${pct(r.winRate)}  ${pct(r.winBySurvival)}  ${pct(r.winByObjective)}` +
       ` | ${String(causes.oxygen).padStart(4)} ${String(causes.power).padStart(4)}` +
       ` ${String(causes.food).padStart(4)} ${String(causes.dose).padStart(4)}` +
-      ` | ${num(r.avgLossDay)}      ${num(r.avgFallbackUses)}     ${num(r.avgFinalTrack)}`,
+      ` | ${num(r.avgLossDay)}      ${num(r.avgFallbackUses)}     ${num(r.avgFinalTrack)}` +
+      `     ${num(r.avgFinalDose)}      ${num(r.avgLowestBasic)}`,
     );
   }
 }
