@@ -49,3 +49,35 @@ export function chance(seed: number, cursor: number, probability: number): Draw<
   const r = randomAt(seed, cursor);
   return { value: r < probability, cursor: cursor + 1 };
 }
+
+/** Hash estavel de texto, para derivar uma ordem a partir de um id. */
+export function hashString(input: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < input.length; i += 1) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/**
+ * Fisher-Yates PURO: nao consome o cursor da partida e nao toca no estado.
+ * A ordem e totalmente determinada por (seed, key), entao recarregar um
+ * save devolve exatamente a mesma ordem -- sem isso, a ordem mudaria a
+ * cada render e o jogador veria os botoes dancando na tela.
+ */
+export function shuffleWithKey<T>(seed: number, key: number, items: readonly T[]): T[] {
+  const out = [...items];
+  // Fluxo proprio, separado do sorteio de cards, para um nao deslocar o outro.
+  const stream = (seed ^ 0x9e3779b9) >>> 0;
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(randomAt(stream, (key + i) >>> 0) * (i + 1));
+    const a = out[i];
+    const b = out[j];
+    if (a !== undefined && b !== undefined) {
+      out[i] = b;
+      out[j] = a;
+    }
+  }
+  return out;
+}
