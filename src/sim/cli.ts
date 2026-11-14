@@ -26,6 +26,19 @@ for (const [stat, perDay] of Object.entries(drain)) {
 for (const [key, [min, max]] of Object.entries(DEFAULT_BALANCE.startRanges)) {
   console.log(`  inicio ${key.padEnd(10)} ${min}-${max}`);
 }
+// Income disponivel no baralho, CALCULADO (antes era um numero escrito a mao
+// no DESIGN.md). Definicao: para cada card jogavel (sem fallback), o MAIOR
+// ganho que alguma opcao dele da no recurso; soma de todos os cards, cada um
+// contado uma vez. E um teto: ignora custo, limiar e se o card sera sorteado.
+console.log('\n=== INCOME DISPONIVEL NO BARALHO (teto: melhor opcao de cada card, 1x) ===');
+for (const stat of ['oxygen', 'power', 'food'] as const) {
+  const income = CARDS
+    .filter((card) => card.isFallback !== true)
+    .reduce((sum, card) => sum + Math.max(0, ...card.options.map((o) =>
+      o.effects.filter((e) => e.stat === stat).reduce((acc, e) => acc + e.delta, 0))), 0);
+  console.log(`  ${stat.padEnd(8)} ${income}`);
+}
+
 const efficacy = DEFAULT_BALANCE.shieldingEfficacy;
 console.log(`  dose/dia com blindagem 80: ${Math.round(DEFAULT_BALANCE.doseBaseDaily * (1 - efficacy * 0.8))}`);
 console.log(`  dose/dia com blindagem 50: ${Math.round(DEFAULT_BALANCE.doseBaseDaily * (1 - efficacy * 0.5))}`);
@@ -33,6 +46,7 @@ console.log(`  dose/dia com blindagem 50: ${Math.round(DEFAULT_BALANCE.doseBaseD
 const objectives: MissionObjective[] = ['science', 'habitat'];
 for (const objective of objectives) {
   console.log(`\n=== MONTE CARLO - objetivo: ${objective} (${RUNS} partidas por politica) ===`);
+  console.log('  (cada partida com local de pouso e loadout inicial sorteados pela seed, como no app)');
   console.log('  politica    vitoria   p/tempo  p/objetivo | O2   ENE  COM  DOSE | dia-morte  fallback  trilho  dose-fim  min-basico');
   for (const policy of POLICIES) {
     const r = evaluate(policy, objective, RUNS);

@@ -1,26 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, CheckCircle2, ChevronDown, CircleAlert, Info, MinusCircle } from 'lucide-react';
 import { ALL_STATS } from '../../engine/types.js';
-import type { Stat, Verdict } from '../../engine/types.js';
+import type { Stat, Stats, Verdict } from '../../engine/types.js';
 import { GlossaryText } from './GlossaryText.js';
 import { SpeakButton } from './SpeakButton.js';
 import { useContent } from '../i18n/useContent.js';
 import { useT } from '../i18n/useI18n.js';
 import type { OutcomeView } from '../store/useGame.js';
-
-/**
- * A tensao central do produto: "texto enxuto" x "aprendizado em primeiro
- * lugar". Resolvida assim:
- *   - `line` + os deltas: sempre visivel, leitura de 2 segundos
- *   - `why`: a explicacao causal, expansivel
- *   - `mistake`: so aparece quando houve erro de operacao, em destaque
- *
- * E um DIALOGO de verdade: role, aria-modal, foco movido para dentro,
- * foco preso enquanto esta aberto e Escape para continuar. Sem isso o
- * leitor de tela nao anunciava nada e o teclado continuava nos botoes
- * atras do overlay -- exatamente neste painel, que e onde o aprendizado
- * acontece.
- */
 
 const VERDICT_META: Record<Verdict, { icon: typeof Info; ring: string; text: string; key: string }> = {
   good: { icon: CheckCircle2, ring: 'bg-food/15 text-food', text: 'text-food', key: 'outcome.verdictGood' },
@@ -33,9 +19,6 @@ function Delta({ stat, from, to }: { stat: Stat; from: number; to: number }): JS
   const diff = to - from;
   if (diff === 0) return null;
   const label = t(`stat.${stat}`);
-  // Em `dose`, subir e ruim: o sinal visual segue o SIGNIFICADO, nao o sinal
-  // aritmetico. E o rotulo acessivel diz "melhorou"/"piorou" por extenso,
-  // porque cor nao pode ser o unico canal.
   const isBad = stat === 'dose' ? diff > 0 : diff < 0;
   return (
     <span
@@ -55,6 +38,18 @@ function Delta({ stat, from, to }: { stat: Stat; from: number; to: number }): JS
       </span>
       <span className="tabular-nums text-[0.65rem] font-semibold text-slate-300">→ {to}</span>
     </span>
+  );
+}
+
+function DeltaRow({ title, from, to }: { title: string; from: Stats; to: Stats }): JSX.Element | null {
+  if (ALL_STATS.every((stat) => from[stat] === to[stat])) return null;
+  return (
+    <div className="rounded-2xl border border-white/8 bg-white/[.03] px-3.5 py-2.5">
+      <p className="mb-1.5 text-[0.65rem] font-extrabold uppercase tracking-wider text-slate-300">{title}</p>
+      <div className="flex flex-wrap gap-1.5">
+        {ALL_STATS.map((stat) => <Delta key={stat} stat={stat} from={from[stat]} to={to[stat]} />)}
+      </div>
+    </div>
   );
 }
 
@@ -82,8 +77,6 @@ export function OutcomePanel({
     const onKey = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') { onContinue(); return; }
       if (e.key !== 'Tab' || dialogRef.current === null) return;
-      // Prende o foco dentro do dialogo: sem isso o teclado passeia pelos
-      // controles escondidos atras do overlay.
       const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
@@ -98,47 +91,46 @@ export function OutcomePanel({
   }, [onContinue]);
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-space-950/70 p-3 backdrop-blur-sm animate-fade-in sm:items-center">
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-space-950/75 p-4 backdrop-blur-sm animate-fade-in">
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="outcome-line"
-        className="card-surface w-full max-w-md overflow-hidden"
+        className="card-surface max-h-[90dvh] w-full max-w-2xl overflow-y-auto p-5 scroll-thin sm:p-6"
       >
-        <div className="flex items-start gap-3 p-4">
-          <span className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-2xl ${meta.ring}`}>
-            <Icon size={19} aria-hidden />
+        <div className="flex items-start gap-3.5">
+          <span className={`mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${meta.ring}`}>
+            <Icon size={21} aria-hidden />
           </span>
           <div className="min-w-0 flex-1">
-            <p className={`text-[0.7rem] font-extrabold uppercase tracking-wide ${meta.text}`}>
+            <p className={`text-[0.7rem] font-extrabold uppercase tracking-wider ${meta.text}`}>
               {t(meta.key)}
             </p>
-            <p id="outcome-line" className="mt-0.5 font-display text-base font-bold leading-snug text-white">
+            <p id="outcome-line" className="mt-0.5 font-display text-lg font-extrabold leading-snug text-white sm:text-xl">
               {line}
             </p>
           </div>
           <SpeakButton text={`${line}. ${why}`} label={t('outcome.listenAria')} />
         </div>
 
-        <div className="flex flex-wrap gap-1.5 px-4">
-          {ALL_STATS.map((stat) => (
-            <Delta key={stat} stat={stat} from={outcome.before[stat]} to={outcome.after[stat]} />
-          ))}
+        <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          <DeltaRow title={t('outcome.fromChoice')} from={outcome.before} to={outcome.afterChoice} />
+          <DeltaRow title={t('outcome.fromShift')} from={outcome.afterChoice} to={outcome.after} />
         </div>
 
         {outcome.declined !== null ? (
-          <p className="mx-4 mt-3 rounded-2xl bg-white/5 px-3 py-2 text-[0.75rem] leading-snug text-slate-300">
+          <p className="mt-3 rounded-2xl bg-white/5 px-3.5 py-2 text-[0.76rem] leading-snug text-slate-300">
             {t('outcome.declined', { card: content.cardTitle(outcome.declined) })}
           </p>
         ) : null}
 
-        <div className="px-4 pt-3">
+        <div className="mt-3.5">
           <button
             type="button"
             onClick={() => { setShowWhy((v) => !v); }}
             aria-expanded={showWhy}
-            className="flex min-h-[44px] w-full items-center justify-between gap-2 rounded-2xl bg-white/[.06] px-3 py-2 text-left"
+            className="flex min-h-[42px] w-full items-center justify-between gap-2 rounded-2xl bg-white/[.06] px-3.5 py-2 text-left hover:bg-white/[.10]"
           >
             <span className="flex items-center gap-2 text-[0.82rem] font-extrabold text-sky-200">
               <Info size={14} aria-hidden /> {t('outcome.whyToggle')}
@@ -151,9 +143,9 @@ export function OutcomePanel({
           </button>
           {showWhy ? (
             <div className="animate-fade-in px-1 pt-2.5">
-              <GlossaryText text={why} className="block text-[0.82rem] leading-relaxed text-slate-200" />
+              <GlossaryText text={why} className="block text-[0.86rem] leading-relaxed text-slate-200" />
               {mistake !== undefined ? (
-                <p className="mt-2.5 rounded-2xl border border-radiation/30 bg-radiation/10 px-3 py-2 text-[0.8rem] font-semibold leading-snug text-radiation">
+                <p className="mt-2.5 rounded-2xl border border-radiation/30 bg-radiation/10 px-3.5 py-2 text-[0.8rem] font-semibold leading-snug text-radiation">
                   {t('outcome.mistake', { mistake })}
                 </p>
               ) : null}
@@ -161,8 +153,8 @@ export function OutcomePanel({
           ) : null}
         </div>
 
-        <div className="p-4 pt-3">
-          <button ref={continueRef} type="button" className="btn-primary w-full" onClick={onContinue}>
+        <div className="mt-4 flex justify-end">
+          <button ref={continueRef} type="button" className="btn-primary w-full sm:w-auto sm:min-w-[12rem]" onClick={onContinue}>
             {t('common.continue')} <ArrowRight size={17} aria-hidden />
           </button>
         </div>

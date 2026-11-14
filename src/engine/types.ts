@@ -249,7 +249,9 @@ export interface RunState {
   /**
    * Mitigacao concedida pelos cards iniciais: reduz a MAGNITUDE de perdas
    * no stat indicado (e de ganhos de dose), nunca abaixo de zero. Nao
-   * transforma perda em ganho -- so amortece.
+   * transforma perda em ganho -- so amortece. ALCANCE: so os efeitos da OPCAO
+   * escolhida (run.ts, passo 1). Nao vale para dreno passivo, card temporal,
+   * modificadores nem dose diaria; os rotulos dos cards dizem "nas decisoes".
    */
   readonly mitigation: Readonly<Partial<Record<Stat, number>>>;
 }

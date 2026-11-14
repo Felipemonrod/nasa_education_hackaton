@@ -1,4 +1,4 @@
-import { ArrowRight, Rocket, TrendingDown, TrendingUp } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Rocket, TrendingDown, TrendingUp } from 'lucide-react';
 import { findSite } from '../data/sites.js';
 import { findLoadout } from '../data/loadout.js';
 import { iconFor } from '../components/icons.js';
@@ -20,7 +20,7 @@ function EffectRow({ effect }: { effect: Effect }): JSX.Element {
   const positive = effect.delta > 0;
   const Icon = positive ? TrendingUp : TrendingDown;
   return (
-    <div className="flex items-center gap-2 py-1">
+    <div className="flex items-center gap-2 py-1.5">
       <Icon size={14} className={positive ? 'text-food' : 'text-radiation'} aria-hidden />
       <span className={`text-[0.85rem] font-bold ${STAT_COLOR[effect.stat]}`}>{t(`stat.${effect.stat}`)}</span>
       <span className={`ml-auto tabular-nums text-sm font-extrabold ${positive ? 'text-food' : 'text-radiation'}`}>
@@ -44,98 +44,118 @@ export function Travel(): JSX.Element {
   const basics: Stat[] = ['oxygen', 'power', 'food', 'shielding'];
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 pb-28 pt-6">
-      <p className="text-[0.7rem] font-extrabold uppercase tracking-widest text-sky-300">{t('travel.kicker')}</p>
-      <h1 className="mt-1 font-display text-2xl font-extrabold leading-tight text-white">
-        {site === undefined ? t('travel.siteFallback') : content.site(site.id, 'name', site.name)}
-      </h1>
-      <p className="text-[0.78rem] font-semibold text-slate-300">
-        {site === undefined ? '' : content.site(site.id, 'region', site.region)}
-      </p>
-
-      {site !== undefined ? (
-        <p className="mt-3 rounded-2xl bg-white/5 px-3.5 py-2.5 text-[0.82rem] leading-snug text-slate-200">
-          {content.site(site.id, 'why', site.why)}
-        </p>
-      ) : null}
-
-      {/* Perdas da viagem */}
-      <section className="mt-5 rounded-3xl glass p-4">
-        <h2 className="flex items-center gap-2 font-display text-sm font-extrabold text-white">
-          <Rocket size={15} className="text-radiation" aria-hidden /> {t('travel.costTitle')}
-        </h2>
-        <div className="mt-1.5 divide-y divide-white/5">
-          {(site?.travelCost ?? []).map((e, i) => <EffectRow key={i} effect={e} />)}
-        </div>
-        <GlossaryText
-          text={t('travel.costNote')}
-          className="mt-2 block text-[0.72rem] leading-snug text-slate-300"
-        />
-      </section>
-
-      {/* Vantagem do terreno */}
-      {site !== undefined && site.terrain.length > 0 ? (
-        <section className="mt-3 rounded-3xl glass p-4">
-          <h2 className="flex items-center gap-2 font-display text-sm font-extrabold text-white">
-            <TrendingUp size={15} className="text-food" aria-hidden /> {t('travel.terrainTitle')}
-          </h2>
-          <div className="mt-1.5 divide-y divide-white/5">
-            {site.terrain.map((e, i) => <EffectRow key={i} effect={e} />)}
-          </div>
-        </section>
-      ) : null}
-
-      {/* Tripulacao */}
-      <section className="mt-3 rounded-3xl glass p-4">
-        <h2 className="font-display text-sm font-extrabold text-white">{t('travel.crewTitle')}</h2>
-        <div className="mt-2 flex flex-col gap-2">
-          {loadoutCards.map((card) => {
-            const Icon = iconFor(card.icon);
-            return (
-              <div key={card.id} className="flex items-center gap-2.5">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10">
-                  <Icon size={16} className="text-sky-200" aria-hidden />
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-[0.85rem] font-extrabold text-white">
-                    {content.loadout(card.id, 'name', card.name)}
-                  </p>
-                  <p className="truncate text-[0.72rem] font-bold text-sky-200">
-                    {content.loadout(card.id, 'effect', card.effectLabel)}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Clima espacial real que a missao usa */}
-      <WeatherNote weather={run.config.spaceWeather} />
-
-      {/* Estado na chegada */}
-      <section className="mt-3 rounded-3xl border border-sky-400/30 bg-sky-400/[.07] p-4">
-        <h2 className="font-display text-sm font-extrabold text-white">{t('travel.arrivalTitle')}</h2>
-        <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5">
-          {basics.map((stat) => (
-            <div key={stat} className="flex items-baseline justify-between gap-2">
-              <span className={`text-[0.78rem] font-bold ${STAT_COLOR[stat]}`}>{t(`stat.${stat}`)}</span>
-              <span className="tabular-nums font-display text-base font-extrabold text-white">
-                {run.stats[stat]}
-              </span>
-            </div>
-          ))}
-        </div>
-        <p className="mt-2.5 text-[0.72rem] font-bold uppercase tracking-wide text-slate-300">
-          {t('travel.difficultyLine')}
-        </p>
-      </section>
-
-      <div className="fixed inset-x-0 bottom-0 border-t border-white/10 bg-space-900/90 p-3 backdrop-blur">
-        <div className="mx-auto max-w-md">
-          <button type="button" className="btn-primary w-full" onClick={() => { go("loading"); }}>
-            {t('travel.start')} <ArrowRight size={17} aria-hidden />
+    <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col justify-between px-5 py-5 sm:px-8 lg:px-10">
+      {/* Cabecalho */}
+      <header className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <button type="button" onClick={() => { go('loadout'); }} className="btn-ghost px-3.5 py-2 text-sm">
+            <ArrowLeft size={16} aria-hidden /> {t('common.back')}
           </button>
+          <div>
+            <h1 className="font-display text-2xl font-extrabold leading-tight text-white sm:text-3xl">
+              {site === undefined ? t('travel.siteFallback') : content.site(site.id, 'name', site.name)}
+            </h1>
+            {site !== undefined ? (
+              <p className="text-[0.8rem] font-semibold text-sky-200/80">
+                {content.site(site.id, 'region', site.region)}
+              </p>
+            ) : null}
+          </div>
+        </div>
+
+        <button type="button" className="btn-primary px-6 py-3 text-sm sm:text-base" onClick={() => { go('loading'); }}>
+          {t('travel.start')} <ArrowRight size={18} aria-hidden />
+        </button>
+      </header>
+
+      {/* Painel horizontal em 3 colunas */}
+      <div className="my-auto grid grid-cols-1 gap-5 py-5 lg:grid-cols-12">
+        {/* Coluna 1: Terreno + Custos da viagem */}
+        <div className="flex flex-col gap-4 lg:col-span-4">
+          {site !== undefined ? (
+            <section className="rounded-3xl glass p-4 sm:p-5">
+              <p className="text-[0.86rem] leading-relaxed text-slate-200">
+                {content.site(site.id, 'why', site.why)}
+              </p>
+            </section>
+          ) : null}
+
+          <section className="rounded-3xl glass p-4 sm:p-5">
+            <h2 className="flex items-center gap-2 font-display text-sm font-extrabold text-white">
+              <Rocket size={15} className="text-radiation" aria-hidden /> {t('travel.costTitle')}
+            </h2>
+            <div className="mt-2 divide-y divide-white/5">
+              {(site?.travelCost ?? []).map((e, i) => <EffectRow key={i} effect={e} />)}
+            </div>
+            <GlossaryText
+              text={t('travel.costNote')}
+              className="mt-2.5 block text-[0.74rem] leading-snug text-slate-300"
+            />
+          </section>
+
+          {site !== undefined && site.terrain.length > 0 ? (
+            <section className="rounded-3xl glass p-4 sm:p-5">
+              <h2 className="flex items-center gap-2 font-display text-sm font-extrabold text-white">
+                <TrendingUp size={15} className="text-food" aria-hidden /> {t('travel.terrainTitle')}
+              </h2>
+              <div className="mt-2 divide-y divide-white/5">
+                {site.terrain.map((e, i) => <EffectRow key={i} effect={e} />)}
+              </div>
+            </section>
+          ) : null}
+        </div>
+
+        {/* Coluna 2: Tripulacao e carga + Clima Espacial */}
+        <div className="flex flex-col gap-4 lg:col-span-4">
+          <section className="rounded-3xl glass p-4 sm:p-5">
+            <h2 className="font-display text-sm font-extrabold text-white">{t('travel.crewTitle')}</h2>
+            <div className="mt-3 flex flex-col gap-2.5">
+              {loadoutCards.map((card) => {
+                const Icon = iconFor(card.icon);
+                return (
+                  <div key={card.id} className="flex items-center gap-3 rounded-2xl bg-white/[.04] p-2.5">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky-400/15">
+                      <Icon size={18} className="text-sky-200" aria-hidden />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-[0.88rem] font-extrabold text-white">
+                        {content.loadout(card.id, 'name', card.name)}
+                      </p>
+                      <p className="truncate text-[0.74rem] font-bold text-sky-200">
+                        {content.loadout(card.id, 'effect', card.effectLabel)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <WeatherNote weather={run.config.spaceWeather} />
+        </div>
+
+        {/* Coluna 3: Estado na chegada */}
+        <div className="flex flex-col justify-between gap-4 lg:col-span-4">
+          <section className="card-surface flex flex-1 flex-col justify-between p-5">
+            <div>
+              <h2 className="font-display text-base font-extrabold text-white">{t('travel.arrivalTitle')}</h2>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                {basics.map((stat) => (
+                  <div key={stat} className="rounded-2xl border border-white/10 bg-white/[.04] p-3">
+                    <span className={`block text-[0.72rem] font-extrabold uppercase tracking-wider ${STAT_COLOR[stat]}`}>
+                      {t(`stat.${stat}`)}
+                    </span>
+                    <span className="mt-1 block tabular-nums font-display text-2xl font-extrabold text-white">
+                      {run.stats[stat]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <p className="mt-4 border-t border-white/10 pt-3 text-[0.72rem] font-bold uppercase tracking-wider text-slate-300">
+              {t('travel.difficultyLine')}
+            </p>
+          </section>
         </div>
       </div>
     </div>

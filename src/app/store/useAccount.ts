@@ -234,7 +234,7 @@ export const THEME_UNLOCK: Record<HudTheme, string | null> = {
 };
 
 export const BADGE_LABEL: Record<string, { name: string; why: string }> = {
-  badge_outpost: { name: 'Outpost Fundado', why: 'Completou a missão de 10 dias' },
+  badge_outpost: { name: 'Outpost Fundado', why: 'Venceu uma missão' },
   badge_discovery: { name: 'Descoberta', why: 'Levou a ciência a 100' },
   badge_homestead: { name: 'Base Estável', why: 'Levou o suporte de vida a 100' },
   badge_veteran: { name: 'Veterano', why: 'Venceu 3 missões' },

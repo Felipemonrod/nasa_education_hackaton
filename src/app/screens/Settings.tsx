@@ -13,12 +13,12 @@ function Section({ icon: Icon, title, hint, children }: {
   icon: typeof Eye; title: string; hint?: string; children: React.ReactNode;
 }): JSX.Element {
   return (
-    <section className="mt-3 rounded-3xl glass p-4">
-      <h2 className="flex items-center gap-2 font-display text-sm font-extrabold text-white">
-        <Icon size={15} className="text-sky-300" aria-hidden /> {title}
+    <section className="rounded-3xl glass p-5">
+      <h2 className="flex items-center gap-2 font-display text-base font-extrabold text-white">
+        <Icon size={16} className="text-sky-300" aria-hidden /> {title}
       </h2>
-      {hint !== undefined ? <p className="mt-0.5 text-[0.72rem] leading-snug text-slate-300">{hint}</p> : null}
-      <div className="mt-2.5">{children}</div>
+      {hint !== undefined ? <p className="mt-1 text-[0.75rem] leading-snug text-slate-300">{hint}</p> : null}
+      <div className="mt-3">{children}</div>
     </section>
   );
 }
@@ -27,16 +27,16 @@ function Toggle({ label, hint, checked, onChange }: {
   label: string; hint?: string; checked: boolean; onChange: (v: boolean) => void;
 }): JSX.Element {
   return (
-    <label className="flex cursor-pointer items-start gap-3 py-2">
+    <label className="flex cursor-pointer items-start gap-3 py-2.5">
       <input
         type="checkbox"
         checked={checked}
         onChange={(e) => { onChange(e.target.checked); }}
-        className="mt-0.5 h-6 w-6 shrink-0 rounded-md accent-sky-400"
+        className="mt-0.5 h-5 w-5 shrink-0 rounded-md accent-sky-400"
       />
       <span className="min-w-0">
-        <span className="block text-[0.85rem] font-bold text-slate-100">{label}</span>
-        {hint !== undefined ? <span className="block text-[0.72rem] leading-snug text-slate-300">{hint}</span> : null}
+        <span className="block text-[0.86rem] font-bold text-slate-100">{label}</span>
+        {hint !== undefined ? <span className="block text-[0.74rem] leading-snug text-slate-300">{hint}</span> : null}
       </span>
     </label>
   );
@@ -47,7 +47,7 @@ function Choice<T extends string>({ value, options, onChange, ariaLabel }: {
   onChange: (v: T) => void; ariaLabel: string;
 }): JSX.Element {
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className="flex flex-wrap gap-1.5">
+    <div role="radiogroup" aria-label={ariaLabel} className="flex flex-wrap gap-2">
       {options.map((opt) => (
         <button
           key={opt.id}
@@ -56,7 +56,7 @@ function Choice<T extends string>({ value, options, onChange, ariaLabel }: {
           aria-checked={value === opt.id}
           disabled={opt.locked === true}
           onClick={() => { onChange(opt.id); }}
-          className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.8rem] font-bold transition-colors
+          className={`inline-flex min-h-[42px] items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.8rem] font-bold transition-colors
             ${value === opt.id ? 'bg-sky-400 text-space-950'
               : opt.locked === true ? 'bg-white/[.03] text-slate-500 cursor-not-allowed'
               : 'glass text-slate-200 hover:bg-white/10'}`}
@@ -83,157 +83,164 @@ export function Settings(): JSX.Element {
   const speak = useSpeech((s) => s.speak);
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 pb-10 pt-6">
-      <button
-        type="button"
-        onClick={() => { go(run !== null && run.status === 'running' ? 'game' : 'menu'); }}
-        className="btn-ghost mb-4 px-3 py-2 text-sm"
-      >
-        <ArrowLeft size={15} aria-hidden /> {t('common.back')}
-      </button>
-
-      <h1 className="font-display text-2xl font-extrabold text-white">{t('settings.title')}</h1>
-
-      <Section icon={Languages} title={t('settings.language')} hint={t('settings.languageHint')}>
-        <Choice
-          ariaLabel={t('settings.language')}
-          value={locale}
-          options={LOCALES.map((l) => ({ id: l as Locale, label: LOCALE_LABEL[l] }))}
-          onChange={(l) => { setLocale(l); }}
-        />
-      </Section>
-
-      <Section icon={Eye} title={t('settings.visual')} hint={t('settings.visualHint')}>
-        <p className="mb-1.5 flex items-center gap-1.5 text-[0.68rem] font-extrabold uppercase tracking-wide text-slate-300">
-          <Type size={12} aria-hidden /> {t('settings.textSize')}
-        </p>
-        <Choice
-          ariaLabel={t('settings.textSize')}
-          value={settings.textScale}
-          options={[
-            { id: 'normal', label: t('settings.textNormal') },
-            { id: 'large', label: t('settings.textLarge') },
-            { id: 'xlarge', label: t('settings.textXlarge') },
-          ]}
-          onChange={(v) => { setSetting('textScale', v); }}
-        />
-
-        <div className="mt-2 divide-y divide-white/5">
-          <Toggle
-            label={t('settings.highContrast')}
-            hint={t('settings.highContrastHint')}
-            checked={settings.highContrast}
-            onChange={(v) => { setSetting('highContrast', v); }}
-          />
-          <Toggle
-            label={t('settings.underlineLinks')}
-            hint={t('settings.underlineLinksHint')}
-            checked={settings.underlineLinks}
-            onChange={(v) => { setSetting('underlineLinks', v); }}
-          />
-          <Toggle
-            label={t('settings.reducedMotion')}
-            hint={t('settings.reducedMotionHint')}
-            checked={settings.reducedMotion}
-            onChange={(v) => { setSetting('reducedMotion', v); }}
-          />
-        </div>
-      </Section>
-
-      <Section
-        icon={Volume2}
-        title={t('settings.speech')}
-        hint={speechSupported() ? t('settings.speechHint') : t('settings.speechUnsupported')}
-      >
-        {speechSupported() ? (
-          <>
-            <Toggle
-              label={t('settings.autoRead')}
-              hint={t('settings.autoReadHint')}
-              checked={settings.autoRead}
-              onChange={(v) => { setSetting('autoRead', v); }}
-            />
-
-            <div className="mt-3">
-              <label
-                htmlFor="voice-rate"
-                className="flex items-center gap-2 text-[0.68rem] font-extrabold uppercase tracking-wide text-slate-300"
-              >
-                <Gauge size={12} aria-hidden /> {t('settings.speechRate', { rate: settings.speechRate.toFixed(1) })}
-              </label>
-              <input
-                id="voice-rate"
-                type="range"
-                min={RATE_MIN} max={RATE_MAX} step="0.1"
-                value={settings.speechRate}
-                onChange={(e) => { setSetting('speechRate', Number(e.target.value)); }}
-                aria-label={t('settings.speechRateAria')}
-                className="mt-1.5 w-full accent-sky-400"
-              />
-              <button
-                type="button"
-                className="btn-ghost mt-2 px-3 py-2 text-sm"
-                onClick={() => {
-                  speak(t('settings.voiceTest'), { locale, rate: settings.speechRate });
-                }}
-              >
-                <Volume2 size={15} aria-hidden /> {t('settings.testVoice')}
-              </button>
-            </div>
-          </>
-        ) : null}
-      </Section>
-
-      <Section icon={Contrast} title={t('settings.game')}>
-        <div className="divide-y divide-white/5">
-          <Toggle
-            label={t('settings.confirmDecisions')}
-            hint={t('settings.confirmDecisionsHint')}
-            checked={settings.confirmDecisions}
-            onChange={(v) => { setSetting('confirmDecisions', v); }}
-          />
-          <Toggle
-            label={t('settings.showWhy')}
-            hint={t('settings.showWhyHint')}
-            checked={settings.showWhyByDefault}
-            onChange={(v) => { setSetting('showWhyByDefault', v); }}
-          />
-        </div>
-      </Section>
-
-      <Section icon={Palette} title={t('settings.hudTheme')} hint={t('settings.hudThemeHint')}>
-        <Choice
-          ariaLabel={t('settings.hudTheme')}
-          value={hudTheme}
-          options={(['mission', 'amber', 'mint', 'rose'] as HudTheme[]).map((id) => {
-            const needed = THEME_UNLOCK[id];
-            const locked = needed !== null && !unlocks.includes(needed);
-            return locked
-              ? { id, label: t(`settings.theme.${id}`), locked: true }
-              : { id, label: t(`settings.theme.${id}`) };
-          })}
-          onChange={(v) => { setHudTheme(v); }}
-        />
-      </Section>
-
-      <section className="mt-3 rounded-3xl border border-radiation/25 bg-radiation/[.06] p-4">
-        <h2 className="flex items-center gap-2 font-display text-sm font-extrabold text-white">
-          <Trash2 size={15} className="text-radiation" aria-hidden /> {t('settings.reset')}
-        </h2>
-        <p className="mt-0.5 text-[0.72rem] leading-snug text-slate-300">{t('settings.resetHint')}</p>
+    <div className="mx-auto w-full max-w-[1440px] px-5 pb-10 pt-5 sm:px-8 lg:px-10">
+      <header className="flex items-center gap-3.5">
         <button
           type="button"
-          className="btn-ghost mt-2.5 border border-radiation/40 px-3 py-2 text-sm text-radiation"
-          onClick={() => {
-            if (window.confirm(t('settings.resetConfirm'))) {
-              resetAccount();
-              go('menu');
-            }
-          }}
+          onClick={() => { go(run !== null && run.status === 'running' ? 'game' : 'menu'); }}
+          className="btn-ghost px-3.5 py-2 text-sm"
         >
-          {t('settings.resetButton')}
+          <ArrowLeft size={16} aria-hidden /> {t('common.back')}
         </button>
-      </section>
+        <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">{t('settings.title')}</h1>
+      </header>
+
+      <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-4">
+          <Section icon={Languages} title={t('settings.language')} hint={t('settings.languageHint')}>
+            <Choice
+              ariaLabel={t('settings.language')}
+              value={locale}
+              options={LOCALES.map((l) => ({ id: l as Locale, label: LOCALE_LABEL[l] }))}
+              onChange={(l) => { setLocale(l); }}
+            />
+          </Section>
+
+          <Section icon={Eye} title={t('settings.visual')} hint={t('settings.visualHint')}>
+            <p className="mb-1.5 flex items-center gap-1.5 text-[0.7rem] font-extrabold uppercase tracking-wider text-slate-300">
+              <Type size={12} aria-hidden /> {t('settings.textSize')}
+            </p>
+            <Choice
+              ariaLabel={t('settings.textSize')}
+              value={settings.textScale}
+              options={[
+                { id: 'normal', label: t('settings.textNormal') },
+                { id: 'large', label: t('settings.textLarge') },
+                { id: 'xlarge', label: t('settings.textXlarge') },
+              ]}
+              onChange={(v) => { setSetting('textScale', v); }}
+            />
+
+            <div className="mt-3 divide-y divide-white/5">
+              <Toggle
+                label={t('settings.highContrast')}
+                hint={t('settings.highContrastHint')}
+                checked={settings.highContrast}
+                onChange={(v) => { setSetting('highContrast', v); }}
+              />
+              <Toggle
+                label={t('settings.underlineLinks')}
+                hint={t('settings.underlineLinksHint')}
+                checked={settings.underlineLinks}
+                onChange={(v) => { setSetting('underlineLinks', v); }}
+              />
+              <Toggle
+                label={t('settings.reducedMotion')}
+                hint={t('settings.reducedMotionHint')}
+                checked={settings.reducedMotion}
+                onChange={(v) => { setSetting('reducedMotion', v); }}
+              />
+            </div>
+          </Section>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <Section
+            icon={Volume2}
+            title={t('settings.speech')}
+            hint={speechSupported() ? t('settings.speechHint') : t('settings.speechUnsupported')}
+          >
+            {speechSupported() ? (
+              <>
+                <Toggle
+                  label={t('settings.autoRead')}
+                  hint={t('settings.autoReadHint')}
+                  checked={settings.autoRead}
+                  onChange={(v) => { setSetting('autoRead', v); }}
+                />
+
+                <div className="mt-3">
+                  <label
+                    htmlFor="voice-rate"
+                    className="flex items-center gap-2 text-[0.7rem] font-extrabold uppercase tracking-wider text-slate-300"
+                  >
+                    <Gauge size={12} aria-hidden /> {t('settings.speechRate', { rate: settings.speechRate.toFixed(1) })}
+                  </label>
+                  <input
+                    id="voice-rate"
+                    type="range"
+                    min={RATE_MIN} max={RATE_MAX} step="0.1"
+                    value={settings.speechRate}
+                    onChange={(e) => { setSetting('speechRate', Number(e.target.value)); }}
+                    aria-label={t('settings.speechRateAria')}
+                    className="mt-1.5 w-full accent-sky-400"
+                  />
+                  <button
+                    type="button"
+                    className="btn-ghost mt-2 px-3.5 py-2 text-sm"
+                    onClick={() => {
+                      speak(t('settings.voiceTest'), { locale, rate: settings.speechRate });
+                    }}
+                  >
+                    <Volume2 size={15} aria-hidden /> {t('settings.testVoice')}
+                  </button>
+                </div>
+              </>
+            ) : null}
+          </Section>
+
+          <Section icon={Contrast} title={t('settings.game')}>
+            <div className="divide-y divide-white/5">
+              <Toggle
+                label={t('settings.confirmDecisions')}
+                hint={t('settings.confirmDecisionsHint')}
+                checked={settings.confirmDecisions}
+                onChange={(v) => { setSetting('confirmDecisions', v); }}
+              />
+              <Toggle
+                label={t('settings.showWhy')}
+                hint={t('settings.showWhyHint')}
+                checked={settings.showWhyByDefault}
+                onChange={(v) => { setSetting('showWhyByDefault', v); }}
+              />
+            </div>
+          </Section>
+
+          <Section icon={Palette} title={t('settings.hudTheme')} hint={t('settings.hudThemeHint')}>
+            <Choice
+              ariaLabel={t('settings.hudTheme')}
+              value={hudTheme}
+              options={(['mission', 'amber', 'mint', 'rose'] as HudTheme[]).map((id) => {
+                const needed = THEME_UNLOCK[id];
+                const locked = needed !== null && !unlocks.includes(needed);
+                return locked
+                  ? { id, label: t(`settings.theme.${id}`), locked: true }
+                  : { id, label: t(`settings.theme.${id}`) };
+              })}
+              onChange={(v) => { setHudTheme(v); }}
+            />
+          </Section>
+
+          <section className="rounded-3xl border border-radiation/30 bg-radiation/[.06] p-5">
+            <h2 className="flex items-center gap-2 font-display text-base font-extrabold text-white">
+              <Trash2 size={16} className="text-radiation" aria-hidden /> {t('settings.reset')}
+            </h2>
+            <p className="mt-1 text-[0.75rem] leading-snug text-slate-300">{t('settings.resetHint')}</p>
+            <button
+              type="button"
+              className="btn-ghost mt-3 border border-radiation/40 px-4 py-2 text-sm text-radiation"
+              onClick={() => {
+                if (window.confirm(t('settings.resetConfirm'))) {
+                  resetAccount();
+                  go('menu');
+                }
+              }}
+            >
+              {t('settings.resetButton')}
+            </button>
+          </section>
+        </div>
+      </div>
     </div>
   );
 }

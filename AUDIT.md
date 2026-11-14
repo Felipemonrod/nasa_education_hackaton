@@ -54,7 +54,7 @@ Os números de linha referem-se ao código depois das correções.
 | `src/engine/balance.ts` `flareWeight` | none 1, C 1.3, M 2, X 3 | São valores de design. A **classe** vem do dado real | **regra de jogo** |
 | `src/engine/rng.ts` (`pickWeighted`) | Com pesos iguais, comporta-se como `pickOne` | Teste com 500 cursores: sorteio idêntico. Um dia calmo não altera as partidas | **verificado** |
 | `src/app/store/useGame.ts:208` | Escolha do clima | DONKI se já respondeu; senão o histórico pela seed. Tudo gravado no save | **verificado** |
-| Monte Carlo | Efeito no balanceamento | `npm run sim 3000`: survival 72,8%→68,6% (ciência) e 75,9%→71,8% (habitat); adaptive 18,2%→14,0% e 31,0%→28,4%. Base de comparação: o mesmo código sem clima, rodado numa worktree do commit b2337b8 | **verificado** |
+| Monte Carlo | Efeito do clima no balanceamento | Medido **sem** local/loadout: survival 72,8%→68,6% (ciência) e 75,9%→71,8% (habitat). Essa configuração não existe no app; ver a seção 10 para os números do jogo real | **corrigido** (seção 10) |
 
 ## 4. Persistência (save)
 
@@ -134,6 +134,23 @@ Os números de linha referem-se ao código depois das correções.
 | `DESIGN.md §9` | "42 cards"; `npm run validate` diz 43 | **corrigido** |
 | `sim/cli.ts` | `0.9` fixo no código | **corrigido** (lê `shieldingEfficacy`) |
 | `ui.ts` | Citava `tests/ui-i18n.test.ts`, que não existe | **corrigido** |
+
+## 10. Auditoria dos cálculos (segunda rodada)
+
+Medições feitas com o próprio engine, 1.500–3.000 partidas por caso.
+
+| # | Onde | Problema | Correção | Status |
+|---|---|---|---|---|
+| 1 | `sim/montecarlo.ts` | A simulação jogava **sem** local de pouso e loadout, que o app sempre exige. adaptive 14,0% → **51,0%** (ciência) e 28,4% → **55,5%** (habitat) quando se inclui o que o app inclui | `setupForSeed` sorteia local e loadout de jogador novo pela seed, usando a mesma função do app (`app/data/setup.ts`, também usada por `useGame.confirmLoadout`). DESIGN §8 refeito com `npm run sim 3000` | **corrigido** |
+| 2 | `loadout.ts` + locales | "Perdas/ganhos reduzidos em 1" valia só para os efeitos da opção escolhida, não para o dreno, a tempestade em curso nem a dose diária (cerca de 55 de 75 pontos de dose média vêm da dose diária) | Rótulos agora dizem "nas decisões" / "from decisions". Regra e balanceamento intactos. Alcance documentado em `types.ts` | **corrigido** |
+| 3 | `OutcomePanel.tsx` | Os números do desfecho somavam escolha + dreno + modificadores + tempestade + (no fim do dia) dose diária, desgaste da blindagem e alívio dos marcos, tudo como se fosse efeito da escolha | O engine devolve `statsAfterChoice`; o painel mostra duas linhas: "Sua escolha" e "O próprio turno" | **corrigido** |
+| 4 | `Result.tsx` | A narração da vitória lia "{detail}" em voz alta | Passa `detail`; a derrota usa a chave `result.narrationLost` com os valores | **corrigido** |
+| 5 | `ui.ts` | Emblema "Completou a missão de 10 dias" dado em qualquer vitória, inclusive por objetivo antes do dia 10 | Texto: "Venceu uma missão" | **corrigido** |
+| 6 | `ui.ts` | A dica dizia que temas só liberam vencendo; Aurora libera com ciência ou suporte de vida em 50, mesmo perdendo | Dica descreve as duas regras | **corrigido** |
+| 7 | `Result.tsx` | "O recurso que acabou foi dose": a dose não acaba, enche | Frase própria: "Dose de radiação chegou ao limite de 100" | **corrigido** |
+| 8 | `Deck.tsx` | Cards de fallback vistos contavam no numerador e não no total; podia dar "40 de 39" e barra acima de 100% | Numerador filtrado pelo mesmo conjunto do total | **corrigido** |
+| 9 | `DESIGN.md §1` | Dizia que só o trilho não declarado dá bônus a cada 25 pontos; o código dá para os dois | Documento descreve o código (os dois trilhos) | **corrigido** |
+| 10 | `DESIGN.md §8` | Coluna "income" (~60/~70/~55) escrita à mão, sem definição nem cálculo | `npm run sim` calcula e imprime, com definição explícita: 30 / 18 / 34. Os números antigos não se reproduzem | **corrigido** |
 
 ## Limites desta auditoria
 

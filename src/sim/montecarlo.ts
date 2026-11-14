@@ -6,8 +6,40 @@ import { applyDecision, beginSlot, createEngine, createRun, viewSlot } from '../
 import type { Engine } from '../engine/run.js';
 import type { LossCause, MissionObjective, RunState } from '../engine/types.js';
 import type { Policy } from './policies.js';
+import { randomAt } from '../engine/rng.js';
+import { COMMANDERS, EQUIPMENT, STRUCTURES } from '../app/data/loadout.js';
+import type { LoadoutCard } from '../app/data/loadout.js';
+import { LUNAR_SITES } from '../app/data/sites.js';
+import { missionSetup } from '../app/data/setup.js';
+import type { MissionSetup } from '../app/data/setup.js';
 
 const MAX_SLOTS = 500;
+
+/** Fluxo de sorteio proprio, separado do fluxo da partida. */
+const SETUP_STREAM = 0x5e7a9;
+
+function pick<T>(items: readonly T[], seed: number, cursor: number): T {
+  const item = items[Math.floor(randomAt((seed ^ SETUP_STREAM) >>> 0, cursor) * items.length)];
+  if (item === undefined) throw new Error('Pool de setup vazio');
+  return item;
+}
+
+/** So o que um jogador novo tem: cards sem `unlockedBy`. */
+const starter = (pool: readonly LoadoutCard[]): readonly LoadoutCard[] => pool.filter((c) => c.unlockedBy === undefined);
+
+/**
+ * Toda partida REAL tem local de pouso e 3 cards levados (o app nao deixa
+ * comecar sem). Antes, a simulacao jogava sem nenhum dos dois e media um jogo
+ * que nao existe. Aqui o sorteio e uniforme e deterministico pela seed.
+ */
+export function setupForSeed(seed: number): MissionSetup {
+  const site = pick(LUNAR_SITES, seed, 0);
+  return missionSetup(site, [
+    pick(starter(COMMANDERS), seed, 1),
+    pick(starter(STRUCTURES), seed, 2),
+    pick(starter(EQUIPMENT), seed, 3),
+  ]);
+}
 
 export interface RunOutcome {
   readonly seed: number;
@@ -26,7 +58,9 @@ export function playOnce(
   policy: Policy,
 ): RunOutcome {
   // Mesmo caminho do app offline: clima historico verificado escolhido pela seed.
-  let state = createRun(engine, { seed, objective, spaceWeather: historicalForSeed(seed) });
+  let state = createRun(engine, {
+    seed, objective, spaceWeather: historicalForSeed(seed), ...setupForSeed(seed),
+  });
   let slots = 0;
   while (state.status === 'running' && slots < MAX_SLOTS) {
     state = beginSlot(engine, state);

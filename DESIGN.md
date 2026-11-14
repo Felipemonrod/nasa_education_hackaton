@@ -43,8 +43,10 @@ explícita (ex.: "Dose 34/100 — limite letal"), não a mesma barra dos outros.
 ### Trilho não declarado não é conteúdo morto
 
 O jogador declara o objetivo ao fundar a base. Só o trilho declarado vence em
-100. O outro converte em **modificadores passivos permanentes** a cada 25
-pontos (`trackMilestones` em `balance.ts`):
+100. Os **dois** trilhos (o declarado e o outro) dão **alívio de dreno
+permanente** a cada 25 pontos, aplicado no fim de cada dia
+(`trackMilestones` em `balance.ts`, `grantTrackMilestones`/`milestoneRelief`
+em `run.ts`). É por isso que o trilho não declarado não é conteúdo morto:
 
 - `science` 25/50/75 → alívio de dreno de energia e oxigênio (conhecimento = eficiência)
 - `lifeSupport` 25/50/75 → alívio de dreno de oxigênio e comida
@@ -188,45 +190,55 @@ Mais um teste de capacidade de pool: ≥20 saques possíveis por fase em 10 dias
 
 | Recurso | Início | Dreno passivo | Income disponível no baralho |
 |---|---|---|---|
-| `oxygen` | 75–90 | 6/dia (60 na missão) | ~60 |
-| `power` | 75–90 | 4/dia (40) | ~70 |
-| `food` | **62–75** | 6/dia (60) | ~55 |
+| `oxygen` | 75–90 | 6/dia (60 na missão) | 30 |
+| `power` | 75–90 | 4/dia (40) | 18 |
+| `food` | **62–75** | 6/dia (60) | 34 |
 | `dose` | 0 | +4/dia a blindagem 80 | — |
+
+Todos os números desta tabela saem de `npm run sim`. **Income** = para cada
+card jogável, o maior ganho que alguma opção dele dá no recurso, somado sobre
+todos os cards, cada um contado uma vez. É um teto: ignora custo, limiar e se o
+card será sorteado (rotinas podem repetir e somar mais). A versão anterior
+desta coluna (~60 / ~70 / ~55) era escrita à mão, sem definição, e não se
+reproduz por esta conta.
 
 Comida começa mais baixa porque é a carga **mais pesada** por dia de missão —
 é o que menos cabe no foguete.
 
-O dreno de cada recurso foi calibrado **contra o income disponível no
-baralho**, não escolhido no olho. Sem isso, energia era o único recurso letal
-(1499 de 1500 mortes) e os outros três eram decorativos.
+O texto original dizia que o dreno foi calibrado contra esse income. Com o
+income agora calculado, ele fica abaixo do dreno nos três recursos; o que
+equilibra a missão são o estoque inicial, os bônus de local/loadout, os marcos
+de trilho, a cápsula de suprimentos e as rotinas que repetem.
 
 ### Curva atual (3.000 partidas por política, `npm run sim 3000`, 2026-11-14)
 
-Com clima espacial histórico verificado sorteado pela seed:
+Como o app joga: clima espacial histórico verificado, local de pouso e loadout
+inicial (comandante, estrutura, equipamento de jogador novo) sorteados pela seed
+(`setupForSeed` em `sim/montecarlo.ts`, mesma conta do app em
+`app/data/setup.ts`):
 
 | Política | Ciência | Habitat |
 |---|---|---|
-| `random` (baseline) | 0,0% | 0,0% |
-| `survival` (só sobreviver) | 68,6% | 71,8% |
-| `objective` (só o trilho, ignora a base) | 38,3% *(toda por objetivo)* | 20,6% *(toda por objetivo)* |
-| `adaptive` (jogador competente) | 14,0% | 28,4% |
+| `random` (baseline) | 0,2% | 0,3% |
+| `survival` (só sobreviver) | 84,3% | 86,0% |
+| `objective` (só o trilho, ignora a base) | 73,1% *(toda por objetivo)* | 33,8% *(toda por objetivo)* |
+| `adaptive` (jogador competente) | 51,0% | 55,5% |
 
-Referência, mesmo código antes do clima espacial (commit b2337b8): survival
-72,8% / 75,9%, objective 33,9% / 24,9%, adaptive 18,2% / 31,0%. A tabela
-anterior deste documento (survival 85,8%) já não batia com o código desse
-commit (re-rodado em 2026-11-14); a causa da divergência não foi investigada.
+Até 2026-11-14 a simulação jogava **sem** local e loadout, coisa que o app não
+permite. Os números daquela configuração (adaptive 14,0% / 28,4%, survival
+68,6% / 71,8%) mediam um jogo inexistente e foram substituídos.
 
 Como ler: `random` alto = decisões não importam. `adaptive` em 0% ou 100% =
-não há jogo. Fallback médio ≈ 0,5–1,1 de 40 slots.
+não há jogo. Fallback médio ≈ 0,7–1,2 de 40 slots.
 
 ---
 
 ## 9. Decisões ainda abertas
 
-1. **Alvo de dificuldade.** `survival` em ~70% e `adaptive` em 14–28%.
-   Aceitável para "Iniciante"? Ou a derrota está comum demais?
-2. **Assimetria entre trilhos.** Ciência vence por objetivo em 38,3%, habitat em
-   20,6%. Dois níveis de desafio dentro do mesmo nível, ou equalizar?
+1. **Alvo de dificuldade.** `survival` em ~85% e `adaptive` em ~51–56%.
+   Aceitável para "Iniciante"?
+2. **Assimetria entre trilhos.** Ciência vence por objetivo em 73,1%, habitat em
+   33,8%. Dois níveis de desafio dentro do mesmo nível, ou equalizar?
 3. **Texto enxuto × aprendizado.** Os dados já suportam as três saídas
    (`outcome.line` / `outcome.why` / `outcome.mistake`). Falta decidir a UI.
 4. **Quantos cards no MVP.** 43 hoje, sendo 39 jogáveis e 4 de fallback

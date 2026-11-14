@@ -7,7 +7,7 @@
 export function MoonScene({ phase }: { phase: 'day' | 'night' }): JSX.Element {
   const night = phase === 'night';
   return (
-    <svg viewBox="0 0 400 150" className="h-full w-full" role="img" aria-label="Base lunar">
+    <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice" className="h-full w-full" role="img" aria-label="Base lunar">
       <defs>
         <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={night ? '#070910' : '#0d1420'} />

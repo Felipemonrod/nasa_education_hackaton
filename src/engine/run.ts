@@ -180,6 +180,8 @@ export interface DecisionResult {
   readonly option: CardOption;
   readonly declined: Card | null;
   readonly statsBefore: Stats;
+  /** Logo apos os efeitos da opcao (passo 1), antes de dreno/temporal/modificadores/rollover. */
+  readonly statsAfterChoice: Stats;
   readonly statsAfter: Stats;
 }
 
@@ -292,6 +294,9 @@ export function applyDecision(
 
   // 1. efeitos da opcao, amortecidos pelos cards iniciais
   state = { ...state, stats: applyEffectsMitigated(state.stats, option.effects, state.mitigation) };
+  // Separado do resto para a UI nao atribuir a escolha o dreno do turno,
+  // a tempestade, os modificadores ou a dose diaria.
+  const statsAfterChoice = state.stats;
 
   // modificadores novos entram para os proximos slots
   if (option.modifiers !== undefined && option.modifiers.length > 0) {
@@ -377,7 +382,7 @@ export function applyDecision(
   // 5. derrota antes de vitoria
   const settled = settle(state, card.id, option.id);
   if (settled.status !== 'running') {
-    return { state: settled, card, option, declined, statsBefore, statsAfter: settled.stats };
+    return { state: settled, card, option, declined, statsBefore, statsAfterChoice, statsAfter: settled.stats };
   }
   state = settled;
 
@@ -385,7 +390,7 @@ export function applyDecision(
   const nextSlot = state.slot + 1;
   if (nextSlot < state.config.plan.length) {
     state = { ...state, slot: nextSlot };
-    return { state, card, option, declined, statsBefore, statsAfter: state.stats };
+    return { state, card, option, declined, statsBefore, statsAfterChoice, statsAfter: state.stats };
   }
 
   // 6. rollover de dia
@@ -401,7 +406,7 @@ export function applyDecision(
 
   const afterRollover = settle(state, card.id, option.id);
   if (afterRollover.status !== 'running') {
-    return { state: afterRollover, card, option, declined, statsBefore, statsAfter: afterRollover.stats };
+    return { state: afterRollover, card, option, declined, statsBefore, statsAfterChoice, statsAfter: afterRollover.stats };
   }
   state = afterRollover;
 
@@ -412,11 +417,11 @@ export function applyDecision(
       current: null,
       result: { kind: 'won', reason: 'survival', day: state.day, slot: state.slot },
     };
-    return { state, card, option, declined, statsBefore, statsAfter: state.stats };
+    return { state, card, option, declined, statsBefore, statsAfterChoice, statsAfter: state.stats };
   }
 
   state = { ...state, day: state.day + 1, slot: 0 };
-  return { state, card, option, declined, statsBefore, statsAfter: state.stats };
+  return { state, card, option, declined, statsBefore, statsAfterChoice, statsAfter: state.stats };
 }
 
 /** Soma total de dreno por dia, util para planilha de balanceamento. */

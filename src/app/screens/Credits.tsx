@@ -7,59 +7,62 @@ export function Credits(): JSX.Element {
   const go = useGame((s) => s.go);
   const t = useT();
   return (
-    <div className="mx-auto w-full max-w-md px-4 pb-10 pt-6">
-      <button type="button" onClick={() => { go('menu'); }} className="btn-ghost mb-4 px-3 py-2 text-sm">
-        <ArrowLeft size={15} aria-hidden /> {t('common.menu')}
-      </button>
+    <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col justify-between px-5 py-6 sm:px-8 lg:px-10">
+      <header className="flex items-center gap-3.5">
+        <button type="button" onClick={() => { go('menu'); }} className="btn-ghost px-3.5 py-2 text-sm">
+          <ArrowLeft size={16} aria-hidden /> {t('common.menu')}
+        </button>
+        <div>
+          <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">{PROJECT.title}</h1>
+          <p className="text-xs font-semibold text-sky-300/80">{PROJECT.event} · {PROJECT.year}</p>
+        </div>
+      </header>
 
-      <h1 className="font-display text-2xl font-extrabold text-white">{PROJECT.title}</h1>
-      <p className="text-[13px] font-semibold text-slate-400">{PROJECT.subtitle}</p>
-      <p className="mt-0.5 text-[12px] text-slate-500">{PROJECT.event} · {PROJECT.year}</p>
+      <div className="my-auto grid grid-cols-1 gap-5 py-6 md:grid-cols-12">
+        {CREDITS.length > 0 ? (
+          <section className="rounded-3xl glass p-5 md:col-span-5">
+            <h2 className="text-[0.72rem] font-extrabold uppercase tracking-widest text-sky-300">{t('credits.team')}</h2>
+            <ul className="mt-3 flex flex-col gap-3">
+              {CREDITS.map((person) => (
+                <li key={person.email} className="rounded-2xl bg-white/[.04] p-3">
+                  <p className="font-display text-base font-extrabold text-white">{person.name}</p>
+                  <p className="text-xs font-semibold text-slate-300">{person.role}</p>
+                  <a
+                    href={`mailto:${person.email}`}
+                    className="mt-1 inline-flex items-center gap-1.5 text-xs font-bold text-sky-300 hover:text-sky-200"
+                  >
+                    <Mail size={13} aria-hidden /> {person.email}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
-      {/* Sem nomes reais preenchidos em data/credits.ts, a secao nao aparece. */}
-      {CREDITS.length > 0 ? (
-      <section className="mt-5 rounded-3xl glass p-4">
-        <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">{t('credits.team')}</h2>
-        <ul className="mt-2 flex flex-col gap-3">
-          {CREDITS.map((person) => (
-            <li key={person.email}>
-              <p className="font-display text-[15px] font-extrabold text-white">{person.name}</p>
-              <p className="text-[12px] font-semibold text-slate-400">{person.role}</p>
-              <a
-                href={`mailto:${person.email}`}
-                className="mt-0.5 inline-flex items-center gap-1.5 text-[12.5px] font-bold text-sky-300 hover:text-sky-200"
-              >
-                <Mail size={13} aria-hidden /> {person.email}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-      ) : null}
-
-      <section className="mt-3 rounded-3xl glass p-4">
-        <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">
-          {t('credits.dataSources')}
-        </h2>
-        <ul className="mt-2 flex flex-col gap-2">
-          {DATA_SOURCES.map((source) => (
-            <li key={source.url}>
-              <a
-                href={source.url}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="inline-flex items-start gap-1.5 text-[12.5px] font-semibold leading-snug text-sky-300 hover:text-sky-200"
-              >
-                <ExternalLink size={13} className="mt-0.5 shrink-0" aria-hidden />
-                {source.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 text-[0.72rem] leading-snug text-slate-300">
-          {t('credits.disclaimer')}
-        </p>
-      </section>
+        <section className={`rounded-3xl glass p-6 ${CREDITS.length > 0 ? 'md:col-span-7' : 'md:col-span-12'}`}>
+          <h2 className="text-[0.72rem] font-extrabold uppercase tracking-widest text-sky-300">
+            {t('credits.dataSources')}
+          </h2>
+          <ul className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {DATA_SOURCES.map((source) => (
+              <li key={source.url} className="rounded-2xl border border-white/10 bg-white/[.03] p-3">
+                <a
+                  href={source.url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="inline-flex items-start gap-2 text-sm font-semibold leading-snug text-sky-300 hover:text-sky-200"
+                >
+                  <ExternalLink size={14} className="mt-0.5 shrink-0" aria-hidden />
+                  {source.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 border-t border-white/10 pt-3 text-[0.76rem] leading-relaxed text-slate-300">
+            {t('credits.disclaimer')}
+          </p>
+        </section>
+      </div>
     </div>
   );
 }

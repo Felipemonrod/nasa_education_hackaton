@@ -19,9 +19,9 @@ export function Loading({ onDone }: { onDone: () => void }): JSX.Element {
   const currentKey = STEP_KEYS[Math.min(step, STEP_KEYS.length - 1)];
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center px-8">
-      <div className="w-full max-w-xs">
-        <div className="mx-auto h-20 w-20 animate-drift">
+    <div className="flex h-dvh w-full items-center justify-center overflow-hidden px-8">
+      <div className="card-surface flex w-full max-w-xl items-center gap-6 p-6 sm:p-8">
+        <div className="h-24 w-24 shrink-0 animate-drift">
           <svg viewBox="0 0 80 80" className="h-full w-full" role="img" aria-label={t('loading.landerAlt')}>
             <circle cx="40" cy="58" r="22" fill="#3a4150" />
             <path d="M40 14c7 0 12 9 12 20H28c0-11 5-20 12-20z" fill="#d6dbe6" />
@@ -29,15 +29,18 @@ export function Loading({ onDone }: { onDone: () => void }): JSX.Element {
             <path d="M31 41l-5 9M49 41l5 9" stroke="#9aa3b5" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
         </div>
-        <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-white/10">
-          <div
-            className="h-full rounded-full bg-sky-400 transition-[width] duration-500"
-            style={{ width: `${progress}%` }}
-          />
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-lg font-extrabold text-white">
+            {currentKey === undefined ? '' : t(currentKey)}
+          </p>
+          <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full rounded-full bg-sky-400 transition-[width] duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="mt-2 tabular-nums text-right text-xs font-extrabold text-sky-300">{progress}%</p>
         </div>
-        <p className="mt-3 min-h-[2.5rem] text-center text-[13px] font-semibold text-slate-300">
-          {currentKey === undefined ? '' : t(currentKey)}
-        </p>
       </div>
     </div>
   );

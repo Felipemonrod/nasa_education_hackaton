@@ -11,6 +11,7 @@ import type {
 import { EQUIPMENT, STRUCTURES, findLoadout } from '../data/loadout.js';
 import { LUNAR_SITES, findSite } from '../data/sites.js';
 import type { LoadoutCard } from '../data/loadout.js';
+import { missionSetup } from '../data/setup.js';
 import { prefetchLiveWeather, weatherForNewRun } from '../services/donki.js';
 import { RUN_KEY, readRaw, removeRaw, writeRaw } from './persistence.js';
 import { useAccount } from './useAccount.js';
@@ -27,6 +28,8 @@ export interface OutcomeView {
   readonly option: CardOption;
   readonly declined: Card | null;
   readonly before: Stats;
+  /** Logo apos o efeito da opcao: `before -> afterChoice` e so da escolha. */
+  readonly afterChoice: Stats;
   readonly after: Stats;
 }
 
@@ -186,19 +189,8 @@ export const useGame = create<GameStore>()((set, get) => ({
       .filter((c): c is LoadoutCard => c !== undefined);
     if (cards.length < 3) return;
 
-    const site = findSite(draft.siteId);
-    const bonuses = [
-      ...(site?.travelCost ?? []),
-      ...(site?.terrain ?? []),
-      ...cards.flatMap((c) => c.bonuses ?? []),
-    ];
-    const modifiers = cards.flatMap((c) => c.modifiers ?? []);
-    const mitigation = cards.reduce<Record<string, number>>((acc, c) => {
-      for (const [stat, amount] of Object.entries(c.mitigation ?? {})) {
-        acc[stat] = (acc[stat] ?? 0) + (amount ?? 0);
-      }
-      return acc;
-    }, {});
+    // Mesma conta usada pela simulacao de balanceamento (data/setup.ts).
+    const setup = missionSetup(findSite(draft.siteId), cards);
 
     const seed = randomSeed();
     const run = createRun(engine, {
@@ -212,9 +204,7 @@ export const useGame = create<GameStore>()((set, get) => ({
         structureId: draft.structureId ?? 'none',
         equipmentId: draft.equipmentId ?? 'none',
       },
-      startingBonuses: bonuses,
-      startingModifiers: modifiers,
-      mitigation,
+      ...setup,
     });
     // Grava JA: antes, a run so ia para o storage em enterGame(), e fechar a
     // aba durante a viagem/loading perdia o loadout montado. O save anterior
@@ -262,6 +252,7 @@ export const useGame = create<GameStore>()((set, get) => ({
         option: result.option,
         declined: result.declined,
         before: result.statsBefore,
+        afterChoice: result.statsAfterChoice,
         after: result.statsAfter,
       },
     });

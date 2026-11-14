@@ -8,14 +8,6 @@ import { useI18n, useT } from '../i18n/useI18n.js';
 import { useGame } from '../store/useGame.js';
 import { weatherSentence } from './WeatherNote.js';
 
-/**
- * A "janela da base". Mixed media deliberado: aqui entra FOTO REAL da NASA,
- * enquanto a base e o mundo sao desenhados. A moldura e a mesma dos dois
- * lados para costurar os dois registros visuais.
- *
- * Nunca bloqueia o jogo: sem rede, mostra o ceu desenhado e o clima espacial
- * real que a propria missao usa (ou, sem missao, um registro verificado).
- */
 export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
   const t = useT();
   const locale = useI18n((s) => s.locale);
@@ -53,24 +45,24 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
       role="dialog"
       aria-label={t('space.dialogAria')}
     >
-      <div className="w-full max-w-md">
-        <div className="card-surface overflow-hidden">
-          <div className="flex items-center justify-between gap-2 px-4 py-3">
-            <h2 className="flex items-center gap-2 font-display text-base font-extrabold text-white">
-              <Telescope size={17} className="text-sky-300" aria-hidden /> {t('space.title')}
-            </h2>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label={t('space.closeAria')}
-              className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 hover:bg-white/20"
-            >
-              <X size={17} aria-hidden />
-            </button>
-          </div>
+      <div className="card-surface w-full max-w-3xl overflow-hidden p-4 sm:p-5">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-2 font-display text-lg font-extrabold text-white">
+            <Telescope size={18} className="text-sky-300" aria-hidden /> {t('space.title')}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t('space.closeAria')}
+            className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 hover:bg-white/20"
+          >
+            <X size={17} aria-hidden />
+          </button>
+        </div>
 
-          {/* Moldura da escotilha: mesma borda para foto e para desenho */}
-          <div className="relative mx-4 aspect-[4/3] overflow-hidden rounded-[2rem] border-[6px] border-space-700 bg-space-950 shadow-inner">
+        <div className="grid grid-cols-1 items-center gap-5 sm:grid-cols-12">
+          {/* Moldura da escotilha */}
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border-[5px] border-space-700 bg-space-950 shadow-inner sm:col-span-6">
             {resolved === null ? (
               <div className="grid h-full place-items-center text-slate-500">
                 <Loader2 size={26} className="animate-spin" aria-hidden />
@@ -98,19 +90,19 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
                   <ellipse cx="42" cy="114" rx="9" ry="4" fill="#2b313d" />
                   <ellipse cx="82" cy="126" rx="13" ry="5" fill="#2b313d" />
                 </svg>
-                <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-xl bg-space-950/80 px-2 py-1 text-[10px] font-bold text-slate-300">
+                <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-xl bg-space-950/80 px-2.5 py-1 text-[0.65rem] font-bold text-slate-300">
                   <WifiOff size={11} aria-hidden /> {t('space.offline')}
                 </span>
               </div>
             )}
           </div>
 
-          <div className="p-4">
+          <div className="flex flex-col justify-center sm:col-span-6">
             {resolved !== null ? (
               <>
-                <h3 className="font-display text-sm font-extrabold leading-snug text-white">{title}</h3>
-                <p className="mt-1 text-[12.5px] leading-snug text-slate-400">{caption}</p>
-                <p className="mt-2.5 text-[10.5px] font-semibold uppercase tracking-wide text-slate-500">
+                <h3 className="font-display text-lg font-extrabold leading-snug text-white">{title}</h3>
+                <p className="mt-2 text-[0.86rem] leading-relaxed text-slate-300">{caption}</p>
+                <p className="mt-4 text-[0.68rem] font-bold uppercase tracking-wider text-sky-300/80">
                   {t('space.source', { source, date })}
                 </p>
               </>
