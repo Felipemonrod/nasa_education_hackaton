@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.engine.json --noEmit && tsc -p tsconfig.json --noEmit",
     "sim": "tsx src/sim/cli.ts",
-    "validate": "tsx src/content/validate.ts"
+    "validate": "tsx src/content/validate.ts",
+    "local": "bash scripts/auto-update.sh",
+    "local:preview": "MODE=preview bash scripts/auto-update.sh"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
