@@ -29,7 +29,6 @@ export function Game(): JSX.Element {
   const showWhyByDefault = useAccount((s) => s.settings.showWhyByDefault);
   const autoRead = useAccount((s) => s.settings.autoRead);
   const speechRate = useAccount((s) => s.settings.speechRate);
-  const voiceURI = useAccount((s) => s.settings.voiceURI);
   const locale = useI18n((s) => s.locale);
   const speak = useSpeech((s) => s.speak);
   const announce = useAnnounce();
@@ -57,8 +56,8 @@ export function Game(): JSX.Element {
   // Leitura automatica do card novo (so quando o desfecho nao esta aberto).
   useEffect(() => {
     if (!autoRead || slotKey === null || outcome !== null || !cardReady || slotText.length === 0) return;
-    speak(slotText, { locale, rate: speechRate, voiceURI });
-  }, [autoRead, slotKey, outcome, cardReady, slotText, speak, locale, speechRate, voiceURI]);
+    speak(slotText, { locale, rate: speechRate });
+  }, [autoRead, slotKey, outcome, cardReady, slotText, speak, locale, speechRate]);
 
   // Anuncia recurso em zona critica para leitor de tela, sem roubar o foco.
   useEffect(() => {

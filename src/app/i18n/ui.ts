@@ -8,7 +8,7 @@ import type { Dict } from '../../i18n/core.js';
  * Interpolacao com {chave}: "Dia {day} de {total}".
  *
  * REGRAS DESTE ARQUIVO
- *  - UI_EN e UI_PT tem EXATAMENTE o mesmo conjunto de chaves. tests/ui-i18n.test.ts
+ *  - UI_EN e UI_PT tem EXATAMENTE o mesmo conjunto de chaves. tests/i18n.test.ts
  *    falha se divergirem ou se algum valor estiver vazio.
  *  - A marcacao [[id]] do glossario usa o ID ESTAVEL em ingles ([[oxygen]],
  *    nunca [[oxigenio]]) e e IDENTICA nos dois idiomas -- so o texto ao redor
@@ -32,7 +32,7 @@ export const UI_EN: Dict = {
   'stat.oxygen': 'Oxygen',
   'stat.power': 'Power',
   'stat.food': 'Food',
-  'stat.dose': 'Dose',
+  'stat.dose': 'Radiation dose',
   'stat.shielding': 'Shielding',
   'stat.science': 'Science',
   'stat.lifeSupport': 'Life support',
@@ -40,7 +40,7 @@ export const UI_EN: Dict = {
   'stat.oxygen.inline': 'oxygen',
   'stat.power.inline': 'power',
   'stat.food.inline': 'food',
-  'stat.dose.inline': 'dose',
+  'stat.dose.inline': 'radiation dose',
   'stat.shielding.inline': 'shielding',
   'stat.science.inline': 'science',
   'stat.lifeSupport.inline': 'life support',
@@ -55,7 +55,7 @@ export const UI_EN: Dict = {
   'menu.statsMissions': 'Missions',
   'menu.statsWins': 'Wins',
   'menu.statsBadges': 'Badges',
-  'menu.disclaimer': 'Space weather data and imagery: NASA. An educational game, not an operational simulator.',
+  'menu.disclaimer': 'Space weather: NASA DONKI and NOAA/SWPC. Images: NASA APOD. An educational game, not an operational simulator.',
 
   // ----- abertura (cutscene) -----
   'cutscene.beat1.text': 'In 1972, the last person left the Moon.',
@@ -72,7 +72,7 @@ export const UI_EN: Dict = {
   'story.title': 'You are not coming to visit.',
   'story.p1': 'You have been assigned to command the first permanent NASA outpost off Earth.',
   'story.p2': 'The trip has already eaten into what you brought. Whatever reaches the surface is what you have: there is no resupply on demand, and a request to Earth takes days.',
-  'story.p3': 'During the mission, every decision costs something. Saving [[power]] today can mean less [[oxygen]] tomorrow. Going out to collect a sample earns [[science]] and charges a [[dose]] of [[radiation]] — which never goes down.',
+  'story.p3': 'During the mission, every decision costs something. Saving [[power]] today can mean less [[oxygen]] tomorrow. Going out to collect a sample earns [[science]] and charges a [[dose]] — which never goes down.',
   'story.p4': 'Hold out until the end of the deadline without letting any basic resource hit zero. Or complete the mission objective before that, and come back with a reason.',
 
   // ----- destino -----
@@ -128,7 +128,7 @@ export const UI_EN: Dict = {
   'travel.terrainTitle': 'What the terrain gives',
   'travel.crewTitle': 'Who lands with you',
   'travel.arrivalTitle': 'What you arrive with',
-  'travel.difficultyLine': 'Computed difficulty: Beginner · 10 cycles · 4 decisions per cycle',
+  'travel.difficultyLine': 'Difficulty: Beginner · 10 cycles · 4 decisions per cycle',
   'travel.start': 'Begin the descent',
 
   // ----- descida (loading) -----
@@ -223,7 +223,7 @@ export const UI_EN: Dict = {
   // ----- HUD de recursos -----
   'hud.valueAria': '{label}: {value} out of 100',
   'hud.dangerAria': '{stat} at a critical level',
-  'hud.doseNote': 'Dose climbs over time: {limit}. Shielding reduces how much gets in each cycle.',
+  'hud.doseNote': 'Radiation dose climbs over time: {limit}. Shielding reduces how much gets in each cycle.',
   'hud.doseLimit': '100 ends the mission',
 
   // ----- janela do espaco -----
@@ -233,6 +233,14 @@ export const UI_EN: Dict = {
   'space.skyAlt': 'Drawn sky',
   'space.offline': 'No link',
   'space.source': 'Source: {source} · {date}',
+  'space.offlineTitle': 'Window closed — no link to Earth',
+  'weather.title': 'Space weather for this mission',
+  'weather.live': 'Strongest flare in the 7 days before the mission: {classType} ({date}).',
+  'weather.liveNone': 'No flare recorded from {start} to {end}.',
+  'weather.effect.none': 'Storm cards keep their normal chance.',
+  'weather.effect.weak': 'The weak solar storm card is more likely.',
+  'weather.effect.X': 'Solar storm cards, including the class X one, are more likely.',
+  'weather.sourceLink': 'Check the source: {source}',
 
   // ----- menu de engrenagem (em partida) -----
   'gear.save': 'Save the game',
@@ -254,8 +262,8 @@ export const UI_EN: Dict = {
   'tutorial.step1.body': 'Every card is a decision. There is no choice without a cost: every option takes something away.',
   'tutorial.step2.title': 'Four resources, from 0 to 100',
   'tutorial.step2.body': '[[oxygen]], [[power]] and [[food]] cannot reach zero. If one of them does, the mission is over.',
-  'tutorial.step3.title': 'The dose never goes down',
-  'tutorial.step3.body': 'The [[dose]] of [[radiation]] only climbs, and at 100 the mission is over. [[shielding]] does not disappear: it reduces how much gets in each cycle.',
+  'tutorial.step3.title': 'The radiation dose never goes down',
+  'tutorial.step3.body': 'The [[dose]] only climbs, and at 100 the mission is over. [[shielding]] does not disappear: it reduces how much gets in each cycle.',
   'tutorial.step4.title': 'Two shifts per cycle',
   'tutorial.step4.body': 'The base follows the [[utc]] clock. On the day shift you run operations; on the night shift, maintenance and watch. On the Moon the Sun may be shining outside — the hatches are closed all the same, so the body gets a night.',
   'tutorial.step5.title': 'Sometimes two cards come at once',
@@ -279,7 +287,7 @@ export const UI_EN: Dict = {
   'result.wonObjectiveBody': 'You took {track} to 100 without letting any basic resource hit zero. That is the reason NASA sent you.',
   'result.trackScience': 'science',
   'result.trackLifeSupport': 'life support',
-  'result.wonSurvivedBody': 'No basic resource reached zero and the dose stayed below the limit. Surviving the deadline is a win too — real bases are judged exactly like that.',
+  'result.wonSurvivedBody': 'No basic resource reached zero and the radiation dose stayed below the limit. Surviving the deadline is a win too — real bases are judged exactly like that.',
   'result.lastDecision': 'The last decision was on cycle {day}, on the {phase} shift. The resource that ran out was {stat}.',
   'result.phaseDay': 'day',
   'result.phaseNight': 'night',
@@ -302,7 +310,7 @@ export const UI_EN: Dict = {
   'result.loss.food.title': 'The food ran out',
   'result.loss.food.why': 'Food is the resource that is slow to produce and quick to lose. The greenhouse needs power and constant tending, and every trip out in a suit burns the crew calories.',
   'result.loss.food.tip': 'Exploring a lot without tending the greenhouse is spending what you are not replacing.',
-  'result.loss.dose.title': 'The dose reached the limit',
+  'result.loss.dose.title': 'The radiation dose reached the limit',
   'result.loss.dose.why': 'Radiation dose is cumulative and irreversible: it never goes down. The only thing under your control is how much gets in from tomorrow on, and that depends on shielding.',
   'result.loss.dose.tip': 'Reinforcing the shielding early costs little; too late, there is no fixing it.',
   'result.badge.badge_outpost.name': 'Outpost Founded',
@@ -331,14 +339,10 @@ export const UI_EN: Dict = {
   'settings.reducedMotion': 'Reduce motion',
   'settings.reducedMotionHint': 'Turns off entrance animations and transitions.',
   'settings.speech': 'Read aloud',
-  'settings.speechHint': 'Uses the device own voice, in the selected language.',
+  'settings.speechHint': 'Uses one voice from your own device, picked automatically for the selected language.',
   'settings.speechUnsupported': 'This browser has no speech synthesis — the listen buttons stay hidden.',
   'settings.autoRead': 'Read the cards automatically',
   'settings.autoReadHint': 'Reads the card when it appears and the outcome when you choose, with no tap needed.',
-  'settings.voice': 'Voice',
-  'settings.voiceHint': 'Voices marked online usually sound much more natural. The list comes from your own device.',
-  'settings.voiceAuto': 'Best available for this language',
-  'settings.voiceRemote': 'online',
   'settings.speechRate': 'Speech speed: {rate}×',
   'settings.speechRateAria': 'Speech speed',
   'settings.testVoice': 'Test the voice',
@@ -383,7 +387,7 @@ export const UI_PT: Dict = {
   'stat.oxygen': 'Oxigênio',
   'stat.power': 'Energia',
   'stat.food': 'Comida',
-  'stat.dose': 'Dose',
+  'stat.dose': 'Dose de radiação',
   'stat.shielding': 'Blindagem',
   'stat.science': 'Ciência',
   'stat.lifeSupport': 'Suporte de vida',
@@ -391,7 +395,7 @@ export const UI_PT: Dict = {
   'stat.oxygen.inline': 'oxigênio',
   'stat.power.inline': 'energia',
   'stat.food.inline': 'comida',
-  'stat.dose.inline': 'dose',
+  'stat.dose.inline': 'dose de radiação',
   'stat.shielding.inline': 'blindagem',
   'stat.science.inline': 'ciência',
   'stat.lifeSupport.inline': 'suporte de vida',
@@ -406,7 +410,7 @@ export const UI_PT: Dict = {
   'menu.statsMissions': 'Missões',
   'menu.statsWins': 'Vitórias',
   'menu.statsBadges': 'Emblemas',
-  'menu.disclaimer': 'Dados de clima espacial e imagens: NASA. Jogo educacional, não é um simulador operacional.',
+  'menu.disclaimer': 'Clima espacial: NASA DONKI e NOAA/SWPC. Imagens: NASA APOD. Jogo educacional, não é um simulador operacional.',
 
   // ----- abertura (cutscene) -----
   'cutscene.beat1.text': 'Em 1972, a última pessoa deixou a Lua.',
@@ -423,7 +427,7 @@ export const UI_PT: Dict = {
   'story.title': 'Vocês não vêm visitar.',
   'story.p1': 'Você foi designado para comandar o primeiro outpost permanente da NASA fora da Terra.',
   'story.p2': 'A viagem já consumiu parte do que vocês levaram. O que chegar à superfície é o que vocês têm: não há reabastecimento sob demanda, e um pedido para a Terra leva dias.',
-  'story.p3': 'Durante a missão, cada decisão custa alguma coisa. Economizar [[power]] hoje pode significar menos [[oxygen]] amanhã. Sair para coletar uma amostra rende [[science]] e cobra [[dose]] de [[radiation]] — que nunca desce.',
+  'story.p3': 'Durante a missão, cada decisão custa alguma coisa. Economizar [[power]] hoje pode significar menos [[oxygen]] amanhã. Sair para coletar uma amostra rende [[science]] e cobra [[dose]] — que nunca desce.',
   'story.p4': 'Aguente até o fim do prazo sem deixar nenhum recurso básico zerar. Ou complete o objetivo da missão antes disso, e volte com um motivo.',
 
   // ----- destino -----
@@ -479,7 +483,7 @@ export const UI_PT: Dict = {
   'travel.terrainTitle': 'O que o terreno dá',
   'travel.crewTitle': 'Quem desce com você',
   'travel.arrivalTitle': 'Com o que vocês chegam',
-  'travel.difficultyLine': 'Dificuldade calculada: Iniciante · 10 ciclos · 4 decisões por ciclo',
+  'travel.difficultyLine': 'Dificuldade: Iniciante · 10 ciclos · 4 decisões por ciclo',
   'travel.start': 'Iniciar descida',
 
   // ----- descida (loading) -----
@@ -574,7 +578,7 @@ export const UI_PT: Dict = {
   // ----- HUD de recursos -----
   'hud.valueAria': '{label}: {value} de 100',
   'hud.dangerAria': '{stat} em nível crítico',
-  'hud.doseNote': 'Dose sobe com o tempo: {limit}. Blindagem reduz quanto entra por ciclo.',
+  'hud.doseNote': 'Dose de radiação sobe com o tempo: {limit}. Blindagem reduz quanto entra por ciclo.',
   'hud.doseLimit': '100 encerra a missão',
 
   // ----- janela do espaco -----
@@ -584,6 +588,14 @@ export const UI_PT: Dict = {
   'space.skyAlt': 'Céu desenhado',
   'space.offline': 'Sem enlace',
   'space.source': 'Fonte: {source} · {date}',
+  'space.offlineTitle': 'Janela fechada — sem enlace com a Terra',
+  'weather.title': 'Clima espacial desta missão',
+  'weather.live': 'Flare mais forte nos 7 dias antes da missão: {classType} ({date}).',
+  'weather.liveNone': 'Nenhum flare registrado de {start} a {end}.',
+  'weather.effect.none': 'Os cards de tempestade mantêm a chance normal.',
+  'weather.effect.weak': 'O card de tempestade solar fraca fica mais provável.',
+  'weather.effect.X': 'Os cards de tempestade solar, inclusive o de classe X, ficam mais prováveis.',
+  'weather.sourceLink': 'Conferir a fonte: {source}',
 
   // ----- menu de engrenagem (em partida) -----
   'gear.save': 'Salvar partida',
@@ -605,8 +617,8 @@ export const UI_PT: Dict = {
   'tutorial.step1.body': 'Cada card é uma decisão. Não existe escolha sem custo: toda opção tira alguma coisa.',
   'tutorial.step2.title': 'Quatro recursos, de 0 a 100',
   'tutorial.step2.body': '[[oxygen]], [[power]] e [[food]] não podem chegar a zero. Se um zerar, a missão acaba.',
-  'tutorial.step3.title': 'A dose nunca desce',
-  'tutorial.step3.body': 'A [[dose]] de [[radiation]] só sobe, e em 100 a missão acaba. A [[shielding]] não some: ela reduz quanto entra por ciclo.',
+  'tutorial.step3.title': 'A dose de radiação nunca desce',
+  'tutorial.step3.body': 'A [[dose]] só sobe, e em 100 a missão acaba. A [[shielding]] não some: ela reduz quanto entra por ciclo.',
   'tutorial.step4.title': 'Dois turnos por ciclo',
   'tutorial.step4.body': 'A base segue o relógio [[utc]]. No turno diurno vocês operam; no noturno, fazem manutenção e vigília. Na Lua o Sol pode estar brilhando lá fora — as escotilhas são fechadas mesmo assim, para o corpo ter noite.',
   'tutorial.step5.title': 'Às vezes vêm dois cards',
@@ -630,7 +642,7 @@ export const UI_PT: Dict = {
   'result.wonObjectiveBody': 'Você levou {track} a 100 sem deixar nenhum recurso básico zerar. Esse era o motivo pelo qual a NASA te mandou.',
   'result.trackScience': 'a ciência',
   'result.trackLifeSupport': 'o suporte de vida',
-  'result.wonSurvivedBody': 'Nenhum recurso básico chegou a zero e a dose ficou abaixo do limite. Sobreviver ao prazo também é vitória — bases reais são avaliadas exatamente assim.',
+  'result.wonSurvivedBody': 'Nenhum recurso básico chegou a zero e a dose de radiação ficou abaixo do limite. Sobreviver ao prazo também é vitória — bases reais são avaliadas exatamente assim.',
   'result.lastDecision': 'A última decisão foi no ciclo {day}, no turno {phase}. O recurso que acabou foi {stat}.',
   'result.phaseDay': 'diurno',
   'result.phaseNight': 'noturno',
@@ -653,7 +665,7 @@ export const UI_PT: Dict = {
   'result.loss.food.title': 'A comida acabou',
   'result.loss.food.why': 'Comida é o recurso que se produz devagar e se perde rápido. A estufa precisa de energia e de trato constante, e cada saída de traje queima caloria da tripulação.',
   'result.loss.food.tip': 'Explorar muito sem cuidar da estufa é gastar o que você não está repondo.',
-  'result.loss.dose.title': 'A dose chegou ao limite',
+  'result.loss.dose.title': 'A dose de radiação chegou ao limite',
   'result.loss.dose.why': 'A dose de radiação é cumulativa e irreversível: ela nunca desce. A única coisa sob seu controle é quanta entra a partir de amanhã, e isso depende da blindagem.',
   'result.loss.dose.tip': 'Reforçar a blindagem cedo custa pouco; tarde demais não existe conserto.',
   'result.badge.badge_outpost.name': 'Outpost Fundado',
@@ -682,14 +694,10 @@ export const UI_PT: Dict = {
   'settings.reducedMotion': 'Reduzir movimento',
   'settings.reducedMotionHint': 'Desliga animações de entrada e transições.',
   'settings.speech': 'Leitura em voz alta',
-  'settings.speechHint': 'Usa a voz do próprio aparelho, no idioma selecionado.',
+  'settings.speechHint': 'Usa uma voz do próprio aparelho, escolhida automaticamente para o idioma selecionado.',
   'settings.speechUnsupported': 'Este navegador não tem síntese de voz — os botões de ouvir ficam ocultos.',
   'settings.autoRead': 'Ler os cards automaticamente',
   'settings.autoReadHint': 'Lê o card ao aparecer e o desfecho ao escolher, sem precisar tocar.',
-  'settings.voice': 'Voz',
-  'settings.voiceHint': 'As vozes marcadas como online costumam soar bem mais naturais. A lista vem do seu próprio aparelho.',
-  'settings.voiceAuto': 'A melhor disponível para este idioma',
-  'settings.voiceRemote': 'online',
   'settings.speechRate': 'Velocidade da fala: {rate}×',
   'settings.speechRateAria': 'Velocidade da fala',
   'settings.testVoice': 'Testar a voz',

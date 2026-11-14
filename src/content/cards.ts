@@ -135,7 +135,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Vazamento fechado no mesmo turno.',
-          why: 'Em vacuo, um furo pequeno cresce: a propria passagem do ar desgasta a borda. Selar cedo custou 2 de [[oxygen]]; esperar custaria muito mais.',
+          why: 'Um vazamento nao para sozinho: o ar escapa sem parar ate alguem selar. Selar cedo custou 2 de [[oxygen]]; esperar custaria muito mais.',
           verdict: 'good',
         },
       },
@@ -219,6 +219,7 @@ export const CARDS: readonly Card[] = [
     kind: 'unique',
     role: 'basic',
     phase: 'day',
+    solarFlare: 'weak',
     title: 'Tempestade solar fraca',
     text: 'O monitor acusa [[solar_storm]] de classe baixa a caminho.',
     options: [
@@ -271,6 +272,7 @@ export const CARDS: readonly Card[] = [
     kind: 'temporal',
     role: 'basic',
     phase: 'any',
+    solarFlare: 'strong',
     title: 'Tempestade solar classe X',
     text: 'Evento forte. As particulas continuam chegando por varios turnos.',
     temporal: {
@@ -290,7 +292,7 @@ export const CARDS: readonly Card[] = [
           { stat: 'food', delta: -1 },
         ],
         outcome: {
-          line: 'Turno perdido, dose quase toda barrada.',
+          line: 'Turno perdido, dose de radiacao quase toda barrada.',
           why: 'Nenhuma blindagem para 100% das particulas: sempre entra um pouco. Mas a diferenca entre estar no [[central_shelter]] e fora dele e enorme.',
           verdict: 'good',
         },
@@ -668,7 +670,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Furo fechado na mesma noite.',
-          why: 'A Lua nao tem atmosfera para queimar pedrinhas: elas chegam inteiras a 20 km/s. Remendar no escuro custa [[dose]], mas limita o dano a [[shielding]].',
+          why: 'A Lua nao tem atmosfera para queimar pedrinhas: elas chegam inteiras a 20 km/s ou mais. Remendar no escuro custa [[dose]], mas limita o dano a [[shielding]].',
           verdict: 'good',
         },
       },
@@ -880,7 +882,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Cronograma mantido, risco maior.',
-          why: 'Limite de dose existe porque o dano e estatistico e permanente. Cumprir prazo gastando saude da tripulacao nao e eficiencia, e divida.',
+          why: 'Limite de dose de radiacao existe porque o dano e estatistico e permanente. Cumprir prazo gastando saude da tripulacao nao e eficiencia, e divida.',
           verdict: 'bad',
         },
       },

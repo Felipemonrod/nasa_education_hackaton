@@ -1,7 +1,7 @@
-import { chance, pickOne } from './rng.js';
+import { chance, pickOne, pickWeighted } from './rng.js';
 import type { Balance } from './balance.js';
 import type {
-  Card, CardRole, DeckState, Phase, Stats, Threshold, TrackStat,
+  Card, CardRole, DeckState, FlareClass, Phase, Stats, Threshold, TrackStat,
 } from './types.js';
 
 export interface CardIndex {
@@ -59,6 +59,20 @@ export interface DrawQuery {
   readonly stats: Stats;
   /** Para role 'extra': preferencia pelo trilho declarado. */
   readonly preferTrack?: TrackStat;
+  /** Classe do clima espacial da missao; pondera os cards de tempestade. */
+  readonly flareClass?: FlareClass;
+}
+
+/**
+ * Peso de sorteio de um card dado o clima espacial. Card que nao e de
+ * tempestade pesa 1. Tempestade fraca responde a qualquer classe; a forte
+ * (o card diz "classe X") so ganha peso em dia classe X -- dar peso a ela num
+ * dia classe C contradiria o dado real.
+ */
+export function flareWeightFor(card: Card, flareClass: FlareClass, balance: Balance): number {
+  if (card.solarFlare === undefined) return 1;
+  if (card.solarFlare === 'strong' && flareClass !== 'X') return 1;
+  return balance.flareWeight[flareClass];
 }
 
 export interface DrawResult {
@@ -94,19 +108,21 @@ export function drawCard(
   query: DrawQuery,
 ): DrawResult {
   const pool = eligible(index, deck, query);
+  const flareClass = query.flareClass ?? 'none';
+  const weight = (card: Card): number => flareWeightFor(card, flareClass, balance);
 
   if (query.preferTrack !== undefined && pool.length > 0) {
     const declared = pool.filter((c) => c.track === query.preferTrack);
     const other = pool.filter((c) => c.track !== query.preferTrack);
     if (declared.length > 0 && other.length > 0) {
       const bias = chance(seed, cursor, balance.declaredTrackBias);
-      const pick = pickOne(seed, bias.cursor, bias.value ? declared : other);
+      const pick = pickWeighted(seed, bias.cursor, bias.value ? declared : other, weight);
       if (pick !== null) return { cardId: pick.value.id, cursor: pick.cursor, usedFallback: false };
     }
   }
 
   if (pool.length > 0) {
-    const pick = pickOne(seed, cursor, pool);
+    const pick = pickWeighted(seed, cursor, pool, weight);
     if (pick !== null) return { cardId: pick.value.id, cursor: pick.cursor, usedFallback: false };
   }
 

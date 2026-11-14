@@ -1,4 +1,4 @@
-import type { BasicResource, MissionObjective, Phase, Stat, TrackStat } from './types.js';
+import type { BasicResource, FlareClass, MissionObjective, Phase, Stat, TrackStat } from './types.js';
 
 /**
  * TODO numero ajustavel do jogo vive aqui. Nenhum numero magico espalhado
@@ -43,8 +43,12 @@ export interface Balance {
   /** Dias que um card sequencial pode esperar por um slot da fase certa. */
   readonly sequentialMaxCarryDays: number;
 
-  /** Multiplicadores de probabilidade de card de tempestade conforme DONKI. */
-  readonly flareWeight: Readonly<Record<string, number>>;
+  /**
+   * Multiplicador da chance de sortear card de tempestade, pela classe do
+   * clima espacial real da missao (`config.spaceWeather`). Os VALORES sao
+   * escolha de design de jogo, nao dado fisico; a CLASSE vem do dado real.
+   */
+  readonly flareWeight: Readonly<Record<FlareClass, number>>;
 }
 
 export const DEFAULT_BALANCE: Balance = {
@@ -67,7 +71,7 @@ export const DEFAULT_BALANCE: Balance = {
     night: { oxygen: 1, power: 1, food: 1 },
   },
 
-  // Blindagem degrada 2/dia: poeira abrasiva + micrometeoritos. Sem isso a
+  // Blindagem degrada 3/dia: poeira abrasiva + micrometeoritos. Sem isso a
   // dose nunca chegava perto de 100 e a condicao de derrota era decorativa.
   shieldingDecayPerDay: 3,
   doseBaseDaily: 16,

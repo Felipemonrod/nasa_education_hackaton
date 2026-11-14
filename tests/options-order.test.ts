@@ -1,12 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { CARDS } from '../src/content/cards.js';
-import { QUIET_WEATHER } from '../src/content/spaceWeather.js';
+import { TEST_QUIET_WEATHER } from './fixtures.js';
 import { applyDecision, beginSlot, createEngine, createRun, viewSlot } from '../src/engine/run.js';
 import { hashString, shuffleWithKey } from '../src/engine/rng.js';
-import type { EngineContext } from '../src/engine/types.js';
 
 const engine = createEngine(CARDS);
-const ctx: EngineContext = { spaceWeather: QUIET_WEATHER };
 
 /**
  * POR QUE ESTE ARQUIVO EXISTE
@@ -27,7 +25,7 @@ function firstVerdicts(seeds: readonly number[]): { good: number; total: number;
   const goodPositions: number[] = [];
 
   for (const seed of seeds) {
-    let state = createRun(engine, { seed, objective: 'science' });
+    let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed, objective: 'science' });
     let guard = 0;
     while (state.status === 'running' && guard < 200) {
       state = beginSlot(engine, state);
@@ -44,7 +42,7 @@ function firstVerdicts(seeds: readonly number[]): { good: number; total: number;
       const entry = view.cards[0];
       const pick = entry?.options.find((o) => o.selectable);
       if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
-      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
       guard += 1;
     }
   }
@@ -79,14 +77,14 @@ describe('ordem das opcoes', () => {
 
   it('a ordem e estavel: mesma partida, mesmo slot, mesma ordem', () => {
     const order = (seed: number): string[] => {
-      let state = createRun(engine, { seed, objective: 'habitat' });
+      let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed, objective: 'habitat' });
       state = beginSlot(engine, state);
       const view = viewSlot(engine, state);
       return view.cards.flatMap((c) => c.options.map((o) => `${c.card.id}:${o.option.id}`));
     };
     expect(order(4242)).toEqual(order(4242));
     // re-montar a visao vinte vezes nao pode mexer nos botoes
-    let state = createRun(engine, { seed: 4242, objective: 'habitat' });
+    let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed: 4242, objective: 'habitat' });
     state = beginSlot(engine, state);
     const once = viewSlot(engine, state).cards[0]?.options.map((o) => o.option.id);
     for (let i = 0; i < 20; i += 1) {
@@ -96,7 +94,7 @@ describe('ordem das opcoes', () => {
 
   it('partidas diferentes veem ordens diferentes', () => {
     const order = (seed: number): string => {
-      let state = createRun(engine, { seed, objective: 'science' });
+      let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed, objective: 'science' });
       state = beginSlot(engine, state);
       return viewSlot(engine, state).cards.flatMap((c) => c.options.map((o) => o.option.id)).join(',');
     };

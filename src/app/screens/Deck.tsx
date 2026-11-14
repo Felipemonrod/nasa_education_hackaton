@@ -77,7 +77,7 @@ function CardEntry({ card, known, knownOutcomes }: {
                 />
                 <SpeakButton
                   text={`${title}. ${content.cardText(card)}`}
-                  label={t('deck.listenAria', { card: title })}
+                  label={t('deck.listenAria', { title })}
                 />
               </div>
               <ul className="mt-3 flex flex-col gap-2">

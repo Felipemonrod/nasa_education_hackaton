@@ -45,6 +45,33 @@ export function pickOne<T>(seed: number, cursor: number, items: readonly T[]): D
   return { value, cursor: next };
 }
 
+/**
+ * Sorteio ponderado. Com todos os pesos iguais delega a `pickOne`, entao o
+ * resultado e IDENTICO ao sorteio uniforme (mesmo item, mesmo cursor): ligar
+ * o clima espacial nao altera partidas de dias sem erupcao.
+ */
+export function pickWeighted<T>(
+  seed: number,
+  cursor: number,
+  items: readonly T[],
+  weightOf: (item: T) => number,
+): Draw<T> | null {
+  if (items.length === 0) return null;
+  const weights = items.map((item) => Math.max(0, weightOf(item)));
+  const first = weights[0] ?? 0;
+  if (weights.every((w) => w === first)) return pickOne(seed, cursor, items);
+  const total = weights.reduce((a, b) => a + b, 0);
+  if (total <= 0) return pickOne(seed, cursor, items);
+  let target = randomAt(seed, cursor) * total;
+  for (let i = 0; i < items.length; i += 1) {
+    target -= weights[i] ?? 0;
+    const value = items[i];
+    if (target < 0 && value !== undefined) return { value, cursor: cursor + 1 };
+  }
+  const last = items[items.length - 1];
+  return last === undefined ? null : { value: last, cursor: cursor + 1 };
+}
+
 export function chance(seed: number, cursor: number, probability: number): Draw<boolean> {
   const r = randomAt(seed, cursor);
   return { value: r < probability, cursor: cursor + 1 };

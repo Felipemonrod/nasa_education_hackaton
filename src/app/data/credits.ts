@@ -15,16 +15,15 @@ export const PROJECT = {
   event: 'NASA Education Hackathon',
 } as const;
 
-// PLACEHOLDERS: troque pelos nomes e e-mails reais antes de publicar.
-// Este arquivo vai para um repositorio publico -- so coloque aqui o que
-// voce quer que o mundo leia.
-export const CREDITS: readonly CreditEntry[] = [
-  { name: 'Seu nome aqui', role: 'Game design e desenvolvimento', email: 'voce@exemplo.com' },
-  { name: 'Nome do colega', role: 'Arte e conteúdo', email: 'colega@exemplo.com' },
-];
+// Preencha com os nomes e e-mails REAIS. Enquanto estiver vazio, a secao de
+// equipe nao aparece -- antes ela mostrava "Seu nome aqui" e e-mails
+// @exemplo.com como se fossem pessoas. Este arquivo vai para um repositorio
+// publico: so coloque aqui o que voce quer que o mundo leia.
+export const CREDITS: readonly CreditEntry[] = [];
 
+/** So fontes que o app de fato consulta (EPIC saiu: nenhum codigo a chamava). */
 export const DATA_SOURCES: readonly { readonly label: string; readonly url: string }[] = [
   { label: 'NASA APOD — Astronomy Picture of the Day', url: 'https://api.nasa.gov/' },
-  { label: 'NASA EPIC — Earth Polychromatic Imaging Camera', url: 'https://epic.gsfc.nasa.gov/' },
-  { label: 'NASA DONKI — Space Weather Database', url: 'https://ccmc.gsfc.nasa.gov/tools/DONKI/' },
+  { label: 'NASA DONKI — Space Weather Database (flares)', url: 'https://ccmc.gsfc.nasa.gov/tools/DONKI/' },
+  { label: 'NOAA/SWPC — Solar event reports (GOES X-ray)', url: 'https://www.ngdc.noaa.gov/stp/space-weather/swpc-products/daily_reports/solar_event_reports/' },
 ];

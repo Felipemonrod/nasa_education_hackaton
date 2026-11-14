@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { SCHEMA_VERSION } from './types.js';
-import type { RunState } from './types.js';
+import type { RunState, SpaceWeather } from './types.js';
 
 /**
  * SAVE VERSIONADO desde o primeiro commit. Sem isso, adicionar um campo na
@@ -30,6 +30,43 @@ const presentedSchema = z.union([
   z.object({ shape: z.literal('pair'), basicCardId: z.string(), extraCardId: z.string() }),
 ]);
 
+const spaceWeatherSchema = z.object({
+  id: z.string(),
+  date: z.string(),
+  flareClass: z.enum(['none', 'C', 'M', 'X']),
+  classType: z.string().nullable(),
+  source: z.string(),
+  sourceUrl: z.string(),
+});
+
+/**
+ * Saves v2 nao tinham clima espacial: o jogo rodava com um registro "calmo"
+ * fixo que o engine nem lia. A migracao registra exatamente isso -- classe
+ * 'none', sem data e sem fonte -- em vez de inventar um evento.
+ */
+export const LEGACY_V2_WEATHER: SpaceWeather = {
+  id: 'legacy-v2',
+  date: '',
+  flareClass: 'none',
+  classType: null,
+  source: '',
+  sourceUrl: '',
+};
+
+/** Leva um objeto de save antigo para a versao atual. Puro; nao valida. */
+function migrate(data: unknown): unknown {
+  if (typeof data !== 'object' || data === null) return data;
+  const save = data as { version?: unknown; config?: unknown };
+  if (save.version === 2 && typeof save.config === 'object' && save.config !== null) {
+    return {
+      ...save,
+      version: 3,
+      config: { ...(save.config as object), spaceWeather: LEGACY_V2_WEATHER },
+    };
+  }
+  return data;
+}
+
 export const runStateSchema = z.object({
   version: z.number().int(),
   seed: z.number().int(),
@@ -53,6 +90,7 @@ export const runStateSchema = z.object({
       structureId: z.string(),
       equipmentId: z.string(),
     }),
+    spaceWeather: spaceWeatherSchema,
   }),
   deck: z.object({
     available: z.array(z.string()),
@@ -116,7 +154,7 @@ export function deserializeRun(raw: string): LoadOutcome {
     return { ok: false, reason: 'parse', detail: String(error) };
   }
 
-  const result = runStateSchema.safeParse(parsed);
+  const result = runStateSchema.safeParse(migrate(parsed));
   if (!result.success) {
     return { ok: false, reason: 'schema', detail: result.error.issues[0]?.message ?? 'invalido' };
   }

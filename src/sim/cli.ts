@@ -26,8 +26,9 @@ for (const [stat, perDay] of Object.entries(drain)) {
 for (const [key, [min, max]] of Object.entries(DEFAULT_BALANCE.startRanges)) {
   console.log(`  inicio ${key.padEnd(10)} ${min}-${max}`);
 }
-console.log(`  dose/dia com blindagem 80: ${Math.round(DEFAULT_BALANCE.doseBaseDaily * (1 - 0.9 * 0.8))}`);
-console.log(`  dose/dia com blindagem 50: ${Math.round(DEFAULT_BALANCE.doseBaseDaily * (1 - 0.9 * 0.5))}`);
+const efficacy = DEFAULT_BALANCE.shieldingEfficacy;
+console.log(`  dose/dia com blindagem 80: ${Math.round(DEFAULT_BALANCE.doseBaseDaily * (1 - efficacy * 0.8))}`);
+console.log(`  dose/dia com blindagem 50: ${Math.round(DEFAULT_BALANCE.doseBaseDaily * (1 - efficacy * 0.5))}`);
 
 const objectives: MissionObjective[] = ['science', 'habitat'];
 for (const objective of objectives) {

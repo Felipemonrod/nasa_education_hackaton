@@ -1,24 +1,22 @@
 import { create } from 'zustand';
 import { CARDS } from '../../content/cards.js';
-import { QUIET_WEATHER } from '../../content/spaceWeather.js';
 import {
   applyDecision, beginSlot, createEngine, createRun, viewSlot,
 } from '../../engine/run.js';
 import type { SlotView } from '../../engine/run.js';
 import { deserializeRun, serializeRun } from '../../engine/save.js';
 import type {
-  Card, CardOption, EngineContext, MissionObjective, RunState, Stats,
+  Card, CardOption, MissionObjective, RunState, Stats,
 } from '../../engine/types.js';
 import { EQUIPMENT, STRUCTURES, findLoadout } from '../data/loadout.js';
 import { LUNAR_SITES, findSite } from '../data/sites.js';
 import type { LoadoutCard } from '../data/loadout.js';
+import { prefetchLiveWeather, weatherForNewRun } from '../services/donki.js';
 import { RUN_KEY, readRaw, removeRaw, writeRaw } from './persistence.js';
 import { useAccount } from './useAccount.js';
 
 /** Instancia unica do engine: conteudo nao muda em tempo de execucao. */
 export const engine = createEngine(CARDS);
-
-const CONTEXT: EngineContext = { spaceWeather: QUIET_WEATHER };
 
 export type Screen =
   | 'cutscene' | 'menu' | 'story' | 'destination' | 'loadout'
@@ -93,6 +91,15 @@ function availableOf(pool: readonly LoadoutCard[], unlocks: readonly string[]): 
   return pool.filter((c) => c.unlockedBy === undefined || unlocks.includes(c.unlockedBy));
 }
 
+/**
+ * Ha um save que CARREGA? So checar se a chave existe mostrava "Retomar"
+ * para save corrompido ou de outra versao, e o botao falhava ao tocar.
+ */
+function hasLoadableRun(): boolean {
+  const raw = readRaw(RUN_KEY);
+  return raw !== null && deserializeRun(raw).ok;
+}
+
 function pickRandom<T>(items: readonly T[], exclude?: string, keyOf?: (item: T) => string): T | null {
   const pool = exclude !== undefined && keyOf !== undefined
     ? items.filter((i) => keyOf(i) !== exclude)
@@ -102,18 +109,32 @@ function pickRandom<T>(items: readonly T[], exclude?: string, keyOf?: (item: T) 
   return pool[index] ?? pool[0] ?? null;
 }
 
+/** Contabiliza o fim da partida na conta e so entao apaga o save. */
+function finishRun(run: RunState, set: (partial: Partial<GameStore>) => void): void {
+  const rewards = useAccount.getState().recordRunEnd({
+    won: run.status === 'won',
+    science: run.stats.science,
+    life: run.stats.lifeSupport,
+    objective: run.config.objective,
+  });
+  removeRaw(RUN_KEY);
+  set({ screen: 'result', savedRunExists: false, rewardsGranted: rewards });
+}
+
 export const useGame = create<GameStore>()((set, get) => ({
-  screen: useAccount.getState().cutsceneSeen ? 'menu' : 'cutscene',
+  screen: 'cutscene',
   run: null,
   outcome: null,
   draft: { ...FRESH_DRAFT, rerollsLeft: { ...FRESH_DRAFT.rerollsLeft } },
-  savedRunExists: readRaw(RUN_KEY) !== null,
+  savedRunExists: hasLoadableRun(),
   tutorialStep: 0,
   rewardsGranted: null,
 
   go(screen) { set({ screen }); },
 
   newMission() {
+    // As telas de historia/destino/loadout dao tempo para a DONKI responder.
+    prefetchLiveWeather();
     set({
       draft: { ...FRESH_DRAFT, rerollsLeft: { ...FRESH_DRAFT.rerollsLeft } },
       run: null,
@@ -179,9 +200,12 @@ export const useGame = create<GameStore>()((set, get) => ({
       return acc;
     }, {});
 
+    const seed = randomSeed();
     const run = createRun(engine, {
-      seed: randomSeed(),
+      seed,
       objective: draft.objective,
+      // DONKI ao vivo se ja respondeu; senao registro historico verificado.
+      spaceWeather: weatherForNewRun(seed),
       tutorial: draft.tutorial,
       loadout: {
         commanderId: draft.commanderId ?? 'none',
@@ -192,7 +216,11 @@ export const useGame = create<GameStore>()((set, get) => ({
       startingModifiers: modifiers,
       mitigation,
     });
-    set({ run, screen: 'travel' });
+    // Grava JA: antes, a run so ia para o storage em enterGame(), e fechar a
+    // aba durante a viagem/loading perdia o loadout montado. O save anterior
+    // (se houver) so e substituido aqui, quando a nova missao de fato existe.
+    const saved = writeRaw(RUN_KEY, serializeRun(run));
+    set({ run, screen: 'travel', savedRunExists: saved || get().savedRunExists });
   },
 
   enterGame() {
@@ -220,7 +248,7 @@ export const useGame = create<GameStore>()((set, get) => ({
     const { run } = get();
     if (run === null || run.status !== 'running') return;
 
-    const result = applyDecision(engine, run, { cardId, optionId }, CONTEXT);
+    const result = applyDecision(engine, run, { cardId, optionId });
     useAccount.getState().experienceOutcome(cardId, optionId);
 
     // Auto-save imediatamente apos aplicar: a decisao esta tomada.
@@ -245,14 +273,7 @@ export const useGame = create<GameStore>()((set, get) => ({
     if (run === null) return;
 
     if (run.status !== 'running') {
-      const rewards = useAccount.getState().recordRunEnd({
-        won: run.status === 'won',
-        science: run.stats.science,
-        life: run.stats.lifeSupport,
-        objective: run.config.objective,
-      });
-      removeRaw(RUN_KEY);
-      set({ screen: 'result', savedRunExists: false, rewardsGranted: rewards });
+      finishRun(run, set);
       return;
     }
 
@@ -285,10 +306,23 @@ export const useGame = create<GameStore>()((set, get) => ({
       set({ savedRunExists: false });
       return false;
     }
-    const state = loaded.state.current === null && loaded.state.status === 'running'
-      ? beginSlot(engine, loaded.state)
-      : loaded.state;
-    set({ run: state, screen: state.status === 'running' ? 'game' : 'result', outcome: null });
+    if (loaded.state.status !== 'running') {
+      // A aba fechou com o painel do desfecho final aberto: decide() ja tinha
+      // gravado won/lost, mas dismissOutcome() nunca rodou. Fecha a partida
+      // agora (totais, desbloqueios, remocao do save) em vez de deixar um
+      // save "travado" que pulava a contabilidade e reaparecia para sempre.
+      set({ run: loaded.state, outcome: null });
+      finishRun(loaded.state, set);
+      return true;
+    }
+    // Save gravado em confirmLoadout() (antes do primeiro slot) ou entre
+    // slots: abre o slot agora.
+    const state = loaded.state.current === null ? beginSlot(engine, loaded.state) : loaded.state;
+    if (state !== loaded.state) {
+      for (const entry of viewSlot(engine, state).cards) useAccount.getState().seeCard(entry.card.id);
+      writeRaw(RUN_KEY, serializeRun(state));
+    }
+    set({ run: state, screen: 'game', outcome: null, savedRunExists: true });
     return true;
   },
 

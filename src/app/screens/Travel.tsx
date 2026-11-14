@@ -4,6 +4,7 @@ import { findLoadout } from '../data/loadout.js';
 import { iconFor } from '../components/icons.js';
 import { useGame } from '../store/useGame.js';
 import { GlossaryText } from '../components/GlossaryText.js';
+import { WeatherNote } from '../components/WeatherNote.js';
 import type { Effect, Stat } from '../../engine/types.js';
 import { useT } from '../i18n/useI18n.js';
 import { useContent } from '../i18n/useContent.js';
@@ -108,6 +109,9 @@ export function Travel(): JSX.Element {
           })}
         </div>
       </section>
+
+      {/* Clima espacial real que a missao usa */}
+      <WeatherNote weather={run.config.spaceWeather} />
 
       {/* Estado na chegada */}
       <section className="mt-3 rounded-3xl border border-sky-400/30 bg-sky-400/[.07] p-4">

@@ -1,13 +1,12 @@
 import { CARDS } from '../content/cards.js';
-import { QUIET_WEATHER } from '../content/spaceWeather.js';
+import { historicalForSeed } from '../content/spaceWeather.js';
 import { DEFAULT_BALANCE } from '../engine/balance.js';
 import type { Balance } from '../engine/balance.js';
 import { applyDecision, beginSlot, createEngine, createRun, viewSlot } from '../engine/run.js';
 import type { Engine } from '../engine/run.js';
-import type { EngineContext, LossCause, MissionObjective, RunState } from '../engine/types.js';
+import type { LossCause, MissionObjective, RunState } from '../engine/types.js';
 import type { Policy } from './policies.js';
 
-const CONTEXT: EngineContext = { spaceWeather: QUIET_WEATHER };
 const MAX_SLOTS = 500;
 
 export interface RunOutcome {
@@ -26,13 +25,14 @@ export function playOnce(
   objective: MissionObjective,
   policy: Policy,
 ): RunOutcome {
-  let state = createRun(engine, { seed, objective });
+  // Mesmo caminho do app offline: clima historico verificado escolhido pela seed.
+  let state = createRun(engine, { seed, objective, spaceWeather: historicalForSeed(seed) });
   let slots = 0;
   while (state.status === 'running' && slots < MAX_SLOTS) {
     state = beginSlot(engine, state);
     const view = viewSlot(engine, state);
     const decision = policy.decide(view, state, slots);
-    state = applyDecision(engine, state, decision, CONTEXT).state;
+    state = applyDecision(engine, state, decision).state;
     slots += 1;
   }
   if (state.result === null) throw new Error(`Partida nao terminou em ${MAX_SLOTS} slots (seed ${seed})`);

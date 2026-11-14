@@ -16,6 +16,8 @@ export function Credits(): JSX.Element {
       <p className="text-[13px] font-semibold text-slate-400">{PROJECT.subtitle}</p>
       <p className="mt-0.5 text-[12px] text-slate-500">{PROJECT.event} · {PROJECT.year}</p>
 
+      {/* Sem nomes reais preenchidos em data/credits.ts, a secao nao aparece. */}
+      {CREDITS.length > 0 ? (
       <section className="mt-5 rounded-3xl glass p-4">
         <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">{t('credits.team')}</h2>
         <ul className="mt-2 flex flex-col gap-3">
@@ -33,6 +35,7 @@ export function Credits(): JSX.Element {
           ))}
         </ul>
       </section>
+      ) : null}
 
       <section className="mt-3 rounded-3xl glass p-4">
         <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">

@@ -2,18 +2,24 @@ import { useEffect, useState } from 'react';
 import { Loader2, Telescope, X, WifiOff } from 'lucide-react';
 import { loadSpaceView, offlineView } from '../services/nasa.js';
 import type { SpaceView } from '../services/nasa.js';
-import { useT } from '../i18n/useI18n.js';
+import { LEGACY_V2_WEATHER } from '../../engine/save.js';
+import type { SpaceWeather } from '../../engine/types.js';
+import { useI18n, useT } from '../i18n/useI18n.js';
+import { useGame } from '../store/useGame.js';
+import { weatherSentence } from './WeatherNote.js';
 
 /**
  * A "janela da base". Mixed media deliberado: aqui entra FOTO REAL da NASA,
  * enquanto a base e o mundo sao desenhados. A moldura e a mesma dos dois
  * lados para costurar os dois registros visuais.
  *
- * Nunca bloqueia o jogo: sem rede, mostra o ceu desenhado e um evento
- * historico real do dataset offline.
+ * Nunca bloqueia o jogo: sem rede, mostra o ceu desenhado e o clima espacial
+ * real que a propria missao usa (ou, sem missao, um registro verificado).
  */
 export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
   const t = useT();
+  const locale = useI18n((s) => s.locale);
+  const runWeather = useGame((s) => s.run?.config.spaceWeather ?? null);
   const [view, setView] = useState<SpaceView | null>(null);
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -29,9 +35,17 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
     return () => { document.removeEventListener('keydown', onKey); };
   }, [onClose]);
 
-  const resolved = view ?? null;
-  const showPhoto = resolved?.kind === 'photo' && resolved.imageUrl !== undefined && !imageFailed;
-  const fallback = resolved === null ? null : (showPhoto ? null : (resolved.kind === 'photo' ? offlineView() : resolved));
+  const resolved = view;
+  const photo = resolved?.kind === 'photo' && !imageFailed ? resolved : null;
+  const fallback: SpaceWeather | null = resolved === null || photo !== null
+    ? null
+    : runWeather !== null && runWeather.id !== LEGACY_V2_WEATHER.id
+      ? runWeather
+      : resolved.kind === 'offline' ? resolved.weather : offlineView().weather;
+  const title = photo !== null ? photo.title : t('space.offlineTitle');
+  const caption = photo !== null ? photo.caption : fallback === null ? '' : weatherSentence(fallback, locale, t);
+  const source = photo !== null ? photo.source : fallback?.source ?? '';
+  const date = photo !== null ? photo.date : fallback?.date ?? '';
 
   return (
     <div
@@ -61,10 +75,10 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
               <div className="grid h-full place-items-center text-slate-500">
                 <Loader2 size={26} className="animate-spin" aria-hidden />
               </div>
-            ) : showPhoto ? (
+            ) : photo !== null ? (
               <img
-                src={resolved.imageUrl}
-                alt={resolved.title}
+                src={photo.imageUrl}
+                alt={photo.title}
                 className="h-full w-full object-cover"
                 onError={() => { setImageFailed(true); }}
               />
@@ -92,18 +106,15 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
           </div>
 
           <div className="p-4">
-            <h3 className="font-display text-sm font-extrabold leading-snug text-white">
-              {showPhoto ? resolved?.title : fallback?.title}
-            </h3>
-            <p className="mt-1 text-[12.5px] leading-snug text-slate-400">
-              {showPhoto ? resolved?.caption : fallback?.caption}
-            </p>
-            <p className="mt-2.5 text-[10.5px] font-semibold uppercase tracking-wide text-slate-500">
-              {t('space.source', {
-                source: (showPhoto ? resolved?.source : fallback?.source) ?? '',
-                date: (showPhoto ? resolved?.date : fallback?.date) ?? '',
-              })}
-            </p>
+            {resolved !== null ? (
+              <>
+                <h3 className="font-display text-sm font-extrabold leading-snug text-white">{title}</h3>
+                <p className="mt-1 text-[12.5px] leading-snug text-slate-400">{caption}</p>
+                <p className="mt-2.5 text-[10.5px] font-semibold uppercase tracking-wide text-slate-500">
+                  {t('space.source', { source, date })}
+                </p>
+              </>
+            ) : null}
           </div>
         </div>
       </div>

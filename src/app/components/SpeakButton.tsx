@@ -1,5 +1,5 @@
 import { Square, Volume2 } from 'lucide-react';
-import { speechSupported, useSpeech } from '../a11y/speech.js';
+import { labellerFor, plainText, speechSupported, useSpeech } from '../a11y/speech.js';
 import { useAccount } from '../store/useAccount.js';
 import { useI18n } from '../i18n/useI18n.js';
 
@@ -18,17 +18,17 @@ export function SpeakButton({
   const lastText = useSpeech((s) => s.lastText);
   const toggle = useSpeech((s) => s.toggle);
   const rate = useAccount((s) => s.settings.speechRate);
-  const voiceURI = useAccount((s) => s.settings.voiceURI);
   const locale = useI18n((s) => s.locale);
 
   if (!speechSupported()) return null;
 
-  const isThis = speaking && lastText !== null && lastText.length > 0 && text.includes(lastText.slice(0, 24));
+  // Compara texto LIMPO com texto limpo: `lastText` ja vem sem [[id]].
+  const isThis = speaking && lastText !== null && lastText === plainText(text, labellerFor(locale));
 
   return (
     <button
       type="button"
-      onClick={() => { toggle(text, { locale, rate, voiceURI }); }}
+      onClick={() => { toggle(text, { locale, rate }); }}
       aria-label={label}
       className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10 transition-colors
                   hover:bg-white/20 ${className ?? ''}`}

@@ -1,16 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { CARDS } from '../src/content/cards.js';
-import { QUIET_WEATHER } from '../src/content/spaceWeather.js';
+import { TEST_QUIET_WEATHER } from './fixtures.js';
 import { DEFAULT_BALANCE } from '../src/engine/balance.js';
 import { clampStat, dailyDose, findLossCause, hasReachedObjective } from '../src/engine/resources.js';
 import { randomAt } from '../src/engine/rng.js';
 import { applyDecision, beginSlot, createEngine, createRun, viewSlot } from '../src/engine/run.js';
 import { slotsPerPhase } from '../src/engine/schedule.js';
 import { MVP_DAY_PLAN } from '../src/engine/types.js';
-import type { EngineContext, Stats } from '../src/engine/types.js';
+import type { Stats } from '../src/engine/types.js';
 
 const engine = createEngine(CARDS);
-const ctx: EngineContext = { spaceWeather: QUIET_WEATHER };
 
 const baseStats = (over: Partial<Stats> = {}): Stats => ({
   oxygen: 50, power: 50, food: 50, dose: 10, shielding: 80, science: 0, lifeSupport: 0, ...over,
@@ -24,7 +23,7 @@ describe('limites 0-100', () => {
   });
 
   it('nenhum stat sai de 0-100 numa partida completa', () => {
-    let state = createRun(engine, { seed: 4242, objective: 'science' });
+    let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed: 4242, objective: 'science' });
     let guard = 0;
     while (state.status === 'running' && guard < 200) {
       state = beginSlot(engine, state);
@@ -32,7 +31,7 @@ describe('limites 0-100', () => {
       const entry = view.cards[0];
       const pick = entry?.options.find((o) => o.selectable);
       if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
-      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
       for (const value of Object.values(state.stats)) {
         expect(value).toBeGreaterThanOrEqual(0);
         expect(value).toBeLessThanOrEqual(100);
@@ -90,7 +89,7 @@ describe('determinismo', () => {
 
   it('mesma seed + mesmas decisoes = mesma partida, card por card', () => {
     const play = (seed: number): string[] => {
-      let state = createRun(engine, { seed, objective: 'habitat' });
+      let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed, objective: 'habitat' });
       const trail: string[] = [];
       let guard = 0;
       while (state.status === 'running' && guard < 200) {
@@ -100,7 +99,7 @@ describe('determinismo', () => {
         const pick = entry?.options.find((o) => o.selectable);
         if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
         trail.push(`${state.day}.${state.slot}:${entry.card.id}:${pick.option.id}`);
-        state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+        state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
         guard += 1;
       }
       trail.push(`${state.status}:${state.result?.reason ?? ''}`);
@@ -119,7 +118,7 @@ describe('estrutura do dia', () => {
   });
 
   it('slots pares sempre trazem um card de recurso extra ao lado de um basico', () => {
-    let state = createRun(engine, { seed: 31337, objective: 'science' });
+    let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed: 31337, objective: 'science' });
     let guard = 0;
     let pairsSeen = 0;
     while (state.status === 'running' && guard < 200) {
@@ -140,14 +139,14 @@ describe('estrutura do dia', () => {
       const entry = view.cards[0];
       const pick = entry?.options.find((o) => o.selectable);
       if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
-      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
       guard += 1;
     }
     expect(pairsSeen).toBeGreaterThan(5);
   });
 
   it('cada card respeita a fase em que foi apresentado', () => {
-    let state = createRun(engine, { seed: 555, objective: 'habitat' });
+    let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed: 555, objective: 'habitat' });
     let guard = 0;
     while (state.status === 'running' && guard < 200) {
       state = beginSlot(engine, state);
@@ -158,7 +157,7 @@ describe('estrutura do dia', () => {
       const entry = view.cards[0];
       const pick = entry?.options.find((o) => o.selectable);
       if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
-      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
       guard += 1;
     }
   });
@@ -166,7 +165,7 @@ describe('estrutura do dia', () => {
 
 describe('regras do baralho', () => {
   it('card unico nao repete na mesma partida; rotina respeita cooldown', () => {
-    let state = createRun(engine, { seed: 777, objective: 'science' });
+    let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed: 777, objective: 'science' });
     const seen = new Map<string, number[]>();
     let guard = 0;
     while (state.status === 'running' && guard < 200) {
@@ -178,7 +177,7 @@ describe('regras do baralho', () => {
       const days = seen.get(entry.card.id) ?? [];
       days.push(state.day);
       seen.set(entry.card.id, days);
-      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
       guard += 1;
     }
 
@@ -202,7 +201,7 @@ describe('regras do baralho', () => {
   });
 
   it('card recusado num par volta ao pool', () => {
-    let state = createRun(engine, { seed: 2024, objective: 'science' });
+    let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed: 2024, objective: 'science' });
     state = beginSlot(engine, state);
     // avanca ate achar um par
     let guard = 0;
@@ -211,7 +210,7 @@ describe('regras do baralho', () => {
       const entry = view.cards[0];
       const pick = entry?.options.find((o) => o.selectable);
       if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
-      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
       state = beginSlot(engine, state);
       guard += 1;
     }
@@ -222,13 +221,13 @@ describe('regras do baralho', () => {
     const pick = chosen?.options.find((o) => o.selectable);
     if (chosen === undefined || pick === undefined) throw new Error('metade basica sem opcao');
 
-    const after = applyDecision(engine, state, { cardId: basicCardId, optionId: pick.option.id }, ctx).state;
+    const after = applyDecision(engine, state, { cardId: basicCardId, optionId: pick.option.id }).state;
     expect(after.deck.available, 'card extra recusado deveria voltar ao pool').toContain(extraCardId);
     expect(after.deck.used, 'card escolhido deveria sair do pool').toContain(basicCardId);
   });
 
   it('o evento da capsula desce no dia configurado', () => {
-    let state = createRun(engine, { seed: 8080, objective: 'science', capsuleDay: 3 });
+    let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed: 8080, objective: 'science', capsuleDay: 3 });
     let capsuleDay: number | null = null;
     let guard = 0;
     while (state.status === 'running' && guard < 200) {
@@ -238,7 +237,7 @@ describe('regras do baralho', () => {
       const entry = view.cards[0];
       const pick = entry?.options.find((o) => o.selectable);
       if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
-      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+      state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
       guard += 1;
     }
     expect(capsuleDay).toBe(3);
@@ -247,24 +246,24 @@ describe('regras do baralho', () => {
 
 describe('ordem de resolucao', () => {
   it('recusa decisao em opcao bloqueada por limiar', () => {
-    let state = createRun(engine, { seed: 123, objective: 'science' });
+    let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed: 123, objective: 'science' });
     state = beginSlot(engine, state);
     const view = viewSlot(engine, state);
     state = { ...state, stats: { ...state.stats, power: 0, oxygen: 1, food: 1 } };
     const entry = view.cards[0];
     const gated = entry?.card.options.find((o) => o.requires !== undefined && o.requires.length > 0);
     if (entry === undefined || gated === undefined) return; // esse card nao tem limiar
-    expect(() => applyDecision(engine, state, { cardId: entry.card.id, optionId: gated.id }, ctx)).toThrow();
+    expect(() => applyDecision(engine, state, { cardId: entry.card.id, optionId: gated.id })).toThrow();
   });
 
   it('recusa card que nao esta na mesa', () => {
-    let state = createRun(engine, { seed: 123, objective: 'science' });
+    let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed: 123, objective: 'science' });
     state = beginSlot(engine, state);
-    expect(() => applyDecision(engine, state, { cardId: 'nao_existe', optionId: 'x' }, ctx)).toThrow();
+    expect(() => applyDecision(engine, state, { cardId: 'nao_existe', optionId: 'x' })).toThrow();
   });
 
   it('derrota tem precedencia sobre vitoria no mesmo slot', () => {
-    let state = createRun(engine, { seed: 90210, objective: 'science' });
+    let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed: 90210, objective: 'science' });
     state = beginSlot(engine, state);
     const view = viewSlot(engine, state);
     const entry = view.cards[0];
@@ -273,7 +272,7 @@ describe('ordem de resolucao', () => {
     // Ciencia em 100 (vitoria) e oxigenio em 1 (o dreno do slot zera): base
     // morta nao publica artigo.
     state = { ...state, stats: { ...state.stats, science: 100, oxygen: 1 } };
-    const result = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+    const result = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
     expect(result.status).toBe('lost');
     expect(result.result?.reason).toBe('oxygen');
   });

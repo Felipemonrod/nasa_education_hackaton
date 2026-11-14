@@ -67,7 +67,7 @@ function StatRow({ row, value }: { row: Row; value: number }): JSX.Element {
               pela maioria dos leitores de tela. */}
           <span
             role="img"
-            aria-label={t('hud.valueAria', { stat: label, value })}
+            aria-label={t('hud.valueAria', { label, value })}
             className={`tabular-nums text-[0.9rem] font-extrabold ${isDanger ? 'text-radiation' : row.color}`}
           >
             {value}

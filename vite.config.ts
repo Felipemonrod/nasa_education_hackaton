@@ -34,7 +34,8 @@ export default defineConfig({
           {
             // Imagens da NASA: rede primeiro, cache como rede de seguranca.
             // O JOGO nunca depende disso -- e so a janela "olhar espaco".
-            urlPattern: /^https:\/\/(api\.nasa\.gov|apod\.nasa\.gov|epic\.gsfc\.nasa\.gov)\/.*/i,
+            // (EPIC removido: nenhum codigo do app chama epic.gsfc.nasa.gov.)
+            urlPattern: /^https:\/\/(api\.nasa\.gov|apod\.nasa\.gov)\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'nasa-media',
@@ -55,5 +56,10 @@ export default defineConfig({
       },
     }),
   ],
+  // Porta FIXA: localStorage e por origem (protocolo+host+porta). Se o Vite
+  // pulasse para 5174 por a 5173 estar ocupada, o save "sumiria" -- estaria
+  // na outra origem. Melhor falhar alto. scripts/auto-update.sh usa 5173.
+  server: { port: 5173, strictPort: true },
+  preview: { port: 5173, strictPort: true },
   build: { target: 'es2022' },
 });

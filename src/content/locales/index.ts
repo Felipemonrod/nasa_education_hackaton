@@ -18,6 +18,7 @@ import { CONTENT_PT } from './pt.js';
  *   glossary.<termId>.short
  *   loadout.<cardId>.name | .role | .blurb | .effect
  *   site.<siteId>.name | .region | .blurb | .why | .note
+ *   weather.<weatherId>.label            (clima espacial historico verificado)
  *
  * A marcacao de palavra do glossario usa o ID ESTAVEL em qualquer idioma:
  * "[[oxygen]]", nunca "[[oxigenio]]". O termo exibido vem do dicionario.
@@ -43,4 +44,5 @@ export const optionKey = (cardId: string, optionId: string, field: 'label' | 'li
   `opt.${cardId}.${optionId}.${field}`;
 export const glossaryKey = (termId: string, field: 'term' | 'short'): string => `glossary.${termId}.${field}`;
 export const loadoutKey = (id: string, field: 'name' | 'role' | 'blurb' | 'effect'): string => `loadout.${id}.${field}`;
-export const siteKey = (id: string, field: 'name' | 'region' | 'blurb' | 'why' | 'note'): string => `site.${id}.${field}`;
+export const weatherKey = (id: string): string => `weather.${id}.label`;
+export const siteKey =(id: string, field: 'name' | 'region' | 'blurb' | 'why' | 'note'): string => `site.${id}.${field}`;

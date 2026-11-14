@@ -11,13 +11,18 @@ import {
   ALL_STATS, MVP_DAY_PLAN, SCHEMA_VERSION,
 } from './types.js';
 import type {
-  ActiveModifier, Card, CardOption, Effect, EngineContext, Loadout, LogEntry,
-  MissionObjective, Modifier, PresentedSlot, RunConfig, RunState, Stat, Stats,
+  ActiveModifier, Card, CardOption, Effect, Loadout, LogEntry,
+  MissionObjective, Modifier, PresentedSlot, RunConfig, RunState, SpaceWeather, Stat, Stats,
 } from './types.js';
 
 export interface CreateRunOptions {
   readonly seed: number;
   readonly objective: MissionObjective;
+  /**
+   * Obrigatorio de proposito: sem valor padrao inventado. Quem cria a
+   * partida diz de onde vem o clima (DONKI ao vivo ou registro historico).
+   */
+  readonly spaceWeather: SpaceWeather;
   readonly days?: number;
   readonly capsuleDay?: number;
   readonly tutorial?: boolean;
@@ -53,6 +58,7 @@ export function createRun(engine: Engine, options: CreateRunOptions): RunState {
     capsuleDay: options.capsuleDay ?? 5,
     tutorial: options.tutorial ?? false,
     loadout: options.loadout ?? NO_LOADOUT,
+    spaceWeather: options.spaceWeather,
   };
 
   let cursor = 0;
@@ -254,7 +260,6 @@ export function applyDecision(
   engine: Engine,
   input: RunState,
   decision: Decision,
-  _context: EngineContext,
 ): DecisionResult {
   if (input.status !== 'running') throw new Error('Partida encerrada');
   if (input.current === null) throw new Error('Slot nao resolvido: chame beginSlot primeiro');

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { QUIET_WEATHER } from '../src/content/spaceWeather.js';
+import { TEST_QUIET_WEATHER } from './fixtures.js';
 import { applyDecision, beginSlot, createEngine, createRun, viewSlot } from '../src/engine/run.js';
-import type { Card, EngineContext, Outcome } from '../src/engine/types.js';
+import type { Card, Outcome } from '../src/engine/types.js';
 
 /**
  * Dataset SINTETICO minimo. Testar temporal / sequencial com o baralho real
@@ -52,10 +52,9 @@ const DECK: readonly Card[] = [
 ];
 
 const engine = createEngine(DECK);
-const ctx: EngineContext = { spaceWeather: QUIET_WEATHER };
 
 function play(seed: number, slots: number): { ids: string[][]; doses: number[] } {
-  let state = createRun(engine, { seed, objective: 'science', capsuleDay: 99 });
+  let state = createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed, objective: 'science', capsuleDay: 99 });
   const ids: string[][] = [];
   const doses: number[] = [];
   for (let i = 0; i < slots && state.status === 'running'; i += 1) {
@@ -65,7 +64,7 @@ function play(seed: number, slots: number): { ids: string[][]; doses: number[] }
     const entry = view.cards[0];
     const pick = entry?.options.find((o) => o.selectable);
     if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
-    state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+    state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
     doses.push(state.stats.dose);
   }
   return { ids, doses };
@@ -75,7 +74,7 @@ describe('cards temporais', () => {
   it('ocupa 3 slots e aplica os efeitos por slot em cada ocupacao', () => {
     const engineSolo = createEngine([STORM, fb('fb_day', 'day', 'basic'), fb('fb_night', 'night', 'basic'),
       fb('fb_extra_day', 'day', 'extra'), fb('fb_extra_night', 'night', 'extra'), EVENT]);
-    let state = createRun(engineSolo, { seed: 1, objective: 'science', capsuleDay: 99 });
+    let state = createRun(engineSolo, { spaceWeather: TEST_QUIET_WEATHER, seed: 1, objective: 'science', capsuleDay: 99 });
     const occupied: number[] = [];
     for (let i = 0; i < 8 && state.status === 'running'; i += 1) {
       state = beginSlot(engineSolo, state);
@@ -84,7 +83,7 @@ describe('cards temporais', () => {
       const entry = view.cards[0];
       const pick = entry?.options.find((o) => o.selectable);
       if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
-      state = applyDecision(engineSolo, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+      state = applyDecision(engineSolo, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
     }
     expect(occupied).toHaveLength(3);
     expect(state.activeTemporal).toBeNull();
@@ -107,7 +106,7 @@ describe('cards sequenciais', () => {
     const engineSeq = createEngine([TRIGGER, CHILD, EXTRA_DAY,
       fb('fb_day', 'day', 'basic'), fb('fb_night', 'night', 'basic'),
       fb('fb_extra_day', 'day', 'extra'), fb('fb_extra_night', 'night', 'extra'), EVENT]);
-    let state = createRun(engineSeq, { seed: 3, objective: 'science', capsuleDay: 99 });
+    let state = createRun(engineSeq, { spaceWeather: TEST_QUIET_WEATHER, seed: 3, objective: 'science', capsuleDay: 99 });
     const trail: string[] = [];
     for (let i = 0; i < 8 && state.status === 'running'; i += 1) {
       state = beginSlot(engineSeq, state);
@@ -117,7 +116,7 @@ describe('cards sequenciais', () => {
       const entry = view.cards[0];
       const pick = entry?.options.find((o) => o.selectable);
       if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
-      state = applyDecision(engineSeq, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+      state = applyDecision(engineSeq, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
     }
     const triggerAt = trail.indexOf('trigger');
     const childAt = trail.indexOf('child');
@@ -131,7 +130,7 @@ describe('cards sequenciais', () => {
     const engineNoTrigger = createEngine([CHILD, EXTRA_DAY,
       fb('fb_day', 'day', 'basic'), fb('fb_night', 'night', 'basic'),
       fb('fb_extra_day', 'day', 'extra'), fb('fb_extra_night', 'night', 'extra'), EVENT]);
-    let state = createRun(engineNoTrigger, { seed: 5, objective: 'science', capsuleDay: 99 });
+    let state = createRun(engineNoTrigger, { spaceWeather: TEST_QUIET_WEATHER, seed: 5, objective: 'science', capsuleDay: 99 });
     for (let i = 0; i < 12 && state.status === 'running'; i += 1) {
       state = beginSlot(engineNoTrigger, state);
       const view = viewSlot(engineNoTrigger, state);
@@ -139,7 +138,7 @@ describe('cards sequenciais', () => {
       const entry = view.cards[0];
       const pick = entry?.options.find((o) => o.selectable);
       if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
-      state = applyDecision(engineNoTrigger, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+      state = applyDecision(engineNoTrigger, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
     }
   });
 });
@@ -149,7 +148,7 @@ describe('fallback do pool', () => {
     const tiny = createEngine([EXTRA_DAY,
       fb('fb_day', 'day', 'basic'), fb('fb_night', 'night', 'basic'),
       fb('fb_extra_day', 'day', 'extra'), fb('fb_extra_night', 'night', 'extra'), EVENT]);
-    let state = createRun(tiny, { seed: 11, objective: 'science', capsuleDay: 99 });
+    let state = createRun(tiny, { spaceWeather: TEST_QUIET_WEATHER, seed: 11, objective: 'science', capsuleDay: 99 });
     let guard = 0;
     while (state.status === 'running' && guard < 200) {
       state = beginSlot(tiny, state);
@@ -157,7 +156,7 @@ describe('fallback do pool', () => {
       const entry = view.cards[0];
       const pick = entry?.options.find((o) => o.selectable);
       if (entry === undefined || pick === undefined) throw new Error('slot sem opcao');
-      state = applyDecision(tiny, state, { cardId: entry.card.id, optionId: pick.option.id }, ctx).state;
+      state = applyDecision(tiny, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
       guard += 1;
     }
     expect(state.status).not.toBe('running');

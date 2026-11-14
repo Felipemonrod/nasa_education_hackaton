@@ -120,7 +120,7 @@ export function CardView({
         </div>
         <SpeakButton
           text={`${title}. ${text}. ${options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option)).join('. ')}`}
-          label={t('card.listenAria', { card: title })}
+          label={t('card.listenAria', { title })}
         />
       </header>
 

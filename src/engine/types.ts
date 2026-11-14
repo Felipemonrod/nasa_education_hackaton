@@ -5,7 +5,8 @@
  * Date.now() ou Math.random(). Tudo que vem de fora entra como input.
  */
 
-export const SCHEMA_VERSION = 2;
+/** v3: `config.spaceWeather` (clima espacial real da missao). save.ts migra v2. */
+export const SCHEMA_VERSION = 3;
 
 /** Recursos basicos: zerar = derrota. */
 export type BasicResource = 'oxygen' | 'power' | 'food';
@@ -113,6 +114,12 @@ export interface Card {
   readonly sequentialOnly?: boolean;
   /** Ultimo recurso do deck quando o pool seca. Nunca sorteado normalmente. */
   readonly isFallback?: boolean;
+  /**
+   * Card de tempestade solar. A chance de sorteio e multiplicada por
+   * `balance.flareWeight` conforme a classe do clima espacial da missao:
+   * 'weak' responde a qualquer classe; 'strong' (classe X) so a dia classe X.
+   */
+  readonly solarFlare?: 'weak' | 'strong';
   readonly options: readonly CardOption[];
 }
 
@@ -156,6 +163,11 @@ export interface RunConfig {
   readonly capsuleDay: number;
   readonly tutorial: boolean;
   readonly loadout: Loadout;
+  /**
+   * Clima espacial REAL que a missao usa, escolhido na borda (app) e gravado
+   * no save: recarregar reproduz os mesmos sorteios.
+   */
+  readonly spaceWeather: SpaceWeather;
 }
 
 export interface DeckState {
@@ -243,17 +255,22 @@ export interface RunState {
 }
 
 // ---------------------------------------------------------------------------
-// Contexto injetado (nunca lido de dentro do engine)
+// Clima espacial (dado externo, entra pela config da partida)
 // ---------------------------------------------------------------------------
 
+/** Classe GOES do maior flare. A e B contam como 'none' (sem efeito no jogo). */
 export type FlareClass = 'none' | 'C' | 'M' | 'X';
 
 export interface SpaceWeather {
+  /** Identificador estavel do registro (ex.: 'hist-2017-09-06', 'donki-live'). */
+  readonly id: string;
+  /** Dia (YYYY-MM-DD) ou intervalo (YYYY-MM-DD/YYYY-MM-DD) observado. */
   readonly date: string;
   readonly flareClass: FlareClass;
+  /** Classe exata como publicada (ex.: 'X9.3'); null quando nao houve evento. */
+  readonly classType: string | null;
+  /** Quem publicou o dado (ex.: 'NOAA/SWPC', 'NASA DONKI'). */
   readonly source: string;
-}
-
-export interface EngineContext {
-  readonly spaceWeather: SpaceWeather;
+  /** Onde o dado pode ser conferido. */
+  readonly sourceUrl: string;
 }

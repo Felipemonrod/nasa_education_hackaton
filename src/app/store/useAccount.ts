@@ -32,8 +32,6 @@ export interface AccountState {
     /** Le card e desfecho em voz alta automaticamente. */
     autoRead: boolean;
     speechRate: number;
-    /** Voz escolhida pelo usuario; null = a melhor disponivel para o idioma. */
-    voiceURI: string | null;
     /** Exige um segundo toque para fechar a decisao. */
     confirmDecisions: boolean;
   };
@@ -59,7 +57,6 @@ const EMPTY: AccountState = {
     underlineLinks: true,
     autoRead: true,
     speechRate: 1,
-    voiceURI: null,
     // Ligada de fabrica: a decisao e irreversivel e o publico tem 10 anos.
     // Um toque acidental nao deve martelar a escolha final.
     confirmDecisions: true,
@@ -67,28 +64,65 @@ const EMPTY: AccountState = {
   totals: { runs: 0, wins: 0, losses: 0, bestScience: 0, bestLife: 0 },
 };
 
-function load(): AccountState {
-  const raw = readRaw(ACCOUNT_KEY);
+const HUD_THEMES: readonly HudTheme[] = ['mission', 'amber', 'mint', 'rose'];
+
+function stringList(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
+}
+
+/**
+ * Copia SO as chaves conhecidas, cada uma com o tipo do default. Campos
+ * removidos do jogo (ex.: `voiceURI`, do antigo seletor de voz) e valores de
+ * tipo errado ficam para tras em vez de vazarem para o estado.
+ */
+function pickKnown<T extends object>(defaults: T, input: unknown): T {
+  if (typeof input !== 'object' || input === null) return { ...defaults };
+  const source = input as Record<string, unknown>;
+  const out = { ...defaults } as Record<string, unknown>;
+  for (const [key, fallback] of Object.entries(defaults)) {
+    if (typeof source[key] === typeof fallback) out[key] = source[key];
+  }
+  return out as T;
+}
+
+/** Exportada para teste. */
+export function parseAccount(raw: string | null): AccountState {
   if (raw === null) return EMPTY;
   try {
     const parsed: unknown = JSON.parse(raw);
     if (typeof parsed !== 'object' || parsed === null) return EMPTY;
-    const data = parsed as Partial<AccountState>;
-    // Versao diferente: descarta explicitamente em vez de carregar quebrado.
-    if (data.version !== ACCOUNT_VERSION) return EMPTY;
+    const data = parsed as Record<string, unknown>;
+    // Versao do FUTURO (app mais novo gravou, app velho leu): nao da para
+    // interpretar com seguranca. Guarda uma copia antes de seguir do zero,
+    // para que o progresso nao suma em silencio.
+    if (typeof data['version'] !== 'number' || data['version'] > ACCOUNT_VERSION) {
+      writeRaw(`${ACCOUNT_KEY}:backup`, raw);
+      return EMPTY;
+    }
+    // Versao igual ou anterior: aproveita campo a campo o que tiver o tipo certo.
+    const theme = data['hudTheme'];
+    const settings = pickKnown(EMPTY.settings, data['settings']);
+    if (!['normal', 'large', 'xlarge'].includes(settings.textScale)) settings.textScale = EMPTY.settings.textScale;
     return {
-      ...EMPTY,
-      ...data,
-      knownCards: Array.isArray(data.knownCards) ? data.knownCards : [],
-      knownOutcomes: Array.isArray(data.knownOutcomes) ? data.knownOutcomes : [],
-      unlocks: Array.isArray(data.unlocks) ? data.unlocks : [],
-      badges: Array.isArray(data.badges) ? data.badges : [],
-      settings: { ...EMPTY.settings, ...(data.settings ?? {}) },
-      totals: { ...EMPTY.totals, ...(data.totals ?? {}) },
+      version: ACCOUNT_VERSION,
+      cutsceneSeen: false,
+      knownCards: stringList(data['knownCards']),
+      knownOutcomes: stringList(data['knownOutcomes']),
+      unlocks: stringList(data['unlocks']),
+      badges: stringList(data['badges']),
+      hudTheme: HUD_THEMES.includes(theme as HudTheme) ? theme as HudTheme : EMPTY.hudTheme,
+      settings,
+      totals: pickKnown(EMPTY.totals, data['totals']),
     };
   } catch {
+    // JSON corrompido: mesma regra, guarda o bruto antes de recomecar.
+    writeRaw(`${ACCOUNT_KEY}:backup`, raw);
     return EMPTY;
   }
+}
+
+function load(): AccountState {
+  return parseAccount(readRaw(ACCOUNT_KEY));
 }
 
 interface AccountActions {
@@ -111,7 +145,7 @@ export const useAccount = create<AccountState & AccountActions>()((set, get) => 
   ...load(),
 
   markCutsceneSeen() {
-    set((s) => { const next = { ...s, cutsceneSeen: true }; persist(next); return next; });
+    set({ cutsceneSeen: true });
   },
 
   seeCard(cardId) {

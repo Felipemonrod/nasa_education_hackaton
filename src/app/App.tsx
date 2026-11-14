@@ -26,7 +26,6 @@ export function App(): JSX.Element {
   const markCutsceneSeen = useAccount((s) => s.markCutsceneSeen);
   const autoRead = useAccount((s) => s.settings.autoRead);
   const speechRate = useAccount((s) => s.settings.speechRate);
-  const voiceURI = useAccount((s) => s.settings.voiceURI);
   const locale = useI18n((s) => s.locale);
   const speak = useSpeech((s) => s.speak);
   const stopSpeech = useSpeech((s) => s.stop);
@@ -42,9 +41,9 @@ export function App(): JSX.Element {
     if (!autoRead || outcome === null) return;
     speak(
       `${outcome.option.outcome.line}. ${outcome.option.outcome.why}`,
-      { locale, rate: speechRate, voiceURI },
+      { locale, rate: speechRate },
     );
-  }, [autoRead, outcome, speak, locale, speechRate, voiceURI]);
+  }, [autoRead, outcome, speak, locale, speechRate]);
 
   // Para a fala ao trocar de tela: audio de uma tela nao deve vazar na seguinte.
   useEffect(() => () => { stopSpeech(); }, [screen, stopSpeech]);

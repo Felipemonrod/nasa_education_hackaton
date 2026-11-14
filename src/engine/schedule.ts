@@ -91,6 +91,7 @@ function pickBasicHalf(
     role: 'basic',
     day: state.day,
     stats: state.stats,
+    flareClass: state.config.spaceWeather.flareClass,
   });
   return { cardId: draw.cardId, cursor: draw.cursor, state, usedFallback: draw.usedFallback };
 }

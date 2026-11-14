@@ -1,25 +1,13 @@
-import { useEffect, useState } from 'react';
 import {
-  ArrowLeft, Contrast, Eye, Gauge, Languages, Lock, Mic, Palette, Trash2, Type, Volume2,
+  ArrowLeft, Contrast, Eye, Gauge, Languages, Lock, Palette, Trash2, Type, Volume2,
 } from 'lucide-react';
 import { LOCALES, LOCALE_LABEL } from '../../i18n/core.js';
 import type { Locale } from '../../i18n/core.js';
-import { listVoices, speechSupported, subscribeVoices, useSpeech } from '../a11y/speech.js';
-import type { VoiceOption } from '../a11y/speech.js';
+import { RATE_MAX, RATE_MIN, speechSupported, useSpeech } from '../a11y/speech.js';
 import { THEME_UNLOCK, useAccount } from '../store/useAccount.js';
 import type { HudTheme } from '../store/useAccount.js';
 import { useI18n, useT } from '../i18n/useI18n.js';
 import { useGame } from '../store/useGame.js';
-
-/** A lista de vozes chega de forma assincrona no Chrome. */
-function useVoices(locale: Locale): VoiceOption[] {
-  const [voices, setVoices] = useState<VoiceOption[]>(() => listVoices(locale));
-  useEffect(() => {
-    setVoices(listVoices(locale));
-    return subscribeVoices(() => { setVoices(listVoices(locale)); });
-  }, [locale]);
-  return voices;
-}
 
 function Section({ icon: Icon, title, hint, children }: {
   icon: typeof Eye; title: string; hint?: string; children: React.ReactNode;
@@ -93,7 +81,6 @@ export function Settings(): JSX.Element {
   const unlocks = useAccount((s) => s.unlocks);
   const resetAccount = useAccount((s) => s.resetAccount);
   const speak = useSpeech((s) => s.speak);
-  const voices = useVoices(locale);
 
   return (
     <div className="mx-auto w-full max-w-md px-4 pb-10 pt-6">
@@ -167,30 +154,6 @@ export function Settings(): JSX.Element {
               onChange={(v) => { setSetting('autoRead', v); }}
             />
 
-            {/* Seletor de voz: vozes remotas soam bem melhor que as locais. */}
-            <div className="mt-2">
-              <label
-                htmlFor="voice-pick"
-                className="flex items-center gap-2 text-[0.68rem] font-extrabold uppercase tracking-wide text-slate-300"
-              >
-                <Mic size={12} aria-hidden /> {t('settings.voice')}
-              </label>
-              <select
-                id="voice-pick"
-                value={settings.voiceURI ?? ''}
-                onChange={(e) => { setSetting('voiceURI', e.target.value === '' ? null : e.target.value); }}
-                className="mt-1.5 min-h-[44px] w-full rounded-xl glass px-3 py-2 text-[0.8rem] font-bold text-slate-100"
-              >
-                <option value="">{t('settings.voiceAuto')}</option>
-                {voices.map((voice) => (
-                  <option key={voice.uri} value={voice.uri}>
-                    {voice.name} ({voice.lang}){voice.remote ? ` · ${t('settings.voiceRemote')}` : ''}
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1 text-[0.7rem] leading-snug text-slate-300">{t('settings.voiceHint')}</p>
-            </div>
-
             <div className="mt-3">
               <label
                 htmlFor="voice-rate"
@@ -201,7 +164,7 @@ export function Settings(): JSX.Element {
               <input
                 id="voice-rate"
                 type="range"
-                min="0.6" max="1.6" step="0.1"
+                min={RATE_MIN} max={RATE_MAX} step="0.1"
                 value={settings.speechRate}
                 onChange={(e) => { setSetting('speechRate', Number(e.target.value)); }}
                 aria-label={t('settings.speechRateAria')}
@@ -211,11 +174,7 @@ export function Settings(): JSX.Element {
                 type="button"
                 className="btn-ghost mt-2 px-3 py-2 text-sm"
                 onClick={() => {
-                  speak(t('settings.voiceTest'), {
-                    locale,
-                    rate: settings.speechRate,
-                    voiceURI: settings.voiceURI,
-                  });
+                  speak(t('settings.voiceTest'), { locale, rate: settings.speechRate });
                 }}
               >
                 <Volume2 size={15} aria-hidden /> {t('settings.testVoice')}

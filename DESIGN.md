@@ -32,7 +32,7 @@ dose_diária = round( doseBaseDaily × (1 − shieldingEfficacy × blindagem/100
 ```
 
 Consequências implementadas:
-- `shielding` degrada 2/dia (poeira abrasiva + micrometeoritos) e **não** mata
+- `shielding` degrada 3/dia (`shieldingDecayPerDay`; poeira abrasiva + micrometeoritos) e **não** mata
 - consertar a blindagem tem propósito mecânico: reduz a dose futura, não "reabastece um tanque"
 - há 4 condições de derrota, como no spec original — `blindagem = 0` deu lugar a `dose = 100`
 
@@ -111,7 +111,7 @@ Fixa e testada. Não reordenar sem atualizar `tests/engine.test.ts`:
 
 ## 4. Determinismo
 
-O engine é `(state, decision, context) => state`. Não importa React, não chama
+O engine é `(state, decision) => state`. Não importa React, não chama
 `fetch`, `Date.now()` nem `Math.random()`.
 
 - PRNG **sem estado mutável**: `randomAt(seed, cursor)` é função pura. O save
@@ -119,15 +119,24 @@ O engine é `(state, decision, context) => state`. Não importa React, não cham
 - Recarregar um save reproduz exatamente os mesmos sorteios →
   **save-scumming não dá vantagem**, e qualquer bug é reproduzível a partir do
   save do jogador. Coberto por teste.
-- Clima espacial entra como **input** (`{ flareClass, date, source }`), nunca
-  como chamada de rede de dentro do engine.
+- Clima espacial entra como **input** em `config.spaceWeather`
+  (`{ id, date, flareClass, classType, source, sourceUrl }`), escolhido na
+  borda ao criar a partida e gravado no save. Nunca é chamada de rede de dentro
+  do engine. Efeito: `flareWeight[classe]` multiplica a chance dos cards
+  `solarFlare` (o forte, "classe X", só pesa em dia X). Classe `none` = peso 1
+  = sorteio idêntico ao de antes do clima.
 
 ---
 
 ## 5. Dados da NASA: offline-first
 
-O dataset histórico (`src/content/spaceWeather.ts`) é a **fonte primária**. A
-API DONKI entra apenas como enriquecimento, na borda do sistema. Motivos:
+O dataset histórico (`src/content/spaceWeather.ts`) é a **fonte offline**: 15
+dias reais, cada um conferido no relatório diário NOAA/SWPC (linhas XRA do GOES)
+e com `sourceUrl` para o arquivo do dia. A DONKI (flares dos últimos 7 dias)
+entra na borda (`src/app/services/donki.ts`): consultada ao abrir "Nova missão",
+usada se já respondeu ao confirmar o loadout; senão, registro histórico pela
+seed. Resposta vazia da DONKI é fato ("nenhum flare"); resposta com formato
+inesperado **não** vira dia calmo. Motivos da arquitetura:
 
 - `DEMO_KEY` limita por IP; público-alvo é criança → escola → NAT compartilhado → cota estourada em minutos
 - PWA tem que funcionar offline por definição
@@ -141,8 +150,14 @@ serverless (escopo novo).
 
 ## 6. Save
 
-- `schemaVersion` desde o primeiro commit; versão diferente é **rejeitada com
-  motivo**, nunca carregada parcialmente
+- `schemaVersion` desde o primeiro commit (hoje 3). Versão conhecida mais
+  antiga é **migrada** (v2→v3 em `save.ts`); versão desconhecida é **rejeitada
+  com motivo**, nunca carregada parcialmente
+- `localStorage`, não cookie nem servidor: o maior save medido tem 7586 bytes
+  (teste em `tests/save.test.ts`), acima dos 4096 garantidos por cookie, e não
+  há backend. Gravação a cada mutação (inclusive ao confirmar o loadout), pedido
+  de `navigator.storage.persist()` no boot, porta fixa no Vite (outra porta =
+  outra origem = outro storage)
 - validação com Zod na carga: dado fora do nosso código é dado não confiável
 - **sem criptografia, de propósito**: PoC local, sem login, sem ranking.
   Ofuscar `localStorage` aqui seria over-engineering
@@ -185,29 +200,36 @@ O dreno de cada recurso foi calibrado **contra o income disponível no
 baralho**, não escolhido no olho. Sem isso, energia era o único recurso letal
 (1499 de 1500 mortes) e os outros três eram decorativos.
 
-### Curva atual (3.000 partidas por política)
+### Curva atual (3.000 partidas por política, `npm run sim 3000`, 2026-11-14)
+
+Com clima espacial histórico verificado sorteado pela seed:
 
 | Política | Ciência | Habitat |
 |---|---|---|
 | `random` (baseline) | 0,0% | 0,0% |
-| `survival` (só sobreviver) | 85,8% | 88,9% |
-| `objective` (só o trilho, ignora a base) | 43,9% *(toda por objetivo)* | 10,0% *(9,9% por objetivo)* |
-| `adaptive` (jogador competente) | 36,6% | 53,6% |
+| `survival` (só sobreviver) | 68,6% | 71,8% |
+| `objective` (só o trilho, ignora a base) | 38,3% *(toda por objetivo)* | 20,6% *(toda por objetivo)* |
+| `adaptive` (jogador competente) | 14,0% | 28,4% |
+
+Referência, mesmo código antes do clima espacial (commit b2337b8): survival
+72,8% / 75,9%, objective 33,9% / 24,9%, adaptive 18,2% / 31,0%. A tabela
+anterior deste documento (survival 85,8%) já não batia com o código desse
+commit (re-rodado em 2026-11-14); a causa da divergência não foi investigada.
 
 Como ler: `random` alto = decisões não importam. `adaptive` em 0% ou 100% =
-não há jogo. Fallback médio ≈ 1,1 de 40 slots.
+não há jogo. Fallback médio ≈ 0,5–1,1 de 40 slots.
 
 ---
 
 ## 9. Decisões ainda abertas
 
-1. **Alvo de dificuldade.** `survival` em ~86% significa que sobreviver 10 dias
-   é quase garantido. Aceitável para "Iniciante"? Ou a derrota precisa ser
-   um resultado comum para o loop de aprendizado funcionar?
-2. **Assimetria entre trilhos.** Ciência vence por objetivo em 43,9%, habitat em
-   9,9%. Dois níveis de desafio dentro do mesmo nível, ou equalizar?
+1. **Alvo de dificuldade.** `survival` em ~70% e `adaptive` em 14–28%.
+   Aceitável para "Iniciante"? Ou a derrota está comum demais?
+2. **Assimetria entre trilhos.** Ciência vence por objetivo em 38,3%, habitat em
+   20,6%. Dois níveis de desafio dentro do mesmo nível, ou equalizar?
 3. **Texto enxuto × aprendizado.** Os dados já suportam as três saídas
    (`outcome.line` / `outcome.why` / `outcome.mistake`). Falta decidir a UI.
-4. **Quantos cards no MVP.** 42 hoje, sendo 38 jogáveis e 4 de fallback.
+4. **Quantos cards no MVP.** 43 hoje, sendo 39 jogáveis e 4 de fallback
+   (`npm run validate`).
    O fallback caiu para ~1,1 de 40 slots, mas o pool diurno básico continua
    sendo o mais apertado — é onde o próximo card rende mais.

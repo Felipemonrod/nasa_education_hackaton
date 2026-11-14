@@ -33,7 +33,7 @@ export const GLOSSARY: readonly GlossaryTerm[] = [
   { id: 'power', term: 'energia', short: 'Eletricidade da base, vinda do Sol.', color: 'power', icon: 'zap' },
   { id: 'food', term: 'comida', short: 'Alimento da tripulacao: estufa ou Terra.', color: 'food', icon: 'salad' },
   { id: 'radiation', term: 'radiacao', short: 'Particulas invisiveis do Sol que machucam.', color: 'radiation', icon: 'radiation' },
-  { id: 'dose', term: 'dose', short: 'Radiacao que seu corpo ja absorveu. Nunca diminui.', color: 'radiation', icon: 'activity' },
+  { id: 'dose', term: 'dose de radiacao', short: 'Radiacao que seu corpo ja absorveu. Nunca diminui.', color: 'radiation', icon: 'activity' },
   { id: 'shielding', term: 'blindagem', short: 'Paredes grossas que seguram a radiacao fora.', color: 'radiation', icon: 'shield' },
   { id: 'science', term: 'ciencia', short: 'Descobertas que a NASA pediu nesta missao.', color: 'science', icon: 'microscope' },
   { id: 'life_support', term: 'suporte de vida', short: 'Sistemas de ar, agua e comida da base.', color: 'lifeSupport', icon: 'heart-pulse' },

@@ -11,10 +11,17 @@
     "content, sim ou i18n/core, `npm run typecheck` falha."
   ],
   "include": ["src/engine", "src/content", "src/sim", "src/i18n", "tests"],
-  "exclude": ["tests/render.test.ts"],
+  "exclude": [
+    "tests/render.test.ts",
+    "tests/persistence.test.ts",
+    "tests/speech.test.ts",
+    "tests/weather.test.ts"
+  ],
   "//exclude": [
-    "render.test.ts renderiza um componente React e precisa de DOM por",
-    "definicao. Ele e verificado pelo tsconfig.json. Excluir aqui mantem a",
+    "Estes testes exercitam codigo de BROWSER de proposito: render.test",
+    "renderiza React; persistence.test usa localStorage; speech.test testa",
+    "src/app/a11y/speech.ts; weather.test cobre tambem services/donki.ts.",
+    "Todos sao verificados pelo tsconfig.json. Excluir aqui mantem a",
     "fronteira valendo para engine, content, sim e i18n, que e onde ela importa."
   ]
 }
