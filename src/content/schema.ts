@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { extractKeywords, GLOSSARY_TERMS, wordCount } from './glossary.js';
+import { extractKeywords, GLOSSARY, GLOSSARY_IDS, wordCount } from './glossary.js';
 import type { Card, Effect } from '../engine/types.js';
 
 const statSchema = z.enum(['oxygen', 'power', 'food', 'dose', 'shielding', 'science', 'lifeSupport']);
@@ -142,15 +142,15 @@ export function validateCards(cards: readonly Card[]): Violation[] {
       }
     }
 
-    // Glossario: toda palavra marcada tem verbete.
+    // Glossario: todo id marcado tem verbete.
     for (const keyword of extractKeywords(card.text)) {
-      if (!GLOSSARY_TERMS.has(keyword)) {
+      if (!GLOSSARY_IDS.has(keyword)) {
         push(card.id, 'glossario', `termo [[${keyword}]] sem verbete`);
       }
     }
     for (const option of card.options) {
       for (const keyword of [...extractKeywords(option.outcome.why), ...extractKeywords(option.outcome.line)]) {
-        if (!GLOSSARY_TERMS.has(keyword)) {
+        if (!GLOSSARY_IDS.has(keyword)) {
           push(card.id, 'glossario', `termo [[${keyword}]] sem verbete em ${option.id}`);
         }
       }
@@ -177,21 +177,21 @@ export function validateCards(cards: readonly Card[]): Violation[] {
 
 export function validateGlossary(): Violation[] {
   const problems: Violation[] = [];
-  const terms = new Set<string>();
-  for (const entry of GLOSSARY_TERMS) {
-    if (terms.has(entry)) problems.push({ cardId: entry, rule: 'glossario', detail: 'termo duplicado' });
-    terms.add(entry);
+  const ids = new Set<string>();
+  for (const entry of GLOSSARY) {
+    if (ids.has(entry.id)) problems.push({ cardId: entry.id, rule: 'glossario', detail: 'id duplicado' });
+    ids.add(entry.id);
   }
   return problems;
 }
 
 export function validateGlossaryLength(
-  entries: readonly { term: string; short: string }[],
+  entries: readonly { id: string; short: string }[],
 ): Violation[] {
   return entries
     .filter((e) => wordCount(e.short) > 10)
     .map((e) => ({
-      cardId: e.term,
+      cardId: e.id,
       rule: 'glossario-10-palavras',
       detail: `${wordCount(e.short)} palavras: "${e.short}"`,
     }));

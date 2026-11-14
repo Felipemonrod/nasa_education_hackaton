@@ -65,13 +65,19 @@ describe('condicoes de fim', () => {
     expect(hasReachedObjective(baseStats({ science: 100 }), 'lifeSupport')).toBe(false);
   });
 
-  it('dose diaria cai conforme a blindagem sobe', () => {
-    const d0 = dailyDose(DEFAULT_BALANCE, 0);
-    const d50 = dailyDose(DEFAULT_BALANCE, 50);
-    const d100 = dailyDose(DEFAULT_BALANCE, 100);
-    expect(d0).toBeGreaterThan(d50);
-    expect(d50).toBeGreaterThan(d100);
-    expect(d100).toBe(1);
+  it('dose diaria cai conforme a blindagem sobe, sem nunca zerar', () => {
+    // Propriedades, nao constantes: estes valores tem que continuar validos
+    // depois de qualquer ajuste em balance.ts.
+    const doses = [0, 25, 50, 75, 100].map((s) => dailyDose(DEFAULT_BALANCE, s));
+    for (let i = 1; i < doses.length; i += 1) {
+      expect(doses[i] ?? 0, 'mais blindagem tem que significar menos dose')
+        .toBeLessThanOrEqual(doses[i - 1] ?? 0);
+    }
+    expect(doses[0] ?? 0).toBeGreaterThan(doses[4] ?? 0);
+    // Nenhuma blindagem para 100% da radiacao: sempre entra alguma coisa.
+    expect(dailyDose(DEFAULT_BALANCE, 100)).toBeGreaterThan(0);
+    // E a blindagem tem que valer a pena: no maximo, corta a maior parte.
+    expect(dailyDose(DEFAULT_BALANCE, 100)).toBeLessThan(dailyDose(DEFAULT_BALANCE, 0) / 4);
   });
 });
 

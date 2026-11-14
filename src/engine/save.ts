@@ -48,6 +48,11 @@ export const runStateSchema = z.object({
     objective: z.enum(['science', 'habitat']),
     capsuleDay: z.number().int().min(1),
     tutorial: z.boolean(),
+    loadout: z.object({
+      commanderId: z.string(),
+      structureId: z.string(),
+      equipmentId: z.string(),
+    }),
   }),
   deck: z.object({
     available: z.array(z.string()),
@@ -92,6 +97,7 @@ export const runStateSchema = z.object({
     finalOptionId: z.string().optional(),
   }).nullable(),
   fallbackUses: z.number().int().min(0),
+  mitigation: z.record(z.string(), z.number().int().min(0)),
 });
 
 export type LoadOutcome =

@@ -23,6 +23,31 @@ export function applyEffects(stats: Stats, effects: readonly Effect[]): Stats {
   return out;
 }
 
+/**
+ * Amortece uma perda sem nunca inverter seu sinal. Um equipamento que
+ * "reduz perdas de oxigenio em 1" transforma -4 em -3, e -1 em 0, mas
+ * nunca em +1: mitigacao nao vira ganho.
+ */
+export function mitigateEffect(
+  effect: Effect,
+  mitigation: Readonly<Partial<Record<Stat, number>>>,
+): Effect {
+  const amount = mitigation[effect.stat];
+  if (amount === undefined || amount <= 0) return effect;
+  if (effect.stat === 'dose') {
+    return effect.delta > 0 ? { stat: effect.stat, delta: Math.max(0, effect.delta - amount) } : effect;
+  }
+  return effect.delta < 0 ? { stat: effect.stat, delta: Math.min(0, effect.delta + amount) } : effect;
+}
+
+export function applyEffectsMitigated(
+  stats: Stats,
+  effects: readonly Effect[],
+  mitigation: Readonly<Partial<Record<Stat, number>>>,
+): Stats {
+  return applyEffects(stats, effects.map((e) => mitigateEffect(e, mitigation)));
+}
+
 export function adjust(stats: Stats, stat: Stat, delta: number): Stats {
   return { ...stats, [stat]: clampStat(stats[stat] + delta) };
 }
