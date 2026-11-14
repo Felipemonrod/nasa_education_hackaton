@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
 import { SkipForward } from 'lucide-react';
+import { useT } from '../i18n/useI18n.js';
 
-const BEATS: readonly { readonly text: string; readonly sub?: string }[] = [
-  { text: 'Em 1972, a última pessoa deixou a Lua.', sub: 'Ninguém voltou por mais de cinquenta anos.' },
-  { text: 'Agora a NASA não quer só visitar.', sub: 'Quer ficar.' },
-  { text: 'Ficar significa ar, energia e comida que não vêm da Terra.' },
-  { text: 'Significa decidir, todo dia, o que fazer primeiro.' },
-  { text: 'A cápsula já está em órbita.', sub: 'O comando é seu.' },
+/** Batidas da abertura. O texto vive no catalogo; aqui fica so a ordem e
+ *  quais batidas tem subtitulo. */
+const BEATS: readonly { readonly key: string; readonly hasSub: boolean }[] = [
+  { key: 'cutscene.beat1', hasSub: true },
+  { key: 'cutscene.beat2', hasSub: true },
+  { key: 'cutscene.beat3', hasSub: false },
+  { key: 'cutscene.beat4', hasSub: false },
+  { key: 'cutscene.beat5', hasSub: true },
 ];
 
 export function Cutscene({ onDone }: { onDone: () => void }): JSX.Element {
   const [beat, setBeat] = useState(0);
+  const t = useT();
 
   useEffect(() => {
     if (beat >= BEATS.length) { onDone(); return; }
@@ -29,21 +33,21 @@ export function Cutscene({ onDone }: { onDone: () => void }): JSX.Element {
 
       <div key={beat} className="relative z-10 max-w-sm animate-fade-in text-center">
         <p className="font-display text-2xl font-extrabold leading-tight text-white drop-shadow">
-          {current?.text}
+          {current === undefined ? '' : t(`${current.key}.text`)}
         </p>
-        {current?.sub !== undefined ? (
-          <p className="mt-3 text-base font-semibold text-sky-200/90">{current.sub}</p>
+        {current !== undefined && current.hasSub ? (
+          <p className="mt-3 text-base font-semibold text-sky-200/90">{t(`${current.key}.sub`)}</p>
         ) : null}
       </div>
 
       <div className="absolute inset-x-0 bottom-0 z-10 flex items-center justify-between p-5">
         <div className="flex gap-1.5" aria-hidden>
-          {BEATS.map((_, i) => (
-            <span key={i} className={`h-1 w-7 rounded-full ${i <= beat ? 'bg-white/80' : 'bg-white/20'}`} />
+          {BEATS.map((item, i) => (
+            <span key={item.key} className={`h-1 w-7 rounded-full ${i <= beat ? 'bg-white/80' : 'bg-white/20'}`} />
           ))}
         </div>
         <button type="button" onClick={onDone} className="btn-ghost px-4 py-2 text-sm">
-          Pular <SkipForward size={15} aria-hidden />
+          {t('common.skip')} <SkipForward size={15} aria-hidden />
         </button>
       </div>
     </div>

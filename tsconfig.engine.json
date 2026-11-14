@@ -10,5 +10,11 @@
     "alguem usar window, document, fetch ou localStorage dentro de engine,",
     "content, sim ou i18n/core, `npm run typecheck` falha."
   ],
-  "include": ["src/engine", "src/content", "src/sim", "src/i18n", "tests"]
+  "include": ["src/engine", "src/content", "src/sim", "src/i18n", "tests"],
+  "exclude": ["tests/render.test.ts"],
+  "//exclude": [
+    "render.test.ts renderiza um componente React e precisa de DOM por",
+    "definicao. Ele e verificado pelo tsconfig.json. Excluir aqui mantem a",
+    "fronteira valendo para engine, content, sim e i18n, que e onde ela importa."
+  ]
 }

@@ -32,6 +32,10 @@ export interface AccountState {
     /** Le card e desfecho em voz alta automaticamente. */
     autoRead: boolean;
     speechRate: number;
+    /** Voz escolhida pelo usuario; null = a melhor disponivel para o idioma. */
+    voiceURI: string | null;
+    /** Exige um segundo toque para fechar a decisao. */
+    confirmDecisions: boolean;
   };
   totals: { runs: number; wins: number; losses: number; bestScience: number; bestLife: number };
 }
@@ -49,9 +53,16 @@ const EMPTY: AccountState = {
     showWhyByDefault: true,
     textScale: 'normal',
     highContrast: false,
-    underlineLinks: false,
-    autoRead: false,
+    // Sublinhado e leitura automatica LIGADOS de fabrica: o jogo e
+    // educacional e o publico inclui quem nao distingue cor e quem nao le
+    // a tela. Acessibilidade por omissao, nao por descoberta.
+    underlineLinks: true,
+    autoRead: true,
     speechRate: 1,
+    voiceURI: null,
+    // Ligada de fabrica: a decisao e irreversivel e o publico tem 10 anos.
+    // Um toque acidental nao deve martelar a escolha final.
+    confirmDecisions: true,
   },
   totals: { runs: 0, wins: 0, losses: 0, bestScience: 0, bestLife: 0 },
 };

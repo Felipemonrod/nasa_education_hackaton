@@ -65,6 +65,7 @@ export const COMMANDERS: readonly LoadoutCard[] = [
     blurb: 'Fez alface crescer em microgravidade por 400 dias seguidos.',
     effectLabel: 'Começa com +8 de suporte de vida',
     icon: 'sprout',
+    bonuses: [{ stat: 'lifeSupport', delta: 8 }],
     unlockedBy: 'first_win',
   },
 ];

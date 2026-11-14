@@ -1,13 +1,15 @@
 import { ArrowLeft, ExternalLink, Mail } from 'lucide-react';
 import { CREDITS, DATA_SOURCES, PROJECT } from '../data/credits.js';
 import { useGame } from '../store/useGame.js';
+import { useT } from '../i18n/useI18n.js';
 
 export function Credits(): JSX.Element {
   const go = useGame((s) => s.go);
+  const t = useT();
   return (
     <div className="mx-auto w-full max-w-md px-4 pb-10 pt-6">
       <button type="button" onClick={() => { go('menu'); }} className="btn-ghost mb-4 px-3 py-2 text-sm">
-        <ArrowLeft size={15} aria-hidden /> Menu
+        <ArrowLeft size={15} aria-hidden /> {t('common.menu')}
       </button>
 
       <h1 className="font-display text-2xl font-extrabold text-white">{PROJECT.title}</h1>
@@ -15,7 +17,7 @@ export function Credits(): JSX.Element {
       <p className="mt-0.5 text-[12px] text-slate-500">{PROJECT.event} · {PROJECT.year}</p>
 
       <section className="mt-5 rounded-3xl glass p-4">
-        <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">Equipe</h2>
+        <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">{t('credits.team')}</h2>
         <ul className="mt-2 flex flex-col gap-3">
           {CREDITS.map((person) => (
             <li key={person.email}>
@@ -34,7 +36,7 @@ export function Credits(): JSX.Element {
 
       <section className="mt-3 rounded-3xl glass p-4">
         <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">
-          Fontes de dados
+          {t('credits.dataSources')}
         </h2>
         <ul className="mt-2 flex flex-col gap-2">
           {DATA_SOURCES.map((source) => (
@@ -51,9 +53,8 @@ export function Credits(): JSX.Element {
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-[11.5px] leading-snug text-slate-500">
-          Este é um projeto educacional independente. Não é endossado pela NASA
-          e não representa procedimento operacional real.
+        <p className="mt-3 text-[0.72rem] leading-snug text-slate-300">
+          {t('credits.disclaimer')}
         </p>
       </section>
     </div>

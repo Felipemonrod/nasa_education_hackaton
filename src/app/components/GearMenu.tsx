@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Check, Home, Save, Settings2, X } from 'lucide-react';
+import { useT } from '../i18n/useI18n.js';
 
 export function GearMenu({
   onSave, onSettings, onMenu, onClose,
@@ -9,6 +10,7 @@ export function GearMenu({
   onMenu: () => void;
   onClose: () => void;
 }): JSX.Element {
+  const t = useT();
   const [saved, setSaved] = useState<null | boolean>(null);
   const [confirmExit, setConfirmExit] = useState(false);
 
@@ -22,15 +24,15 @@ export function GearMenu({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/75 p-4 backdrop-blur-sm animate-fade-in"
       role="dialog"
-      aria-label="Opções"
+      aria-label={t('common.options')}
     >
       <div className="card-surface w-full max-w-xs p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-base font-extrabold text-white">Opções</h2>
+          <h2 className="font-display text-base font-extrabold text-white">{t('common.options')}</h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Fechar"
+            aria-label={t('common.close')}
             className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 hover:bg-white/20"
           >
             <X size={16} aria-hidden />
@@ -44,38 +46,38 @@ export function GearMenu({
             onClick={() => { setSaved(onSave()); }}
           >
             {saved === true ? <Check size={17} className="text-food" aria-hidden /> : <Save size={17} aria-hidden />}
-            {saved === true ? 'Partida salva' : 'Salvar partida'}
+            {saved === true ? t('gear.saved') : t('gear.save')}
           </button>
           {saved === false ? (
-            <p className="px-1 text-[11px] font-semibold text-radiation">
-              O navegador bloqueou o armazenamento. A partida continua, mas não será salva.
+            <p className="px-1 text-[0.72rem] font-semibold text-radiation">
+              {t('gear.saveFailed')}
             </p>
           ) : null}
-          <p className="px-1 text-[11px] leading-snug text-slate-500">
-            O jogo já salva sozinho a cada decisão.
+          <p className="px-1 text-[0.72rem] leading-snug text-slate-300">
+            {t('gear.autoSave')}
           </p>
 
           <button type="button" className="btn-ghost w-full justify-start" onClick={onSettings}>
-            <Settings2 size={17} aria-hidden /> Configurações
+            <Settings2 size={17} aria-hidden /> {t('settings.title')}
           </button>
 
           {confirmExit ? (
             <div className="rounded-2xl border border-radiation/30 bg-radiation/10 p-3">
-              <p className="text-[12.5px] font-semibold leading-snug text-slate-200">
-                Voltar ao menu mantém a partida salva. Você pode continuar depois.
+              <p className="text-[0.8rem] font-semibold leading-snug text-slate-200">
+                {t('gear.confirmExit')}
               </p>
               <div className="mt-2 flex gap-2">
                 <button type="button" className="btn-ghost flex-1 py-2 text-sm" onClick={() => { setConfirmExit(false); }}>
-                  Ficar
+                  {t('gear.stay')}
                 </button>
                 <button type="button" className="btn-primary flex-1 py-2 text-sm" onClick={onMenu}>
-                  Voltar ao menu
+                  {t('common.backToMenu')}
                 </button>
               </div>
             </div>
           ) : (
             <button type="button" className="btn-ghost w-full justify-start" onClick={() => { setConfirmExit(true); }}>
-              <Home size={17} aria-hidden /> Voltar ao menu
+              <Home size={17} aria-hidden /> {t('common.backToMenu')}
             </button>
           )}
         </div>

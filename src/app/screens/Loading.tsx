@@ -1,29 +1,28 @@
 import { useEffect, useState } from 'react';
+import { useT } from '../i18n/useI18n.js';
 
-const STEPS: readonly string[] = [
-  'Calculando trajetória de descida…',
-  'Confirmando janela de pouso…',
-  'Despressurizando a eclusa…',
-  'Sincronizando relógio UTC da base…',
-  'Outpost estabelecido.',
+const STEP_KEYS: readonly string[] = [
+  'loading.step1', 'loading.step2', 'loading.step3', 'loading.step4', 'loading.step5',
 ];
 
 export function Loading({ onDone }: { onDone: () => void }): JSX.Element {
   const [step, setStep] = useState(0);
+  const t = useT();
 
   useEffect(() => {
-    if (step >= STEPS.length) { onDone(); return; }
-    const t = window.setTimeout(() => { setStep((s) => s + 1); }, 520);
-    return () => { window.clearTimeout(t); };
+    if (step >= STEP_KEYS.length) { onDone(); return; }
+    const timer = window.setTimeout(() => { setStep((s) => s + 1); }, 520);
+    return () => { window.clearTimeout(timer); };
   }, [step, onDone]);
 
-  const progress = Math.min(100, Math.round((step / STEPS.length) * 100));
+  const progress = Math.min(100, Math.round((step / STEP_KEYS.length) * 100));
+  const currentKey = STEP_KEYS[Math.min(step, STEP_KEYS.length - 1)];
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center px-8">
       <div className="w-full max-w-xs">
         <div className="mx-auto h-20 w-20 animate-drift">
-          <svg viewBox="0 0 80 80" className="h-full w-full" role="img" aria-label="Módulo descendo">
+          <svg viewBox="0 0 80 80" className="h-full w-full" role="img" aria-label={t('loading.landerAlt')}>
             <circle cx="40" cy="58" r="22" fill="#3a4150" />
             <path d="M40 14c7 0 12 9 12 20H28c0-11 5-20 12-20z" fill="#d6dbe6" />
             <rect x="34" y="34" width="12" height="7" rx="2" fill="#7dd3fc" />
@@ -37,7 +36,7 @@ export function Loading({ onDone }: { onDone: () => void }): JSX.Element {
           />
         </div>
         <p className="mt-3 min-h-[2.5rem] text-center text-[13px] font-semibold text-slate-300">
-          {STEPS[Math.min(step, STEPS.length - 1)]}
+          {currentKey === undefined ? '' : t(currentKey)}
         </p>
       </div>
     </div>

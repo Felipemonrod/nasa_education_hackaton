@@ -2,7 +2,7 @@ import { DEFAULT_BALANCE, trackFor } from './balance.js';
 import type { Balance } from './balance.js';
 import { buildIndex, consumeCard, getCard, initialDeck, requirementsMet, returnCard } from './deck.js';
 import type { CardIndex } from './deck.js';
-import { nextInt } from './rng.js';
+import { hashString, nextInt, shuffleWithKey } from './rng.js';
 import {
   adjust, applyEffects, applyEffectsMitigated, dailyDose, findLossCause, hasReachedObjective,
 } from './resources.js';
@@ -136,9 +136,22 @@ export function viewSlot(engine: Engine, state: RunState): SlotView {
     : [state.current.basicCardId, state.current.extraCardId];
   const cards = ids.map((id) => {
     const card = getCard(engine.index, id);
+    /**
+     * A ORDEM DAS OPCOES E EMBARALHADA.
+     *
+     * Medido no dataset: 84% dos cards tinham a opcao "boa" em primeiro
+     * lugar, com posicao media 0,33 para `good` e 1,53 para `bad`. Era
+     * possivel vencer clicando sempre na primeira opcao, sem ler -- o
+     * oposto do que o jogo deveria ensinar.
+     *
+     * A ordem deriva de (seed, id do card, dia, slot) e e pura: recarregar
+     * um save devolve a mesma ordem, e re-renderizar nao faz os botoes
+     * trocarem de lugar embaixo do dedo de quem vai tocar.
+     */
+    const orderKey = (hashString(card.id) ^ Math.imul(state.day, 0x85ebca6b) ^ Math.imul(state.slot + 1, 0xc2b2ae35)) >>> 0;
     return {
       card,
-      options: card.options.map((option) => ({
+      options: shuffleWithKey(state.seed, orderKey, card.options).map((option) => ({
         option,
         selectable: requirementsMet(option.requires, state.stats),
       })),
