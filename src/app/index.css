@@ -110,8 +110,11 @@ html[data-motion='reduced'] *::after {
   transition-duration: .01ms !important;
 }
 
-/* Sublinhado permanente: para quem nao distingue a cor do termo clicavel. */
-html[data-underline='always'] button[aria-expanded] {
+/* Sublinhado permanente: para quem nao distingue a cor do termo clicavel.
+   Escopado a [data-glossary]: antes pegava qualquer button[aria-expanded],
+   o que passou a sublinhar tambem os rotulos das opcoes de decisao e os
+   fazia parecer links de glossario. */
+html[data-underline='always'] button[data-glossary] {
   text-decoration-line: underline !important;
   text-decoration-style: solid !important;
   text-underline-offset: 3px;

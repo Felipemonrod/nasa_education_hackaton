@@ -96,6 +96,7 @@ function Keyword({ entry }: { entry: GlossaryTerm }): JSX.Element {
         type="button"
         onClick={() => { setOpen((v) => !v); }}
         aria-expanded={open}
+        data-glossary=""
         aria-label={t('glossary.openAria', { term: label })}
         /* Alvo de toque: um termo inline com py-0.5 dava ~21px, metade do
            minimo confortavel. py-1.5 com -my-1 cresce a area clicavel sem

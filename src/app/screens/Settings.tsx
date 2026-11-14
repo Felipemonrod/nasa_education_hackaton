@@ -226,12 +226,20 @@ export function Settings(): JSX.Element {
       </Section>
 
       <Section icon={Contrast} title={t('settings.game')}>
-        <Toggle
-          label={t('settings.showWhy')}
-          hint={t('settings.showWhyHint')}
-          checked={settings.showWhyByDefault}
-          onChange={(v) => { setSetting('showWhyByDefault', v); }}
-        />
+        <div className="divide-y divide-white/5">
+          <Toggle
+            label={t('settings.confirmDecisions')}
+            hint={t('settings.confirmDecisionsHint')}
+            checked={settings.confirmDecisions}
+            onChange={(v) => { setSetting('confirmDecisions', v); }}
+          />
+          <Toggle
+            label={t('settings.showWhy')}
+            hint={t('settings.showWhyHint')}
+            checked={settings.showWhyByDefault}
+            onChange={(v) => { setSetting('showWhyByDefault', v); }}
+          />
+        </div>
       </Section>
 
       <Section icon={Palette} title={t('settings.hudTheme')} hint={t('settings.hudThemeHint')}>
