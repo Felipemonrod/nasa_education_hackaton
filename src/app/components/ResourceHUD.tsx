@@ -2,30 +2,38 @@ import { Activity, Salad, Shield, Wind, Zap, Microscope, HeartPulse } from 'luci
 import type { LucideIcon } from 'lucide-react';
 import type { Stat, Stats, TrackStat } from '../../engine/types.js';
 import type { HudTheme } from '../store/useAccount.js';
+import { useT } from '../i18n/useI18n.js';
 
 /**
  * HUD em VALORES NUMERICOS 0-100, como o design pede. A barra e apoio
  * visual; o numero e a informacao.
  *
- * `dose` e desenhada ao contrario de proposito: nos outros recursos 100 e
- * bom, nela 100 mata. Sem essa distincao visual, o mesmo numero teria dois
+ * `dose` e desenhada ao contrario: nos outros recursos a barra cheia e boa,
+ * nela a barra cheia mata. Por isso a dose enche da DIREITA para a esquerda
+ * e muda de cor conforme sobe -- sem isso o mesmo desenho teria dois
  * significados opostos na mesma tela.
+ *
+ * Tamanhos em rem, nunca px: a escala de texto da acessibilidade so afeta
+ * rem, e um HUD que nao cresce junto deixa de fora exatamente quem pediu
+ * texto maior.
  */
 
 interface Row {
   readonly stat: Stat;
-  readonly label: string;
+  readonly labelKey: string;
   readonly icon: LucideIcon;
   readonly color: string;
   readonly bar: string;
   readonly inverted?: boolean;
+  /** Trilho de objetivo: comeca em 0 e SUBIR e bom, logo 0 nao e perigo. */
+  readonly goal?: boolean;
 }
 
 const BASIC_ROWS: readonly Row[] = [
-  { stat: 'oxygen', label: 'Oxigênio', icon: Wind, color: 'text-oxygen', bar: 'bg-oxygen' },
-  { stat: 'power', label: 'Energia', icon: Zap, color: 'text-power', bar: 'bg-power' },
-  { stat: 'food', label: 'Comida', icon: Salad, color: 'text-food', bar: 'bg-food' },
-  { stat: 'dose', label: 'Dose', icon: Activity, color: 'text-radiation', bar: 'bg-radiation', inverted: true },
+  { stat: 'oxygen', labelKey: 'stat.oxygen', icon: Wind, color: 'text-oxygen', bar: 'bg-oxygen' },
+  { stat: 'power', labelKey: 'stat.power', icon: Zap, color: 'text-power', bar: 'bg-power' },
+  { stat: 'food', labelKey: 'stat.food', icon: Salad, color: 'text-food', bar: 'bg-food' },
+  { stat: 'dose', labelKey: 'stat.dose', icon: Activity, color: 'text-radiation', bar: 'bg-radiation', inverted: true },
 ];
 
 const THEME_ACCENT: Record<HudTheme, string> = {
@@ -35,39 +43,50 @@ const THEME_ACCENT: Record<HudTheme, string> = {
   rose: 'from-radiation/15',
 };
 
-function danger(stat: Stat, value: number, inverted: boolean | undefined): boolean {
-  if (stat === 'shielding') return value <= 25;
-  return inverted === true ? value >= 75 : value <= 25;
+function danger(row: Row, value: number): boolean {
+  // Um trilho de objetivo em 0 e o ponto de partida, nao uma emergencia.
+  if (row.goal === true) return false;
+  if (row.stat === 'shielding') return value <= 25;
+  return row.inverted === true ? value >= 75 : value <= 25;
 }
 
 function StatRow({ row, value }: { row: Row; value: number }): JSX.Element {
+  const t = useT();
   const Icon = row.icon;
-  const isDanger = danger(row.stat, value, row.inverted);
-  const fill = row.inverted === true ? value : value;
+  const isDanger = danger(row, value);
+  const label = t(row.labelKey);
   return (
     <div className="flex items-center gap-2">
       <Icon size={15} className={`${row.color} shrink-0`} aria-hidden />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-1">
-          <span className="truncate text-[11px] font-bold uppercase tracking-wide text-slate-400">
-            {row.label}
+          <span className="truncate text-[0.68rem] font-bold uppercase tracking-wide text-slate-300">
+            {label}
           </span>
+          {/* role="img" + aria-label: aria-label em <span> generico e ignorado
+              pela maioria dos leitores de tela. */}
           <span
-            className={`tabular-nums text-sm font-extrabold ${isDanger ? 'text-radiation' : row.color}`}
-            aria-label={`${row.label}: ${value} de 100`}
+            role="img"
+            aria-label={t('hud.valueAria', { stat: label, value })}
+            className={`tabular-nums text-[0.9rem] font-extrabold ${isDanger ? 'text-radiation' : row.color}`}
           >
             {value}
           </span>
         </div>
         <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-white/10">
           <div
-            className={`h-full rounded-full ${row.bar} transition-[width] duration-500`}
-            style={{ width: `${fill}%` }}
+            className={`h-full rounded-full ${row.bar} transition-[width] duration-500
+                        ${row.inverted === true ? 'ml-auto' : ''}`}
+            style={{ width: `${value}%` }}
           />
         </div>
       </div>
       {isDanger ? (
-        <span className="shrink-0 rounded-md bg-radiation/20 px-1 text-[10px] font-extrabold text-radiation">
+        <span
+          role="img"
+          aria-label={t('hud.dangerAria', { stat: label })}
+          className="shrink-0 rounded-md bg-radiation/20 px-1 text-[0.65rem] font-extrabold text-radiation"
+        >
           !
         </span>
       ) : null}
@@ -82,9 +101,10 @@ export function ResourceHUD({
   objective: TrackStat;
   theme: HudTheme;
 }): JSX.Element {
+  const t = useT();
   const trackRow: Row = objective === 'science'
-    ? { stat: 'science', label: 'Ciência', icon: Microscope, color: 'text-science', bar: 'bg-science' }
-    : { stat: 'lifeSupport', label: 'Suporte de vida', icon: HeartPulse, color: 'text-life', bar: 'bg-life' };
+    ? { stat: 'science', labelKey: 'stat.science', icon: Microscope, color: 'text-science', bar: 'bg-science', goal: true }
+    : { stat: 'lifeSupport', labelKey: 'stat.lifeSupport', icon: HeartPulse, color: 'text-life', bar: 'bg-life', goal: true };
 
   return (
     <div className={`rounded-3xl glass bg-gradient-to-b ${THEME_ACCENT[theme]} to-transparent p-3`}>
@@ -95,14 +115,13 @@ export function ResourceHUD({
       </div>
       <div className="mt-3 grid grid-cols-2 gap-x-4 border-t border-white/10 pt-2.5">
         <StatRow
-          row={{ stat: 'shielding', label: 'Blindagem', icon: Shield, color: 'text-slate-200', bar: 'bg-slate-300' }}
+          row={{ stat: 'shielding', labelKey: 'stat.shielding', icon: Shield, color: 'text-slate-200', bar: 'bg-slate-300' }}
           value={stats.shielding}
         />
         <StatRow row={trackRow} value={stats[trackRow.stat]} />
       </div>
-      <p className="mt-2 text-[10px] leading-tight text-slate-500">
-        Dose sobe com o tempo: <span className="text-radiation font-bold">100 encerra a missão</span>.
-        Blindagem reduz quanto entra por dia.
+      <p className="mt-2 text-[0.7rem] leading-tight text-slate-300">
+        {t('hud.doseNote', { limit: t('hud.doseLimit') })}
       </p>
     </div>
   );

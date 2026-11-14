@@ -1,4 +1,5 @@
 import { BookOpen, Info, Play, RotateCcw, Settings2 } from 'lucide-react';
+import { useT } from '../i18n/useI18n.js';
 import { useAccount } from '../store/useAccount.js';
 import { useGame } from '../store/useGame.js';
 import { MoonScene } from '../components/MoonScene.js';
@@ -7,6 +8,14 @@ export function Menu(): JSX.Element {
   const { go, newMission, savedRunExists, resumeRun } = useGame();
   const totals = useAccount((s) => s.totals);
   const badges = useAccount((s) => s.badges);
+  const t = useT();
+
+  // "Lunar Outpost" e nome do produto: nao se traduz.
+  const stats: readonly { key: string; label: string; value: number }[] = [
+    { key: 'runs', label: t('menu.statsMissions'), value: totals.runs },
+    { key: 'wins', label: t('menu.statsWins'), value: totals.wins },
+    { key: 'badges', label: t('menu.statsBadges'), value: badges.length },
+  ];
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 pb-6 pt-8">
@@ -15,7 +24,7 @@ export function Menu(): JSX.Element {
           Lunar<span className="text-power"> Outpost</span>
         </h1>
         <p className="mt-2 text-sm font-semibold text-slate-400">
-          Fundar uma base é decidir o que vem primeiro.
+          {t('menu.tagline')}
         </p>
       </header>
 
@@ -26,7 +35,7 @@ export function Menu(): JSX.Element {
       <nav className="mt-6 flex flex-col gap-2.5">
         {savedRunExists ? (
           <button type="button" className="btn-primary w-full" onClick={() => { resumeRun(); }}>
-            <RotateCcw size={18} aria-hidden /> Continuar missão
+            <RotateCcw size={18} aria-hidden /> {t('menu.resume')}
           </button>
         ) : null}
         <button
@@ -34,17 +43,17 @@ export function Menu(): JSX.Element {
           className={savedRunExists ? 'btn-ghost w-full' : 'btn-primary w-full'}
           onClick={newMission}
         >
-          <Play size={18} aria-hidden /> Nova missão
+          <Play size={18} aria-hidden /> {t('menu.newMission')}
         </button>
         <button type="button" className="btn-ghost w-full" onClick={() => { go('deck'); }}>
-          <BookOpen size={18} aria-hidden /> Baralho
+          <BookOpen size={18} aria-hidden /> {t('menu.deck')}
         </button>
         <div className="grid grid-cols-2 gap-2.5">
           <button type="button" className="btn-ghost" onClick={() => { go('settings'); }}>
-            <Settings2 size={17} aria-hidden /> Configurações
+            <Settings2 size={17} aria-hidden /> {t('menu.settings')}
           </button>
           <button type="button" className="btn-ghost" onClick={() => { go('credits'); }}>
-            <Info size={17} aria-hidden /> Créditos
+            <Info size={17} aria-hidden /> {t('menu.credits')}
           </button>
         </div>
       </nav>
@@ -52,14 +61,10 @@ export function Menu(): JSX.Element {
       {totals.runs > 0 ? (
         <div className="mt-6 rounded-3xl glass p-3.5">
           <div className="grid grid-cols-3 gap-2 text-center">
-            {[
-              ['Missões', totals.runs],
-              ['Vitórias', totals.wins],
-              ['Emblemas', badges.length],
-            ].map(([label, value]) => (
-              <div key={label}>
-                <p className="tabular-nums font-display text-xl font-extrabold text-white">{value}</p>
-                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{label}</p>
+            {stats.map((entry) => (
+              <div key={entry.key}>
+                <p className="tabular-nums font-display text-xl font-extrabold text-white">{entry.value}</p>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{entry.label}</p>
               </div>
             ))}
           </div>
@@ -67,7 +72,7 @@ export function Menu(): JSX.Element {
       ) : null}
 
       <p className="mt-auto pt-6 text-center text-[11px] leading-snug text-slate-600">
-        Dados de clima espacial e imagens: NASA. Jogo educacional, não é um simulador operacional.
+        {t('menu.disclaimer')}
       </p>
     </div>
   );

@@ -3,6 +3,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { CARDS } from '../src/content/cards.js';
 import { GLOSSARY, GLOSSARY_IDS, extractKeywords } from '../src/content/glossary.js';
+import { CONTENT_EN } from '../src/content/locales/en.js';
+import { glossaryKey } from '../src/content/locales/index.js';
 import { GlossaryText } from '../src/app/components/GlossaryText.js';
 
 /**
@@ -38,11 +40,14 @@ describe('renderizacao do glossario', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('o termo marcado aparece como palavra legivel, nao como id cru', () => {
+  it('o termo marcado aparece no idioma atual, nao como id cru', () => {
     const entry = GLOSSARY[0];
     if (entry === undefined) throw new Error('glossario vazio');
     const html = render(`Teste de [[${entry.id}]] aqui.`);
-    expect(html).toContain(entry.term);
+    // O padrao do produto e ingles, entao o rotulo vem do dicionario en --
+    // nao do campo em portugues, que e so o fallback.
+    const expected = CONTENT_EN[glossaryKey(entry.id, 'term')] ?? entry.term;
+    expect(html).toContain(expected);
     expect(html).not.toContain(`[[${entry.id}]]`);
   });
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { GLOSSARY } from '../../content/glossary.js';
 import type { GlossaryColor, GlossaryTerm } from '../../content/glossary.js';
 import { useContent } from '../i18n/useContent.js';
+import { useT } from '../i18n/useI18n.js';
 import { SpeakButton } from './SpeakButton.js';
 import { iconFor } from './icons.js';
 
@@ -42,6 +43,7 @@ function Popover({
   entry: GlossaryTerm; label: string; short: string; onClose: () => void;
 }): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
+  const t = useT();
   const Icon = iconFor(entry.icon);
 
   useEffect(() => {
@@ -74,7 +76,7 @@ function Popover({
           </div>
           <p className="mt-1 text-[13px] leading-snug text-slate-200">{short}</p>
         </div>
-        <SpeakButton text={`${label}. ${short}`} label={`Ouvir a definição de ${label}`} />
+        <SpeakButton text={`${label}. ${short}`} label={t('glossary.listenAria', { term: label })} />
       </div>
     </div>
   );
@@ -83,6 +85,7 @@ function Popover({
 function Keyword({ entry }: { entry: GlossaryTerm }): JSX.Element {
   const [open, setOpen] = useState(false);
   const content = useContent();
+  const t = useT();
   const Icon = iconFor(entry.icon);
   const label = content.glossaryTerm(entry.id, entry.term);
   const short = content.glossaryShort(entry.id, entry.short);
@@ -93,9 +96,13 @@ function Keyword({ entry }: { entry: GlossaryTerm }): JSX.Element {
         type="button"
         onClick={() => { setOpen((v) => !v); }}
         aria-expanded={open}
+        aria-label={t('glossary.openAria', { term: label })}
+        /* Alvo de toque: um termo inline com py-0.5 dava ~21px, metade do
+           minimo confortavel. py-1.5 com -my-1 cresce a area clicavel sem
+           empurrar as linhas do paragrafo. */
         className={`inline-flex items-center gap-1 font-extrabold underline decoration-dotted
                     underline-offset-[3px] ${COLOR_CLASS[entry.color]}
-                    rounded px-0.5 -mx-0.5 py-0.5 hover:bg-white/10 transition-colors`}
+                    rounded px-1 -mx-1 py-1.5 -my-1 hover:bg-white/10 transition-colors`}
       >
         <Icon size={13} className="shrink-0" aria-hidden />
         {label}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Loader2, Telescope, X, WifiOff } from 'lucide-react';
 import { loadSpaceView, offlineView } from '../services/nasa.js';
 import type { SpaceView } from '../services/nasa.js';
+import { useT } from '../i18n/useI18n.js';
 
 /**
  * A "janela da base". Mixed media deliberado: aqui entra FOTO REAL da NASA,
@@ -12,6 +13,7 @@ import type { SpaceView } from '../services/nasa.js';
  * historico real do dataset offline.
  */
 export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
+  const t = useT();
   const [view, setView] = useState<SpaceView | null>(null);
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -35,18 +37,18 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/80 p-4 backdrop-blur-sm animate-fade-in"
       role="dialog"
-      aria-label="Janela da base"
+      aria-label={t('space.dialogAria')}
     >
       <div className="w-full max-w-md">
         <div className="card-surface overflow-hidden">
           <div className="flex items-center justify-between gap-2 px-4 py-3">
             <h2 className="flex items-center gap-2 font-display text-base font-extrabold text-white">
-              <Telescope size={17} className="text-sky-300" aria-hidden /> Olhar o espaço
+              <Telescope size={17} className="text-sky-300" aria-hidden /> {t('space.title')}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              aria-label="Fechar a janela"
+              aria-label={t('space.closeAria')}
               className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 hover:bg-white/20"
             >
               <X size={17} aria-hidden />
@@ -68,7 +70,7 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
               />
             ) : (
               <div className="relative h-full w-full bg-gradient-to-b from-space-950 to-space-850">
-                <svg viewBox="0 0 200 150" className="h-full w-full" role="img" aria-label="Céu desenhado">
+                <svg viewBox="0 0 200 150" className="h-full w-full" role="img" aria-label={t('space.skyAlt')}>
                   {Array.from({ length: 48 }).map((_, i) => {
                     const x = (i * 83) % 200;
                     const y = (i * 47) % 150;
@@ -83,7 +85,7 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
                   <ellipse cx="82" cy="126" rx="13" ry="5" fill="#2b313d" />
                 </svg>
                 <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-xl bg-space-950/80 px-2 py-1 text-[10px] font-bold text-slate-300">
-                  <WifiOff size={11} aria-hidden /> Sem enlace
+                  <WifiOff size={11} aria-hidden /> {t('space.offline')}
                 </span>
               </div>
             )}
@@ -97,9 +99,10 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
               {showPhoto ? resolved?.caption : fallback?.caption}
             </p>
             <p className="mt-2.5 text-[10.5px] font-semibold uppercase tracking-wide text-slate-500">
-              Fonte: {showPhoto ? resolved?.source : fallback?.source}
-              {' · '}
-              {showPhoto ? resolved?.date : fallback?.date}
+              {t('space.source', {
+                source: (showPhoto ? resolved?.source : fallback?.source) ?? '',
+                date: (showPhoto ? resolved?.date : fallback?.date) ?? '',
+              })}
             </p>
           </div>
         </div>

@@ -3,6 +3,8 @@ import { ArrowLeft, HelpCircle, Lock, Moon, Search, Sun } from 'lucide-react';
 import { CARDS } from '../../content/cards.js';
 import type { Card } from '../../engine/types.js';
 import { GlossaryText } from '../components/GlossaryText.js';
+import { useContent } from '../i18n/useContent.js';
+import { useT } from '../i18n/useI18n.js';
 import { SpeakButton } from '../components/SpeakButton.js';
 import { useAccount } from '../store/useAccount.js';
 import { useGame } from '../store/useGame.js';
@@ -16,16 +18,19 @@ import { useGame } from '../store/useGame.js';
 type PhaseFilter = 'all' | 'day' | 'night';
 type RoleFilter = 'all' | 'basic' | 'extra' | 'event';
 
-const KIND_LABEL: Record<Card['kind'], string> = {
-  unique: 'Único', routine: 'Rotina', conditional: 'Condicional',
-  temporal: 'Temporal', sequential: 'Sequencial',
+const KIND_KEY: Record<Card['kind'], string> = {
+  unique: 'deck.kindUnique', routine: 'deck.kindRoutine', conditional: 'deck.kindConditional',
+  temporal: 'deck.kindTemporal', sequential: 'deck.kindSequential',
 };
 
 function CardEntry({ card, known, knownOutcomes }: {
   card: Card; known: boolean; knownOutcomes: readonly string[];
 }): JSX.Element {
   const [open, setOpen] = useState(false);
+  const t = useT();
+  const content = useContent();
   const discovered = card.options.filter((o) => knownOutcomes.includes(`${card.id}:${o.id}`)).length;
+  const title = content.cardTitle(card);
 
   return (
     <li className={`rounded-3xl glass overflow-hidden ${known ? '' : 'opacity-60'}`}>
@@ -42,20 +47,20 @@ function CardEntry({ card, known, knownOutcomes }: {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block font-display text-[14px] font-extrabold text-white">
-            {known ? card.title : 'Card não descoberto'}
+            {known ? title : t('deck.unknownCard')}
           </span>
           <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
             <span className="rounded-lg bg-white/10 px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-slate-400">
-              {KIND_LABEL[card.kind]}
+              {t(KIND_KEY[card.kind])}
             </span>
             {card.role === 'extra' ? (
               <span className={`rounded-lg px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wide
                 ${card.track === 'science' ? 'bg-science/20 text-science' : 'bg-life/20 text-life'}`}>
-                {card.track === 'science' ? 'Ciência' : 'Suporte de vida'}
+                {t(card.track === 'science' ? 'stat.science' : 'stat.lifeSupport')}
               </span>
             ) : null}
             <span className="tabular-nums text-[10px] font-bold text-slate-500">
-              {discovered}/{card.options.length} desfechos
+              {t('deck.outcomesCount', { found: discovered, total: card.options.length })}
             </span>
           </span>
         </span>
@@ -66,27 +71,37 @@ function CardEntry({ card, known, knownOutcomes }: {
           {known ? (
             <>
               <div className="flex items-start justify-between gap-2">
-                <GlossaryText text={card.text} className="block flex-1 text-[13px] leading-snug text-slate-300" />
-                <SpeakButton text={`${card.title}. ${card.text}`} label={`Ouvir ${card.title}`} />
+                <GlossaryText
+                  text={content.cardText(card)}
+                  className="block flex-1 text-[0.85rem] leading-snug text-slate-200"
+                />
+                <SpeakButton
+                  text={`${title}. ${content.cardText(card)}`}
+                  label={t('deck.listenAria', { card: title })}
+                />
               </div>
               <ul className="mt-3 flex flex-col gap-2">
                 {card.options.map((option) => {
                   const seen = knownOutcomes.includes(`${card.id}:${option.id}`);
                   return (
                     <li key={option.id} className="rounded-2xl bg-white/5 p-2.5">
-                      <p className="text-[12.5px] font-extrabold text-slate-100">{option.label}</p>
+                      <p className="text-[0.8rem] font-extrabold text-slate-100">
+                        {content.optionLabel(card, option)}
+                      </p>
                       {seen ? (
                         <>
-                          <p className="mt-1 text-[12px] font-semibold text-slate-300">{option.outcome.line}</p>
+                          <p className="mt-1 text-[0.78rem] font-semibold text-slate-200">
+                            {content.outcomeLine(card, option)}
+                          </p>
                           <GlossaryText
-                            text={option.outcome.why}
-                            className="mt-1 block text-[11.5px] leading-snug text-slate-400"
+                            text={content.outcomeWhy(card, option)}
+                            className="mt-1 block text-[0.74rem] leading-snug text-slate-300"
                           />
                         </>
                       ) : (
-                        <p className="mt-1 flex items-center gap-1.5 text-[11.5px] font-semibold text-slate-500">
+                        <p className="mt-1 flex items-center gap-1.5 text-[0.74rem] font-semibold text-slate-300">
                           <HelpCircle size={12} aria-hidden />
-                          Desfecho não descoberto — escolha esta opção numa partida para revelar.
+                          {t('deck.unknownOutcome')}
                         </p>
                       )}
                     </li>
@@ -95,10 +110,7 @@ function CardEntry({ card, known, knownOutcomes }: {
               </ul>
             </>
           ) : (
-            <p className="text-[12.5px] leading-snug text-slate-400">
-              Este card ainda não apareceu em nenhuma missão sua. Ele entra no baralho
-              assim que você o encontrar em partida.
-            </p>
+            <p className="text-[0.8rem] leading-snug text-slate-300">{t('deck.unknownCardBody')}</p>
           )}
         </div>
       ) : null}
@@ -108,6 +120,8 @@ function CardEntry({ card, known, knownOutcomes }: {
 
 export function Deck(): JSX.Element {
   const go = useGame((s) => s.go);
+  const t = useT();
+  const content = useContent();
   const knownCards = useAccount((s) => s.knownCards);
   const knownOutcomes = useAccount((s) => s.knownOutcomes);
 
@@ -122,12 +136,16 @@ export function Deck(): JSX.Element {
     if (role !== 'all' && card.role !== role) return false;
     const known = knownCards.includes(card.id);
     if (onlyKnown && !known) return false;
-    if (query.trim().length > 0 && known) {
+    if (query.trim().length > 0) {
+      // Card nao descoberto nao tem texto para casar, entao sai da busca.
+      // Antes ele passava direto e a busca ficava inutil no comeco do jogo.
+      if (!known) return false;
       const needle = query.trim().toLowerCase();
-      if (!card.title.toLowerCase().includes(needle) && !card.text.toLowerCase().includes(needle)) return false;
+      const haystack = `${content.cardTitle(card)} ${content.cardText(card)}`.toLowerCase();
+      if (!haystack.includes(needle)) return false;
     }
     return true;
-  }), [phase, role, onlyKnown, query, knownCards]);
+  }), [phase, role, onlyKnown, query, knownCards, content]);
 
   const playable = CARDS.filter((c) => c.isFallback !== true);
   const totalOutcomes = playable.reduce((n, c) => n + c.options.length, 0);
@@ -135,13 +153,15 @@ export function Deck(): JSX.Element {
   return (
     <div className="mx-auto w-full max-w-md px-4 pb-8 pt-6">
       <button type="button" onClick={() => { go('menu'); }} className="btn-ghost mb-4 px-3 py-2 text-sm">
-        <ArrowLeft size={15} aria-hidden /> Menu
+        <ArrowLeft size={15} aria-hidden /> {t('common.menu')}
       </button>
 
-      <h1 className="font-display text-2xl font-extrabold text-white">Baralho</h1>
-      <p className="mt-1 text-[13px] text-slate-400">
-        {knownCards.length} de {playable.length} cards encontrados ·
-        {' '}{knownOutcomes.length} de {totalOutcomes} desfechos revelados
+      <h1 className="font-display text-2xl font-extrabold text-white">{t('deck.title')}</h1>
+      <p className="mt-1 text-[0.85rem] text-slate-300">
+        {t('deck.progress', {
+          cards: knownCards.length, totalCards: playable.length,
+          outcomes: knownOutcomes.length, totalOutcomes,
+        })}
       </p>
       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
         <div
@@ -158,14 +178,14 @@ export function Deck(): JSX.Element {
             type="search"
             value={query}
             onChange={(e) => { setQuery(e.target.value); }}
-            placeholder="Procurar card…"
-            aria-label="Procurar card"
+            placeholder={t('deck.searchPlaceholder')}
+            aria-label={t('deck.searchAria')}
             className="w-full bg-transparent text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
           />
         </label>
 
         <div className="flex flex-wrap gap-1.5">
-          {([['all', 'Todos'], ['day', 'Diurnos'], ['night', 'Noturnos']] as const).map(([id, label]) => (
+          {([['all', 'deck.filterAll'], ['day', 'deck.filterDay'], ['night', 'deck.filterNight']] as const).map(([id, labelKey]) => (
             <button
               key={id}
               type="button"
@@ -174,11 +194,11 @@ export function Deck(): JSX.Element {
               className={`rounded-xl px-2.5 py-1.5 text-[12px] font-bold transition-colors
                 ${phase === id ? 'bg-sky-400 text-space-950' : 'glass text-slate-300 hover:bg-white/10'}`}
             >
-              {label}
+              {t(labelKey)}
             </button>
           ))}
           <span className="mx-1 w-px bg-white/10" aria-hidden />
-          {([['all', 'Todos'], ['basic', 'Básicos'], ['extra', 'Objetivo'], ['event', 'Evento']] as const).map(([id, label]) => (
+          {([['all', 'deck.filterAll'], ['basic', 'deck.filterBasic'], ['extra', 'deck.filterObjective'], ['event', 'deck.filterEvent']] as const).map(([id, labelKey]) => (
             <button
               key={id}
               type="button"
@@ -187,7 +207,7 @@ export function Deck(): JSX.Element {
               className={`rounded-xl px-2.5 py-1.5 text-[12px] font-bold transition-colors
                 ${role === id ? 'bg-sky-400 text-space-950' : 'glass text-slate-300 hover:bg-white/10'}`}
             >
-              {label}
+              {t(labelKey)}
             </button>
           ))}
           <button
@@ -197,7 +217,7 @@ export function Deck(): JSX.Element {
             className={`rounded-xl px-2.5 py-1.5 text-[12px] font-bold transition-colors
               ${onlyKnown ? 'bg-sky-400 text-space-950' : 'glass text-slate-300 hover:bg-white/10'}`}
           >
-            Só descobertos
+            {t('deck.filterKnownOnly')}
           </button>
         </div>
       </div>
@@ -205,13 +225,13 @@ export function Deck(): JSX.Element {
       {/* Desafios para liberar mais */}
       <section className="mt-4 rounded-3xl border border-white/10 bg-white/[.03] p-3.5">
         <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">
-          Como liberar mais
+          {t('deck.unlockTitle')}
         </h2>
-        <ul className="mt-1.5 flex flex-col gap-1 text-[12.5px] text-slate-300">
-          <li>· Cards entram no baralho quando aparecem em partida.</li>
-          <li>· Cada desfecho é revelado ao escolher aquela opção.</li>
-          <li>· Vencer uma missão libera um comandante novo e um tema de HUD.</li>
-          <li>· Vencer 3 missões libera o emblema de Veterano.</li>
+        <ul className="mt-1.5 flex flex-col gap-1 text-[0.8rem] text-slate-200">
+          <li>· {t('deck.unlock1')}</li>
+          <li>· {t('deck.unlock2')}</li>
+          <li>· {t('deck.unlock3')}</li>
+          <li>· {t('deck.unlock4')}</li>
         </ul>
       </section>
 
@@ -225,8 +245,8 @@ export function Deck(): JSX.Element {
           />
         ))}
         {visible.length === 0 ? (
-          <li className="rounded-3xl glass p-6 text-center text-[13px] text-slate-400">
-            Nenhum card com esses filtros.
+          <li className="rounded-3xl glass p-6 text-center text-[0.85rem] text-slate-300">
+            {t('deck.empty')}
           </li>
         ) : null}
       </ul>

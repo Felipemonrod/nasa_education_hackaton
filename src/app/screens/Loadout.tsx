@@ -3,28 +3,38 @@ import { ArrowLeft, ArrowRight, Check, Lock, Plus, RefreshCw, X } from 'lucide-r
 import { COMMANDERS, EQUIPMENT, STRUCTURES, findLoadout } from '../data/loadout.js';
 import type { LoadoutCard } from '../data/loadout.js';
 import { iconFor } from '../components/icons.js';
+import { useContent } from '../i18n/useContent.js';
+import { useT } from '../i18n/useI18n.js';
 import { useAccount } from '../store/useAccount.js';
 import { useGame } from '../store/useGame.js';
 
 function EffectBadge({ card }: { card: LoadoutCard }): JSX.Element {
+  const content = useContent();
   return (
     <p className="mt-2 rounded-xl bg-sky-400/10 px-2 py-1.5 text-[11.5px] font-bold leading-snug text-sky-200">
-      {card.effectLabel}
+      {content.loadout(card.id, 'effect', card.effectLabel)}
     </p>
   );
 }
 
 function CardFace({ card, compact }: { card: LoadoutCard; compact?: boolean }): JSX.Element {
   const Icon = iconFor(card.icon);
+  const content = useContent();
   return (
     <div className="flex h-full flex-col p-3">
       <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/10">
         <Icon size={20} className="text-sky-200" aria-hidden />
       </span>
-      <p className="mt-2 font-display text-sm font-extrabold leading-tight text-white">{card.name}</p>
-      <p className="text-[10.5px] font-bold uppercase tracking-wide text-slate-500">{card.role}</p>
+      <p className="mt-2 font-display text-sm font-extrabold leading-tight text-white">
+        {content.loadout(card.id, 'name', card.name)}
+      </p>
+      <p className="text-[10.5px] font-bold uppercase tracking-wide text-slate-500">
+        {content.loadout(card.id, 'role', card.role)}
+      </p>
       {compact !== true ? (
-        <p className="mt-1.5 text-[12px] leading-snug text-slate-400">{card.blurb}</p>
+        <p className="mt-1.5 text-[12px] leading-snug text-slate-400">
+          {content.loadout(card.id, 'blurb', card.blurb)}
+        </p>
       ) : null}
       <EffectBadge card={card} />
     </div>
@@ -39,16 +49,18 @@ function CommanderPicker({
   onClose: () => void;
 }): JSX.Element | null {
   const unlocks = useAccount((s) => s.unlocks);
+  const t = useT();
+  const content = useContent();
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-space-950/80 p-3 backdrop-blur-sm animate-fade-in sm:items-center">
       <div className="card-surface max-h-[80dvh] w-full max-w-md overflow-y-auto scroll-thin">
         <div className="sticky top-0 flex items-center justify-between gap-2 bg-space-850/90 px-4 py-3 backdrop-blur">
-          <h2 className="font-display text-base font-extrabold text-white">Escolher comandante</h2>
+          <h2 className="font-display text-base font-extrabold text-white">{t('loadout.chooseCommander')}</h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Fechar"
+            aria-label={t('common.close')}
             className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 hover:bg-white/20"
           >
             <X size={16} aria-hidden />
@@ -74,11 +86,19 @@ function CommanderPicker({
                           : <Icon size={20} className="text-sky-200" aria-hidden />}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-display text-sm font-extrabold text-white">{cmd.name}</span>
-                  <span className="block text-[10.5px] font-bold uppercase tracking-wide text-slate-500">{cmd.role}</span>
-                  <span className="mt-1 block text-[12px] leading-snug text-slate-400">{cmd.blurb}</span>
+                  <span className="block font-display text-sm font-extrabold text-white">
+                    {content.loadout(cmd.id, 'name', cmd.name)}
+                  </span>
+                  <span className="block text-[10.5px] font-bold uppercase tracking-wide text-slate-500">
+                    {content.loadout(cmd.id, 'role', cmd.role)}
+                  </span>
+                  <span className="mt-1 block text-[12px] leading-snug text-slate-400">
+                    {content.loadout(cmd.id, 'blurb', cmd.blurb)}
+                  </span>
                   <span className="mt-1.5 block text-[11.5px] font-bold text-sky-200">
-                    {locked ? 'Desbloqueia ao vencer uma missão' : cmd.effectLabel}
+                    {locked
+                      ? t('loadout.commanderLocked')
+                      : content.loadout(cmd.id, 'effect', cmd.effectLabel)}
                   </span>
                 </span>
               </button>
@@ -91,14 +111,16 @@ function CommanderPicker({
 }
 
 function RolledCard({
-  card, label, rerollsLeft, onReroll, delay,
+  card, label, rerollAria, rerollsLeft, onReroll, delay,
 }: {
   card: LoadoutCard | undefined;
   label: string;
+  rerollAria: string;
   rerollsLeft: number;
   onReroll: () => void;
   delay: number;
 }): JSX.Element {
+  const t = useT();
   return (
     <div className="flex flex-col">
       <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">{label}</p>
@@ -113,13 +135,13 @@ function RolledCard({
         type="button"
         onClick={onReroll}
         disabled={rerollsLeft <= 0}
-        aria-label={`Sortear outro ${label.toLowerCase()}`}
+        aria-label={rerollAria}
         className="mx-auto mt-2 inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/[.06]
                    px-3 py-1.5 text-[11px] font-extrabold text-slate-200 transition-all
                    hover:bg-white/[.13] active:scale-95 disabled:opacity-35 disabled:pointer-events-none"
       >
         <RefreshCw size={12} aria-hidden />
-        {rerollsLeft > 0 ? `Trocar (${rerollsLeft})` : 'Sem troca'}
+        {rerollsLeft > 0 ? t('loadout.reroll', { left: rerollsLeft }) : t('loadout.rerollNone')}
       </button>
     </div>
   );
@@ -128,6 +150,7 @@ function RolledCard({
 export function Loadout(): JSX.Element {
   const { go, draft, pickCommander, rollExtras, reroll, confirmLoadout } = useGame();
   const [pickerOpen, setPickerOpen] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     if (draft.structureId === null || draft.equipmentId === null) rollExtras();
@@ -141,18 +164,19 @@ export function Loadout(): JSX.Element {
   return (
     <div className="mx-auto w-full max-w-md px-4 pb-28 pt-6">
       <button type="button" onClick={() => { go('destination'); }} className="btn-ghost mb-4 px-3 py-2 text-sm">
-        <ArrowLeft size={15} aria-hidden /> Voltar
+        <ArrowLeft size={15} aria-hidden /> {t('common.back')}
       </button>
 
-      <h1 className="font-display text-2xl font-extrabold text-white">O que vai com você</h1>
+      <h1 className="font-display text-2xl font-extrabold text-white">{t('loadout.title')}</h1>
       <p className="mt-1 text-[13px] leading-snug text-slate-400">
-        Três cards. O comandante você escolhe; a estrutura e o equipamento são sorteados,
-        com uma troca cada.
+        {t('loadout.intro')}
       </p>
 
       {/* Comandante: card vazio pontilhado com "+" ate ser escolhido */}
       <div className="mt-5">
-        <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Comandante</p>
+        <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+          {t('loadout.commander')}
+        </p>
         <button
           type="button"
           onClick={() => { setPickerOpen(true); }}
@@ -165,7 +189,7 @@ export function Loadout(): JSX.Element {
                 <span className="absolute inset-0 animate-pulse-ring rounded-full border-2 border-sky-300/40" aria-hidden />
                 <Plus size={26} className="text-sky-300" aria-hidden />
               </span>
-              <span className="text-[13px] font-extrabold text-slate-300">Escolher comandante</span>
+              <span className="text-[13px] font-extrabold text-slate-300">{t('loadout.chooseCommander')}</span>
             </span>
           ) : (
             <span className="block rounded-3xl glass-strong">
@@ -182,14 +206,16 @@ export function Loadout(): JSX.Element {
       <div className="mt-5 grid grid-cols-2 gap-3">
         <RolledCard
           card={structure}
-          label="Estrutura"
+          label={t('loadout.structure')}
+          rerollAria={t('loadout.rerollStructureAria')}
           rerollsLeft={draft.rerollsLeft.structure}
           onReroll={() => { reroll('structure'); }}
           delay={60}
         />
         <RolledCard
           card={equipment}
-          label="Equipamento"
+          label={t('loadout.equipment')}
+          rerollAria={t('loadout.rerollEquipmentAria')}
           rerollsLeft={draft.rerollsLeft.equipment}
           onReroll={() => { reroll('equipment'); }}
           delay={180}
@@ -197,8 +223,11 @@ export function Loadout(): JSX.Element {
       </div>
 
       <p className="mt-4 text-[11.5px] leading-snug text-slate-500">
-        Opções disponíveis: {COMMANDERS.length} comandantes, {STRUCTURES.length} estruturas,
-        {' '}{EQUIPMENT.length} equipamentos. Mais são desbloqueados vencendo missões.
+        {t('loadout.available', {
+          commanders: COMMANDERS.length,
+          structures: STRUCTURES.length,
+          equipment: EQUIPMENT.length,
+        })}
       </p>
 
       <CommanderPicker
@@ -210,7 +239,7 @@ export function Loadout(): JSX.Element {
       <div className="fixed inset-x-0 bottom-0 border-t border-white/10 bg-space-900/90 p-3 backdrop-blur">
         <div className="mx-auto max-w-md">
           <button type="button" className="btn-primary w-full" disabled={!ready} onClick={confirmLoadout}>
-            {ready ? 'Preparar descida' : 'Escolha um comandante'}
+            {ready ? t('loadout.ready') : t('loadout.pickFirst')}
             {ready ? <ArrowRight size={17} aria-hidden /> : null}
           </button>
         </div>
