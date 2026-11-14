@@ -202,6 +202,11 @@ while true; do
   if [[ -z "$REMOTE" ]]; then warn "nao consegui falar com o Git; tento de novo em ${INTERVAL}s"; continue; fi
   [[ "$REMOTE" == "$(git rev-parse HEAD)" ]] && continue
 
+  # Local A FRENTE do remoto nao e commit novo: e o estado normal de quem
+  # tem trabalho ainda nao merjado. Sem esta checagem o script via
+  # "diferente" e reiniciava a instancia a cada ciclo, para sempre.
+  if git merge-base --is-ancestor "$REMOTE" HEAD 2>/dev/null; then continue; fi
+
   echo
   info "commit novo em origin/$BRANCH: ${REMOTE:0:7}"
   if update_to_remote && verify; then
