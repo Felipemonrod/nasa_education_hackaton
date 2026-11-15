@@ -47,6 +47,14 @@ export default {
           '0%': { opacity: '.7', transform: 'scale(.95)' },
           '100%': { opacity: '0', transform: 'scale(1.35)' },
         },
+        'step-forward': {
+          '0%': { opacity: '0', transform: 'translateX(28px) scale(.985)' },
+          '100%': { opacity: '1', transform: 'translateX(0) scale(1)' },
+        },
+        'step-backward': {
+          '0%': { opacity: '0', transform: 'translateX(-28px) scale(.985)' },
+          '100%': { opacity: '1', transform: 'translateX(0) scale(1)' },
+        },
       },
       animation: {
         'card-in': 'card-in .45s cubic-bezier(.2,.9,.3,1) both',
@@ -54,6 +62,8 @@ export default {
         'deal': 'deal .5s cubic-bezier(.2,.9,.3,1) both',
         'drift': 'drift 6s ease-in-out infinite',
         'pulse-ring': 'pulse-ring 1.6s ease-out infinite',
+        'step-forward': 'step-forward .42s cubic-bezier(.22,1,.36,1) both',
+        'step-backward': 'step-backward .42s cubic-bezier(.22,1,.36,1) both',
       },
     },
   },

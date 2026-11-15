@@ -11,9 +11,9 @@ export default defineConfig({
       // mudancas "nao aparecerem" e voce perde horas debugando o SW em vez
       // do jogo.
       devOptions: { enabled: false },
-      // O mascote do tutorial (~43 KB) vai no precache: o tutorial tem que
-      // funcionar offline desde a primeira abertura.
-      includeAssets: ['icon.svg', 'mascot/*.webp'],
+      // Precache: o mascote do tutorial (~43 KB) e as fotos da cutscene, para
+      // os dois funcionarem offline desde a primeira abertura.
+      includeAssets: ['icon.svg', 'mascot/*.webp', 'cutscene/sky.jpg', 'cutscene/moon.jpg'],
       manifest: {
         name: 'Lunar Outpost — Missao NASA',
         short_name: 'Lunar Outpost',

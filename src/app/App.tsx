@@ -11,8 +11,6 @@ import { Loadout } from './screens/Loadout.js';
 import { Menu } from './screens/Menu.js';
 import { Result } from './screens/Result.js';
 import { Settings } from './screens/Settings.js';
-import { Story } from './screens/Story.js';
-import { Travel } from './screens/Travel.js';
 import { useAccount } from './store/useAccount.js';
 import { useGame } from './store/useGame.js';
 import { useI18n } from './i18n/useI18n.js';
@@ -28,10 +26,16 @@ export function App(): JSX.Element {
   const speechRate = useAccount((s) => s.settings.speechRate);
   const speechVolume = useAccount((s) => s.settings.speechVolume);
   const locale = useI18n((s) => s.locale);
+  const syncFromBrowser = useI18n((s) => s.syncFromBrowser);
   const speak = useSpeech((s) => s.speak);
   const stopSpeech = useSpeech((s) => s.stop);
 
   useApplyA11y();
+
+  // Valida o idioma do navegador antes da cutscene iniciar.
+  useEffect(() => {
+    syncFromBrowser();
+  }, [syncFromBrowser]);
 
   useEffect(() => {
     document.documentElement.lang = LOCALE_TAG[locale];
@@ -57,10 +61,8 @@ export function App(): JSX.Element {
       {screen === 'cutscene' ? (
         <Cutscene onDone={() => { markCutsceneSeen(); go('menu'); }} />
       ) : screen === 'menu' ? <Menu />
-        : screen === 'story' ? <Story />
         : screen === 'destination' ? <Destination />
         : screen === 'loadout' ? <Loadout />
-        : screen === 'travel' ? <Travel />
         : screen === 'loading' ? <Loading onDone={enterGame} />
         : screen === 'game' ? <Game />
         : screen === 'result' ? <Result />
