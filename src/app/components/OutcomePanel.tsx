@@ -56,12 +56,19 @@ function DeltaRow({ title, from, to, help }: { title: string; from: Stats; to: S
         <p className="text-[0.65rem] font-extrabold uppercase tracking-wider text-slate-300">{title}</p>
         {help !== undefined ? (
           <div className="group relative inline-flex shrink-0">
+            {/* Area de toque de 40px com o mesmo circulo de 1rem como desenho;
+                a margem negativa devolve o espaco ocupado ao tamanho do circulo. */}
             <button
               type="button"
               aria-label={help}
-              className="grid h-4 w-4 place-items-center rounded-full border border-white/20 bg-white/[.08] text-[0.6rem] font-extrabold text-slate-200 transition-colors hover:border-sky-300/60 hover:bg-sky-400/20 hover:text-white focus:outline-none"
+              className="-m-[calc(20px-0.5rem)] grid h-[40px] w-[40px] place-items-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/60"
             >
-              ?
+              <span
+                aria-hidden
+                className="grid h-4 w-4 place-items-center rounded-full border border-white/20 bg-white/[.08] text-[0.6rem] font-extrabold text-slate-200 transition-colors group-hover:border-sky-300/60 group-hover:bg-sky-400/20 group-hover:text-white"
+              >
+                ?
+              </span>
             </button>
             <div
               role="tooltip"
@@ -99,7 +106,9 @@ export function OutcomePanel({
   const mistake = content.outcomeMistake(outcome.card, outcome.option);
 
   useEffect(() => {
-    continueRef.current?.focus();
+    // preventScroll: no celular deitado o painel rola; focar "Continuar" sem
+    // isso abria o painel ja rolado ate o fim, escondendo o veredito.
+    continueRef.current?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') { onContinue(); return; }
       if (e.key !== 'Tab' || dialogRef.current === null) return;

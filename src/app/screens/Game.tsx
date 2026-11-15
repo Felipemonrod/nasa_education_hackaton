@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Bell, Moon, Radio, Settings, Sun, Telescope, X } from 'lucide-react';
+import { Bell, Info, Moon, Radio, Settings, Sun, Telescope, X } from 'lucide-react';
 import { trackFor } from '../../engine/balance.js';
 import type { CardOption, Stat } from '../../engine/types.js';
 import { playPaperPullSfx } from '../audio/sfx.js';
-import { CardView } from '../components/CardView.js';
+import { CardView, SHORT_LANDSCAPE_QUERY, useMediaQuery } from '../components/CardView.js';
 import { GearMenu } from '../components/GearMenu.js';
 import { MoonScene } from '../components/MoonScene.js';
 import { OutcomePanel } from '../components/OutcomePanel.js';
@@ -25,17 +25,7 @@ const PAIR_SIDE_BY_SIDE_MIN_WIDTH = 640;
 
 /** true enquanto a janela tiver pelo menos `px` de largura; acompanha rotacao e redimensionamento. */
 function useMinWidth(px: number): boolean {
-  const query = `(min-width: ${px}px)`;
-  const [matches, setMatches] = useState(() => typeof window !== 'undefined' && window.matchMedia?.(query).matches === true);
-  useEffect(() => {
-    const media = window.matchMedia?.(query);
-    if (media === undefined) return;
-    const onChange = (): void => { setMatches(media.matches); };
-    onChange();
-    media.addEventListener('change', onChange);
-    return () => { media.removeEventListener('change', onChange); };
-  }, [query]);
-  return matches;
+  return useMediaQuery(`(min-width: ${px}px)`);
 }
 
 const SLOT_CLOCK: readonly string[] = ['08:00', '13:00', '20:00', '01:00'];
@@ -156,10 +146,15 @@ export function Game(): JSX.Element {
   // No celular em pe (< `sm`) o par de cartas vira duas ABAS: so uma carta
   // aparece por vez. A voz le apenas a carta que esta na tela.
   const isWideEnoughForPair = useMinWidth(PAIR_SIDE_BY_SIDE_MIN_WIDTH);
+  // Celular deitado: cada carta do par usa o layout lado a lado (moldura +
+  // coluna de opcoes), que precisa da largura toda -- entao o par tambem
+  // vira abas, como no retrato.
+  const isShortLandscape = useMediaQuery(SHORT_LANDSCAPE_QUERY);
+  const pairAsTabs = !isWideEnoughForPair || (isShortLandscape && !isDesktopLayout);
   const cardsOnScreen = isDesktopLayout || decisionsModalOpen;
 
   const slotCards = run === null ? [] : currentSlot()?.cards ?? [];
-  const visibleCards = slotCards.length > 1 && !isWideEnoughForPair
+  const visibleCards = slotCards.length > 1 && pairAsTabs
     ? slotCards.filter((_, index) => index === mobileCardIndex)
     : slotCards;
   const visibleText = joinSpoken(
@@ -216,6 +211,14 @@ export function Game(): JSX.Element {
   const phase = run.config.plan[run.slot]?.phase ?? 'day';
   const objectiveTrack = trackFor(run.config.objective);
   const isPair = slot?.shape === 'pair';
+  // Tempestade ATIVA recusada no par nao volta ao baralho: ela atinge a base
+  // mesmo assim (engine/run.ts, passo 2b). O aviso precisa dizer isso.
+  const activeStormId = run.activeTemporal?.cardId;
+  const stormInPair = isPair && activeStormId !== undefined
+    && slot?.cards.some((entry) => entry.card.id === activeStormId) === true;
+  const pairNotice = isPair
+    ? t(stormInPair ? 'game.pairNoticeStorm' : 'game.pairNotice', { one: t('game.pairNoticeOne') })
+    : '';
 
   const modalOpen = decisionsModalOpen && cardReady && slot !== null;
 
@@ -366,10 +369,16 @@ export function Game(): JSX.Element {
               onClick={(e) => { if (modalOpen) e.stopPropagation(); }}
               className="flex max-h-[94dvh] w-full max-w-4xl flex-col items-center gap-2 overflow-y-auto scroll-thin lg:contents"
             >
-              {/* Barra superior do modal no mobile: abas para eventos de 2 cartas no retrato + botao fechar */}
-              <div className="flex w-full items-center justify-between gap-2 lg:hidden">
-                {isPair ? (
-                  <div className="grid flex-1 grid-cols-2 gap-1.5 sm:hidden" role="tablist" aria-label={t('game.newDecisions')}>
+              {/* Barra superior do modal no mobile: abas para eventos de 2 cartas
+                  (retrato e celular deitado) + aviso do par + botao fechar.
+                  No retrato o aviso desce para uma linha propria. */}
+              <div className="flex w-full shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 lg:hidden">
+                {isPair && pairAsTabs ? (
+                  <div
+                    className={`grid grid-cols-2 gap-1.5 ${isShortLandscape ? 'w-[12rem] shrink-0' : 'flex-1'}`}
+                    role="tablist"
+                    aria-label={t('game.newDecisions')}
+                  >
                     {[0, 1].map((idx) => {
                       const active = mobileCardIndex === idx;
                       return (
@@ -392,6 +401,19 @@ export function Game(): JSX.Element {
                   </div>
                 ) : null}
 
+                {isPair ? (
+                  <p
+                    className={`flex items-start gap-1.5 rounded-xl border border-sky-400/25 bg-sky-400/10 px-2.5 py-1 text-left font-semibold text-sky-100 ${
+                      pairAsTabs && !isShortLandscape
+                        ? 'order-last basis-full text-[0.72rem] leading-snug'
+                        : 'min-w-0 flex-1 text-[0.7rem] leading-tight'
+                    }`}
+                  >
+                    <Info size={13} className="mt-px shrink-0 text-sky-300" aria-hidden />
+                    <span>{pairNotice}</span>
+                  </p>
+                ) : null}
+
                 <button
                   type="button"
                   onClick={() => { setDecisionsModalOpen(false); }}
@@ -403,8 +425,15 @@ export function Game(): JSX.Element {
               </div>
 
               <div className="flex min-h-0 w-full flex-1 flex-col justify-center gap-2.5">
+                {/* Aviso do par no desktop (no mobile ele fica na barra do modal). */}
+                {isPair ? (
+                  <p className="mx-auto hidden max-w-2xl shrink-0 items-center justify-center gap-1.5 rounded-xl border border-sky-400/25 bg-sky-400/10 px-3 py-1.5 text-center text-[0.78rem] font-semibold leading-snug text-sky-100 lg:flex">
+                    <Info size={14} className="shrink-0 text-sky-300" aria-hidden />
+                    <span>{pairNotice}</span>
+                  </p>
+                ) : null}
                 <div className={isPair
-                  ? 'grid min-h-0 flex-1 grid-cols-1 items-stretch gap-3 sm:grid-cols-2 lg:gap-4'
+                  ? `grid min-h-0 flex-1 items-stretch ${pairAsTabs ? 'grid-cols-1' : 'grid-cols-2 gap-3 lg:gap-4'}`
                   : 'mx-auto grid min-h-0 w-full max-w-2xl flex-1'}
                 >
                   {slot.cards.map((entry, index) => {
@@ -432,7 +461,7 @@ export function Game(): JSX.Element {
                     return (
                       <div
                         key={entry.card.id}
-                        className={index === mobileCardIndex ? 'flex h-full min-h-0' : 'hidden h-full min-h-0 sm:flex'}
+                        className={!pairAsTabs || index === mobileCardIndex ? 'flex h-full min-h-0' : 'hidden'}
                       >
                         {cardElement}
                       </div>

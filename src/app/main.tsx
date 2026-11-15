@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 import { App } from './App.js';
+import { ErrorBoundary } from './components/ErrorBoundary.js';
 import { requestPersistentStorage } from './store/persistence.js';
 import './index.css';
 
@@ -43,6 +44,9 @@ const updateSW = registerSW({
 
 createRoot(container).render(
   <StrictMode>
-    <App />
+    {/* Erro de render vira mensagem com "Voltar ao menu", nunca tela branca. */}
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );

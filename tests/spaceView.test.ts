@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { loadSpaceView } from '../src/app/services/nasa.js';
+import { loadSpaceView, parseCredit } from '../src/app/services/nasa.js';
 
 class MemoryStorage implements Storage {
   private data = new Map<string, string>();
@@ -242,5 +242,129 @@ describe('APOD novo (WordPress, sem chave)', () => {
       expect(view.caption).toContain('red/blue glasses');
     }
     expect(fetchMock.mock.calls.some(([u]) => String(u).includes('planetary/apod'))).toBe(false);
+  });
+});
+
+/**
+ * APOD de hoje costuma ser foto de terceiros (c) Fulano. A regra do Space
+ * Apps e das APIs (docs/RECURSOS_NASA.md secoes 6.4 e 17) e exibir o
+ * credito: a janela nao pode dizer so "Fonte: NASA APOD".
+ */
+describe('parseCredit (credito de foto)', () => {
+  it('limpa HTML, entidades, rotulo e espacos', () => {
+    expect(parseCredit('Image Credit &amp; Copyright: <a href="https://x.example">Jane Doe</a>\n')).toBe('Jane Doe');
+    expect(parseCredit('\nJohn Smith\n')).toBe('John Smith');
+    expect(parseCredit('&copy; Ana Lima')).toBe('Ana Lima');
+    expect(parseCredit('Copyright: Ana Lima')).toBe('Ana Lima');
+  });
+
+  it('prefere o primeiro campo nao vazio e ignora o que nao e string', () => {
+    expect(parseCredit('Jane Doe', 'NASA, ESA')).toBe('Jane Doe');
+    expect(parseCredit(undefined, 'NASA, ESA, Hubble')).toBe('NASA, ESA, Hubble');
+    expect(parseCredit('   ', '<p></p>', 'Fallback')).toBe('Fallback');
+    expect(parseCredit(null, 42, false, { name: 'x' })).toBeUndefined();
+    expect(parseCredit()).toBeUndefined();
+  });
+
+  it('corta credito longo em palavra inteira, com reticencias', () => {
+    const credit = parseCredit(`Image Credit: ${'Observatorio Muito Comprido '.repeat(8)}`);
+    expect(credit).toBeDefined();
+    expect(credit!.length).toBeLessThanOrEqual(91);
+    expect(credit!.endsWith('…')).toBe(true);
+    expect(credit).not.toMatch(/Credit/);
+  });
+});
+
+describe('credito chega na foto da APOD', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    vi.restoreAllMocks();
+  });
+
+  function stub(handler: (url: string) => Response | null): void {
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => handler(url) ?? new Response('', { status: 404 })));
+  }
+
+  it('APOD nova (WordPress): copyright de terceiro vira `credit`', async () => {
+    stub((url) => (url.includes('wp-json/wp/v2/apod-basic')
+      ? new Response(JSON.stringify([{
+        title: 'Moonrise over the Andes',
+        explanation: '<strong>Explanation:</strong> A thin crescent rises.',
+        hdurl: 'https://assets.science.nasa.gov/apod/moonrise.jpg',
+        media_type: 'image',
+        date: '2026-11-15',
+        copyright: '\nJane Doe\n',
+        credit: 'Image Credit &amp; Copyright: <a href="https://x.example">Jane Doe</a>',
+      }]), { status: 200 })
+      : null));
+
+    const view = await loadSpaceView();
+    expect(view.kind).toBe('photo');
+    if (view.kind === 'photo') {
+      expect(view.source).toBe('NASA APOD');
+      expect(view.credit).toBe('Jane Doe');
+    }
+  });
+
+  it('APOD nova sem copyright usa o campo credit', async () => {
+    stub((url) => (url.includes('wp-json/wp/v2/apod-basic')
+      ? new Response(JSON.stringify([{
+        title: 'Pillars',
+        hdurl: 'https://assets.science.nasa.gov/apod/pillars.jpg',
+        media_type: 'image',
+        date: '2026-11-15',
+        credit: 'Image Credit: <a href="#">NASA</a>, <a href="#">ESA</a>, CSA, STScI',
+      }]), { status: 200 })
+      : null));
+
+    const view = await loadSpaceView();
+    expect(view.kind === 'photo' ? view.credit : null).toBe('NASA, ESA, CSA, STScI');
+  });
+
+  it('API antiga: campo copyright vira `credit`; sem copyright nao inventa credito', async () => {
+    stub((url) => (url.includes('planetary/apod')
+      ? new Response(JSON.stringify({
+        title: 'Saturn Rings',
+        explanation: 'Rings.',
+        media_type: 'image',
+        url: 'https://apod.nasa.gov/apod/image/saturn.jpg',
+        date: '2026-11-15',
+        copyright: '\nJohn Smith\n',
+      }), { status: 200 })
+      : null));
+    const withCredit = await loadSpaceView();
+    expect(withCredit.kind === 'photo' ? withCredit.credit : null).toBe('John Smith');
+
+    window.localStorage.clear();
+    stub((url) => (url.includes('planetary/apod')
+      ? new Response(JSON.stringify({
+        title: 'Apollo 17 Earthrise',
+        explanation: 'Public domain.',
+        media_type: 'image',
+        url: 'https://apod.nasa.gov/apod/image/a17.jpg',
+        date: '2026-11-15',
+      }), { status: 200 })
+      : null));
+    const publicDomain = await loadSpaceView();
+    expect(publicDomain.kind).toBe('photo');
+    if (publicDomain.kind === 'photo') expect(publicDomain.credit).toBeUndefined();
+  });
+
+  it('copyright com tipo inesperado nao derruba a foto', async () => {
+    stub((url) => (url.includes('planetary/apod')
+      ? new Response(JSON.stringify({
+        title: 'Odd payload',
+        media_type: 'image',
+        url: 'https://apod.nasa.gov/apod/image/odd.jpg',
+        date: '2026-11-15',
+        copyright: 12345,
+      }), { status: 200 })
+      : null));
+    const view = await loadSpaceView();
+    expect(view.kind).toBe('photo');
+    if (view.kind === 'photo') {
+      expect(view.source).toBe('NASA APOD');
+      expect(view.credit).toBeUndefined();
+    }
   });
 });

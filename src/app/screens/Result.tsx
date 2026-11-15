@@ -166,7 +166,7 @@ export function Result(): JSX.Element {
                           <span className="h-9 w-9 shrink-0 rounded-xl bg-gradient-to-br from-sky-400 to-life" />
                           <span className="min-w-0">
                             <span className="block text-[0.84rem] font-extrabold text-white">
-                              {t('result.themeReward', { theme: t(`settings.theme.${theme}`) })}
+                              {t('result.themeReward', { name: t(`settings.theme.${theme}`) })}
                             </span>
                             <span className="block text-[0.72rem] text-slate-300">
                               {t(hudTheme === theme ? 'result.themeInUse' : 'result.themeTapToUse')}

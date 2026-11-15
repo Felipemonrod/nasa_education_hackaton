@@ -59,6 +59,11 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
 
   const source = photo !== null ? photo.source : fallback?.source ?? '';
   const date = photo !== null ? photo.date : fallback?.date ?? '';
+  // Foto de terceiro (ex.: APOD (c) de um fotografo): o credito vem antes da
+  // fonte. Sem isso a tela dizia so "Fonte: NASA APOD" (docs/RECURSOS_NASA.md 17).
+  const sourceLine = photo?.credit !== undefined
+    ? t('space.sourceCredit', { credit: photo.credit, source, date })
+    : t('space.source', { source, date });
   const isFullDisk = photo !== null && (photo.source === 'NASA EPIC / DSCOVR' || photo.source === 'NOAA GOES-19');
 
   return (
@@ -132,7 +137,7 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
                 <h3 className="font-display text-lg font-extrabold leading-snug text-white">{title}</h3>
                 <p className="mt-2 text-[0.86rem] leading-relaxed text-slate-300">{caption}</p>
                 <p className="mt-4 text-[0.68rem] font-bold uppercase tracking-wider text-sky-300/80">
-                  {t('space.source', { source, date })}
+                  {sourceLine}
                 </p>
               </>
             ) : null}

@@ -56,9 +56,9 @@ export default defineConfig({
       // os dois funcionarem offline desde a primeira abertura.
       includeAssets: ['icon.svg', 'mascot/*.webp', 'cutscene/sky.jpg', 'cutscene/moon.jpg'],
       manifest: {
-        name: 'Lunar Outpost — Missao NASA',
+        name: 'Lunar Outpost — NASA Space Apps 2026',
         short_name: 'Lunar Outpost',
-        description: 'Simulacao de decisoes para fundar um outpost na Lua.',
+        description: 'Jogo educativo sobre montar um posto avançado na Lua, com dados abertos da NASA.',
         lang: 'pt-BR',
         theme_color: '#0b0e14',
         background_color: '#0b0e14',

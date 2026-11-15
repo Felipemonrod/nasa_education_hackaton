@@ -101,6 +101,35 @@ describe('clima espacial no engine', () => {
     expect(stormsSeen(withClass('X'), 150)).toBeGreaterThan(stormsSeen(withClass('none'), 150));
   });
 
+  // Regressao: quando o pool noturno secava, `pickWeighted` caia no sorteio
+  // uniforme com todos os pesos 0 e a "classe X" aparecia em dia calmo,
+  // contradizendo o dado real da NOAA/DONKI exibido ao jogador.
+  function flareIdsSeen(weather: SpaceWeather, seeds: number): Set<string> {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= seeds; seed += 1) {
+      let state: RunState = createRun(engine, { seed, objective: seed % 2 === 0 ? 'science' : 'habitat', spaceWeather: weather });
+      for (let i = 0; i < 40 && state.status === 'running'; i += 1) {
+        state = beginSlot(engine, state);
+        const view = viewSlot(engine, state);
+        for (const e of view.cards) if (e.card.solarFlare !== undefined) seen.add(e.card.id);
+        const entry = view.cards[(seed + i) % view.cards.length]!;
+        const selectable = entry.options.filter((o) => o.selectable);
+        const pick = selectable[(seed * 7 + i) % selectable.length]!;
+        state = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
+      }
+    }
+    return seen;
+  }
+
+  it('dia calmo nunca sorteia tempestade, nem quando o pool seca', () => {
+    expect([...flareIdsSeen(withClass('none'), 300)]).toEqual([]);
+  });
+
+  it('a tempestade "classe X" so aparece em dia classe X', () => {
+    expect(flareIdsSeen(withClass('C'), 200).has('flare_strong')).toBe(false);
+    expect(flareIdsSeen(withClass('M'), 200).has('flare_strong')).toBe(false);
+  });
+
   it('dia calmo real sorteia igual a fixture sem clima (peso 1)', () => {
     const quietReal = HISTORICAL_WEATHER.find((w) => w.flareClass === 'none')!;
     const a = beginSlot(engine, createRun(engine, { seed: 314, objective: 'habitat', spaceWeather: quietReal }));

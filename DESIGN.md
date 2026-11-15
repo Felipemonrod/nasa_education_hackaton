@@ -137,8 +137,10 @@ O engine é `(state, decision) => state`. Não importa React, não chama
   (`{ id, date, flareClass, classType, source, sourceUrl }`), escolhido na
   borda ao criar a partida e gravado no save. Nunca é chamada de rede de dentro
   do engine. Efeito: `flareWeight[classe]` multiplica a chance dos cards
-  `solarFlare` (o forte, "classe X", só pesa em dia X). Classe `none` = peso 1
-  = sorteio idêntico ao de antes do clima.
+  `solarFlare` (o forte, "classe X", só pesa em dia X). Classe `none` = peso 0
+  para os cards de tempestade: em dia calmo nenhuma tempestade é sorteada.
+  Card de peso 0 sai do pool antes do sorteio (inclusive nas camadas de
+  fallback), para que o dado real do clima nunca seja contradito.
 
 ---
 

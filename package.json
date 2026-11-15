@@ -2,6 +2,7 @@
   "name": "lunar-outpost-engine",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "Engine deterministico (TS puro) do PoC Lunar Outpost. Fase 1: regras + balanceamento, sem UI.",
   "scripts": {

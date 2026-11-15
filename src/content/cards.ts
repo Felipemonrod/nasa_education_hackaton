@@ -42,7 +42,7 @@ export const CARDS: readonly Card[] = [
       },
       {
         id: 'blower',
-        label: 'Usar o soprador eletrico',
+        label: 'Usar jato de gas comprimido',
         requires: [{ stat: 'power', op: 'gte', value: 30 }],
         effects: [
           { stat: 'power', delta: 6 },
@@ -50,7 +50,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Recuperacao parcial, sem ninguem sair.',
-          why: 'A poeira lunar e afiada e eletrostatica: soprar devolve parte da luz aos paineis, mas espalha gra~os abrasivos sobre a [[shielding]].',
+          why: 'Na Lua nao ha ar para soprar: o jato usa gas guardado em tanque. Ele tira parte da poeira, mas os graos afiados voam e arranham a cobertura da [[shielding]].',
           verdict: 'mixed',
         },
       },
@@ -249,7 +249,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Trabalho adiantado, exposicao maior.',
-          why: 'Classe baixa nao mata ninguem hoje. Mas a [[dose]] e cumulativa e nunca desce: voce acabou de gastar parte do seu limite do ano.',
+          why: 'Classe baixa nao mata ninguem hoje. Mas a [[dose]] e cumulativa e nunca desce: a NASA limita a dose de cada astronauta na carreira inteira, e voce acabou de gastar um pedaco desse limite.',
           verdict: 'mixed',
         },
       },
@@ -278,7 +278,7 @@ export const CARDS: readonly Card[] = [
     phase: 'any',
     solarFlare: 'strong',
     title: 'Tempestade solar classe X',
-    text: 'Uma explosao de [[flare_class]] X, a mais forte da escala, atingiu a Lua. As particulas continuam chegando por varios turnos: enquanto durar, a [[dose]] sobe e a [[shielding]] se desgasta um pouco a cada turno.',
+    text: 'Uma explosao de [[flare_class]] X, a mais forte da escala, lancou uma chuva de particulas na direcao da Lua. Elas continuam chegando por varios turnos: enquanto durar, a [[dose]] sobe e a [[shielding]] se desgasta um pouco a cada turno.',
     temporal: {
       slots: 3,
       perSlot: [
@@ -297,7 +297,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Turno perdido, dose de radiacao quase toda barrada.',
-          why: 'Nenhuma blindagem para 100% das particulas: sempre entra um pouco. Mas a diferenca entre estar no [[central_shelter]] e fora dele e enorme.',
+          why: 'Em setembro de 2017, o sensor CRaTER da NASA, em orbita da Lua, mediu a radiacao subir mais de 1.000 vezes numa tempestade assim. Nenhuma blindagem para 100% das particulas, mas estar no [[central_shelter]] faz uma diferenca enorme.',
           verdict: 'good',
         },
       },
@@ -721,7 +721,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'night',
     title: 'Noite termica',
-    text: 'A noite lunar dura cerca de 14 dias terrestres, sem nenhum Sol. As escotilhas estao fechadas, e o calor da base escapa para o frio la fora: manter os modulos aquecidos gasta muita [[power]].',
+    text: 'O calor da base escapa para o [[vacuum]] o tempo todo, e o chao nas sombras da Lua e gelado. Na vigilia, com a tripulacao dormindo e as escotilhas fechadas, manter todos os modulos aquecidos gasta muita [[power]].',
     options: [
       {
         id: 'heat_all',
@@ -729,7 +729,7 @@ export const CARDS: readonly Card[] = [
         effects: [{ stat: 'power', delta: -9 }, { stat: 'oxygen', delta: -1 }],
         outcome: {
           line: 'Base inteira em temperatura segura.',
-          why: 'Os turnos seguem o relogio [[utc]] da base, nao o Sol: a tripulacao fecha as escotilhas para dormir mesmo com o Sol la fora. Mas o frio real vem do equipamento parado e da sombra.',
+          why: 'Os turnos seguem o relogio [[utc]] da base, nao o Sol: as escotilhas fecham para a tripulacao dormir, mas o frio la fora nao para. No vacuo o calor escapa como luz invisivel (infravermelho). Aquecer tudo e seguro, mas caro.',
           verdict: 'mixed',
         },
       },
@@ -1038,7 +1038,7 @@ export const CARDS: readonly Card[] = [
           { stat: 'dose', delta: 2 },
         ],
         outcome: {
-          line: 'Nucleo de gelo coletado a -180 C.',
+          line: 'Nucleo de gelo coletado abaixo de -200 °C.',
           why: 'Esse gelo nunca viu o Sol: ele guarda o registro de bilhoes de anos. E tambem agua, ou seja, [[oxygen]] e combustivel futuros.',
           verdict: 'good',
         },
@@ -1160,7 +1160,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Area de cultivo dobrada.',
-          why: 'Planta devolve [[oxygen]] e [[food]] ao mesmo tempo: ela fecha dois ciclos. O investimento sai do estoque de sementes e de muita [[power]].',
+          why: 'Planta devolve [[oxygen]] e [[food]], mas so depois de crescer. Hoje, montar tudo de uma vez gasta sementes, comida e ar dos tanques. E investimento: paga mais tarde.',
           verdict: 'good',
         },
       },
@@ -1173,8 +1173,8 @@ export const CARDS: readonly Card[] = [
           { stat: 'food', delta: -1 },
         ],
         outcome: {
-          line: 'Metade da area, metade do custo.',
-          why: 'Expansao escala quase linear aqui, entao meia expansao e uma escolha honesta quando a [[power]] esta curta.',
+          line: 'Metade da area, menos material.',
+          why: 'Meia expansao usa menos material, mas montar em etapas deixa luzes e bombas ligadas por mais tempo: gasta mais [[power]] que a obra completa.',
           verdict: 'good',
         },
       },
@@ -1305,7 +1305,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Cabe mais gente, sem mais protecao.',
-          why: 'Organizacao e de graca e sempre vale. Mas quem define quanta [[radiation]] entra e a massa da parede, nao o layout.',
+          why: 'Reorganizar custa pouco e sempre vale. Mas quem define quanta [[radiation]] entra e a massa da parede, nao o layout.',
           verdict: 'mixed',
         },
       },
@@ -1347,7 +1347,7 @@ export const CARDS: readonly Card[] = [
           { stat: 'food', delta: -4 },
         ],
         outcome: {
-          line: 'Modulos no solo, despensa intacta.',
+          line: 'Modulos no solo; a montagem consumiu comida.',
           why: 'Equipamento muda o que a base consegue fazer todos os dias; racao muda o que ela aguenta esta semana. A escolha certa depende de quanto tempo falta.',
           verdict: 'mixed',
         },
@@ -1364,7 +1364,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Duas descidas, consumo dobrado.',
-          why: 'Dividir a carga exige duas manobras de frenagem, e frear custa quase o mesmo independente do peso. Nao concentrar foi a opcao mais cara.',
+          why: 'Cada descida precisa frear tambem o proprio modulo de pouso, que pesa mais que a carga. Duas descidas gastam quase o dobro de combustivel: nao concentrar foi a opcao mais cara.',
           verdict: 'mixed',
         },
       },
@@ -1424,7 +1424,7 @@ export const CARDS: readonly Card[] = [
     track: 'science',
     phase: 'night',
     title: 'Radio-silencio',
-    text: 'Com quase todos os aparelhos da base desligados na vigilia, o [[radio_telescope]] pode escutar ondas de radio muito fracas vindas do Universo distante. O ruido de radio da Terra atrapalha, entao cada minuto de silencio na base vale ouro.',
+    text: 'Com quase todos os aparelhos da base desligados na vigilia, o [[radio_telescope]] pode escutar ondas de radio muito fracas vindas do Universo distante. Cada aparelho ligado faz ruido de radio, entao cada minuto de silencio na base vale ouro.',
     options: [
       {
         id: 'long_obs',
@@ -1436,7 +1436,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Sinais de radio muito fracos registrados.',
-          why: 'A Lua e o unico lugar perto da Terra onde o radio fica quieto: nossa propria civilizacao abafa esses sinais. A janela e curta e nao volta amanha.',
+          why: 'A Terra faz muito ruido de radio. So o lado oculto da Lua, que nunca ve a Terra, e silencioso de verdade: e la que a NASA quer instalar radiotelescopios. Daqui, o jeito e somar horas de escuta com a base quieta.',
           verdict: 'good',
         },
       },
@@ -1553,7 +1553,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Paineis de volta ao angulo otimo.',
-          why: 'Perto do equador lunar o Sol passa quase de lado: alguns graus de erro custam um quinto da [[power]]. Apontar bem e a melhoria mais barata que existe.',
+          why: 'O painel gera mais [[power]] quando a luz bate de frente. Nos polos da Lua o Sol fica baixo no horizonte e da a volta no ceu, por isso o painel precisa girar para segui-lo. Apontar bem e a melhoria mais barata que existe.',
           verdict: 'good',
         },
       },
@@ -1754,7 +1754,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Plantas saudaveis, colheita no prazo.',
-          why: 'Planta em [[gravity]] baixa cresce torta e a agua nao escorre do jeito esperado: sem alguem cuidando toda semana, a [[greenhouse]] para de produzir.',
+          why: 'Na [[gravity]] baixa a agua escorre mais devagar e pode encharcar as raizes. Sem alguem cuidando toda semana, a [[greenhouse]] para de produzir.',
           verdict: 'good',
         },
       },
@@ -1911,7 +1911,7 @@ export const CARDS: readonly Card[] = [
         ],
         outcome: {
           line: 'Tudo conferido antes do amanhecer.',
-          why: 'Checar sem motivo aparente e o que encontra a falha antes dela virar emergencia. Custa energia e nao da pontos.',
+          why: 'Checar sem motivo aparente e o que encontra a falha antes dela virar emergencia. Custa energia, mas deixa o [[life_support]] mais confiavel.',
           verdict: 'good',
         },
       },

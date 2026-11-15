@@ -108,9 +108,12 @@ export function drawCard(
   cursor: number,
   query: DrawQuery,
 ): DrawResult {
-  const pool = eligible(index, deck, query);
   const flareClass = query.flareClass ?? 'none';
   const weight = (card: Card): number => flareWeightFor(card, flareClass, balance);
+  // Peso 0 = o clima real do dia exclui o card (ex.: "classe X" em dia sem
+  // flare X). Ele sai do pool aqui: senao, quando so sobram cards de peso 0,
+  // `pickWeighted` cai no sorteio uniforme e o card aparece mesmo assim.
+  const pool = eligible(index, deck, query).filter((c) => weight(c) > 0);
 
   if (query.preferTrack !== undefined && pool.length > 0) {
     const declared = pool.filter((c) => c.track === query.preferTrack);
@@ -137,7 +140,7 @@ export function drawCard(
 
   const ignoringThresholds = deck.available
     .map((id) => getCard(index, id))
-    .filter((c) => c.role === query.role && phaseMatches(c, query.phase));
+    .filter((c) => c.role === query.role && phaseMatches(c, query.phase) && weight(c) > 0);
   if (ignoringThresholds.length > 0) {
     const pick = pickOne(seed, cursor, ignoringThresholds);
     if (pick !== null) return { cardId: pick.value.id, cursor: pick.cursor, usedFallback: true };

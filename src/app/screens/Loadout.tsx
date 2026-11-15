@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Lock, Maximize2, Plus, RefreshCw, X } from 'lucide-react';
 import { COMMANDERS, findLoadout } from '../data/loadout.js';
 import type { LoadoutCard } from '../data/loadout.js';
-import { NasaCardPhoto, getLoadoutFrameMeta } from '../components/CardArtwork.js';
+import { NASA_CARD_PHOTOS, NasaCardPhoto, getLoadoutFrameMeta } from '../components/CardArtwork.js';
 import { PLANNING_TUTORIAL_STEP_COUNT, PlanningTutorialOverlay } from '../components/TutorialOverlay.js';
 import { iconFor } from '../components/icons.js';
 import { useContent } from '../i18n/useContent.js';
@@ -89,7 +89,7 @@ function CardFace({
           className={`line-clamp-2 w-full text-center font-display font-extrabold uppercase leading-tight tracking-tight ${
             isModal
               ? 'text-xs'
-              : 'text-[11px] sm:text-xs [@media(max-height:560px)]:text-[7.5px] lg:text-xs'
+              : 'text-[11px] sm:text-xs [@media(max-height:560px)]:text-[9.5px] lg:text-xs'
           }`}
         >
           {name}
@@ -114,10 +114,15 @@ function CardFace({
           </span>
         ) : null}
         <p
+          // O painel do comandante e baixo: na carta ampliada a descricao vai
+          // inteira na ficha ao lado, e no celular deitado ela nao cabe em
+          // tamanho legivel -- o botao "Ampliar carta" mostra o texto todo.
           className={`line-clamp-3 w-full text-center leading-tight text-slate-200 ${
             isModal
-              ? 'text-[11.5px]'
-              : 'text-[10.5px] sm:text-[11.5px] [@media(max-height:560px)]:line-clamp-2 [@media(max-height:560px)]:text-[7.5px] lg:line-clamp-3 lg:text-[11.5px]'
+              ? `text-[11.5px] ${card.kind === 'commander' ? 'hidden' : ''}`
+              : `text-[10.5px] sm:text-[11.5px] [@media(max-height:560px)]:line-clamp-2 [@media(max-height:560px)]:text-[9.5px] lg:line-clamp-3 lg:text-[11.5px] ${
+                card.kind === 'commander' ? '[@media(max-height:560px)]:hidden lg:block' : ''
+              }`
           }`}
         >
           {blurb}
@@ -126,7 +131,7 @@ function CardFace({
           className={`w-full rounded-lg bg-sky-400/15 text-center font-extrabold leading-tight text-sky-200 ${
             isModal
               ? 'px-2 py-1 text-[11px]'
-              : 'px-2 py-1 text-[10px] sm:text-[11px] [@media(max-height:560px)]:px-1 [@media(max-height:560px)]:py-0.5 [@media(max-height:560px)]:text-[7px] lg:px-2 lg:py-1 lg:text-[11px]'
+              : 'px-2 py-1 text-[10px] sm:text-[11px] [@media(max-height:560px)]:px-1 [@media(max-height:560px)]:py-0.5 [@media(max-height:560px)]:text-[9.5px] lg:px-2 lg:py-1 lg:text-[11px]'
           }`}
         >
           {effect}
@@ -139,7 +144,7 @@ function CardFace({
           className={`w-full truncate pt-[1.5px] text-center font-display font-extrabold uppercase leading-none tracking-wider ${
             isModal
               ? 'text-[10px]'
-              : 'text-[9px] sm:text-[10px] [@media(max-height:560px)]:text-[6.5px] lg:text-[10px]'
+              : 'text-[9px] sm:text-[10px] [@media(max-height:560px)]:text-[8px] lg:text-[10px]'
           }`}
         >
           {role}
@@ -196,6 +201,10 @@ function CommanderPicker({
         <div className="grid grid-cols-1 gap-2.5 p-3 sm:grid-cols-2 sm:gap-3 sm:p-4 lg:p-5">
           {COMMANDERS.map((cmd) => {
             const locked = cmd.unlockedBy !== undefined && !unlocks.includes(cmd.unlockedBy);
+            // O avatar de 56px e foto REAL de astronauta da NASA usada como
+            // arte de personagem ficticio; no avatar a legenda da foto nao
+            // cabe, entao o aviso vai em texto sob a descricao.
+            const photo = NASA_CARD_PHOTOS[cmd.id];
             return (
               <button
                 key={cmd.id}
@@ -228,6 +237,11 @@ function CommanderPicker({
                   <span className="mt-2.5 block text-[0.8rem] leading-relaxed text-slate-300">
                     {content.loadout(cmd.id, 'blurb', cmd.blurb)}
                   </span>
+                  {!locked && photo?.depicts !== undefined ? (
+                    <span className="mt-1.5 block text-[0.78rem] font-semibold leading-snug text-slate-400">
+                      {t('cardArt.realPhotoFictional', { credit: photo.shortCredit })}
+                    </span>
+                  ) : null}
                 </div>
                 <span className="block rounded-xl bg-sky-400/12 px-3 py-1.5 text-[0.75rem] font-extrabold text-sky-200">
                   {locked
@@ -534,22 +548,42 @@ export function Loadout(): JSX.Element {
           className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/85 p-3 backdrop-blur-md animate-fade-in"
           onClick={() => { setInspectedCard(null); }}
         >
+          {/* Largura explicita: sem ela o CardFace (w-full + max-w) resolvia
+              para 0 dentro deste flex centralizado e a carta virava um risco.
+              Abaixo da carta (ao lado, no celular deitado) vai a ficha com o
+              texto inteiro, que na carta pequena fica cortado. */}
           <div
             role="dialog"
             aria-modal="true"
             aria-label={content.loadout(inspectedCard.id, 'name', inspectedCard.name)}
             onClick={(e) => { e.stopPropagation(); }}
-            className="relative flex flex-col items-center gap-2"
+            className="scroll-thin relative flex max-h-full flex-col items-center gap-2 overflow-y-auto [@media(max-height:560px)]:flex-row [@media(max-height:560px)]:gap-4 [@media(max-height:560px)]:overflow-visible"
           >
             <button
               type="button"
               onClick={() => { setInspectedCard(null); }}
               aria-label={t('common.close')}
-              className="grid h-9 w-9 place-items-center self-end rounded-xl bg-white/15 text-slate-100 hover:bg-white/25"
+              className="grid h-9 w-9 shrink-0 place-items-center self-end rounded-xl bg-white/15 text-slate-100 hover:bg-white/25 [@media(max-height:560px)]:absolute [@media(max-height:560px)]:right-0 [@media(max-height:560px)]:top-0 [@media(max-height:560px)]:z-30"
             >
               <X size={16} aria-hidden />
             </button>
-            <CardFace card={inspectedCard} variant="modal" />
+            <div className="w-[min(84vw,calc((100dvh-14rem)*0.716))] shrink-0 [@media(max-height:560px)]:w-[min(44vw,calc(80dvh*0.716))]">
+              <CardFace card={inspectedCard} variant="modal" />
+            </div>
+            <div className="w-[min(84vw,calc((100dvh-14rem)*0.716))] shrink-0 rounded-2xl border border-white/10 bg-space-900/95 px-3.5 py-3 text-left shadow-lg [@media(max-height:560px)]:w-[min(42vw,17rem)] [@media(max-height:560px)]:self-center">
+              <p className="font-display text-[0.95rem] font-extrabold leading-tight text-white">
+                {content.loadout(inspectedCard.id, 'name', inspectedCard.name)}
+              </p>
+              <p className="mt-0.5 text-[0.7rem] font-bold uppercase tracking-wider text-sky-300/90">
+                {content.loadout(inspectedCard.id, 'role', inspectedCard.role)}
+              </p>
+              <p className="mt-2 text-[0.85rem] leading-snug text-slate-200">
+                {content.loadout(inspectedCard.id, 'blurb', inspectedCard.blurb)}
+              </p>
+              <p className="mt-2 rounded-lg bg-sky-400/15 px-2.5 py-1.5 text-[0.8rem] font-extrabold leading-snug text-sky-200">
+                {content.loadout(inspectedCard.id, 'effect', inspectedCard.effectLabel)}
+              </p>
+            </div>
           </div>
         </div>
       ) : null}

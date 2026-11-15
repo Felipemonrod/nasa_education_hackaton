@@ -9,10 +9,13 @@ import { pruneKeys } from '../store/persistence.js';
  * Decisoes:
  *  - offline-first: a janela "olhar espaco" tem fallback desenhado e o JOGO
  *    nunca depende da rede
- *  - cadeia de fallback ao vivo: NASA APOD (imagem ou thumbnail de video) ->
- *    NASA EPIC / DSCOVR (disco completo da Terra, sem chave/rate limit) ->
- *    NOAA GOES-19 GeoColor (satelite meteorologico parceiro ao vivo) ->
- *    NASA Image Library (acervo Apollo/Terra) -> registro historico offline
+ *  - cadeia de fallback ao vivo (ordem de PROVIDERS): NOAA GOES-19 GeoColor
+ *    (satelite meteorologico parceiro ao vivo) -> NASA EPIC / DSCOVR (disco
+ *    completo da Terra, sem chave/rate limit) -> NASA APOD (imagem ou
+ *    thumbnail de video) -> NASA Image Library (acervo Apollo/Terra) ->
+ *    registro historico offline
+ *  - credito: APOD de terceiros (campo `copyright`/`credit`) e foto da Image
+ *    Library com fotografo nomeado levam `credit`, exibido na janela
  *  - cache por DATA em localStorage (`v2`): DEMO_KEY limita por IP (HTTP 429)
  *    e a API da APOD pode retornar HTTP 500 ou media_type=video
  *  - NADA e inventado: resposta sem titulo ou sem data nao vira foto com
@@ -20,7 +23,10 @@ import { pruneKeys } from '../store/persistence.js';
  */
 
 export const NASA_API_KEY = (import.meta.env['VITE_NASA_API_KEY'] as string | undefined) ?? 'DEMO_KEY';
-const CACHE_PREFIX = 'lunar-outpost:nasa:v4:';
+// v5: a foto passou a guardar o credito (`credit`). Cache v4 de hoje mostraria
+// uma APOD de terceiros sem o nome do fotografo ate o dia seguinte.
+const CACHE_ROOT = 'lunar-outpost:nasa:';
+const CACHE_PREFIX = `${CACHE_ROOT}v5:`;
 export const SPACE_FETCH_TIMEOUT_MS = 2200;
 const CAPTION_MAX = 220;
 
@@ -50,6 +56,12 @@ export type SpaceView =
     readonly imageUrl: string;
     readonly source: SpacePhotoSource;
     readonly date: string;
+    /**
+     * Autor/detentor dos direitos quando NAO e so "NASA" (ex.: APOD de um
+     * fotografo). Imagens de terceiros exigem exibir o credito
+     * (docs/RECURSOS_NASA.md secoes 6.4 e 17).
+     */
+    readonly credit?: string | undefined;
     readonly titleKey?: 'space.epicTitle' | 'space.goesTitle' | undefined;
     readonly captionKey?: 'space.epicCaption' | 'space.goesCaption' | undefined;
     readonly coords?: { readonly lat: number; readonly lon: number } | undefined;
@@ -67,6 +79,7 @@ const photoSchema = z.object({
   imageUrl: z.string().url(),
   source: z.enum(['NASA APOD', 'NASA EPIC / DSCOVR', 'NOAA GOES-19', 'NASA Image Library']),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  credit: z.string().min(1).optional(),
   titleKey: z.enum(['space.epicTitle', 'space.goesTitle']).optional(),
   captionKey: z.enum(['space.epicCaption', 'space.goesCaption']).optional(),
   coords: z.object({ lat: z.number(), lon: z.number() }).optional(),
@@ -96,7 +109,8 @@ function writeCache(key: string, value: SpaceView): void {
     /* sem armazenamento: seguir sem cache */
   }
   // Uma chave por dia, para sempre, enchia a cota e derrubava o save.
-  pruneKeys(CACHE_PREFIX, CACHE_PREFIX + key);
+  // Poda tambem versoes antigas do cache (v4 etc.), nao so dias antigos.
+  pruneKeys(CACHE_ROOT, CACHE_PREFIX + key);
 }
 
 /** Fallback 100% offline: registro historico verificado, sem imagem de rede. */
@@ -159,6 +173,9 @@ const apodSchema = z.object({
   thumbnail_url: z.string().url().optional(),
   media_type: z.enum(['image', 'video']),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  // `unknown` de proposito: um tipo inesperado aqui nao pode derrubar a foto
+  // inteira; parseCredit() so aproveita strings.
+  copyright: z.unknown().optional(),
 });
 
 /**
@@ -173,6 +190,8 @@ const apodWpSchema = z.array(z.object({
   hdurl: z.string().url().optional(),
   media_type: z.string(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  copyright: z.unknown().optional(),
+  credit: z.unknown().optional(),
 })).min(1);
 
 function stripHtml(html: string): string {
@@ -182,9 +201,42 @@ function stripHtml(html: string): string {
     .replace(/&amp;/g, '&')
     .replace(/&#8217;|&rsquo;/g, '’')
     .replace(/&#8220;|&#8221;|&quot;/g, '"')
+    .replace(/&#8216;|&lsquo;/g, '‘')
+    .replace(/&#0?39;|&apos;/g, "'")
+    .replace(/&#8211;|&ndash;/g, '–')
+    .replace(/&#8212;|&mdash;/g, '—')
+    .replace(/&#169;|&copy;/g, '©')
+    .replace(/&#0?38;/g, '&')
     .replace(/\s+/g, ' ')
     .replace(/^Explanation:\s*/i, '')
     .trim();
+}
+
+const CREDIT_MAX = 90;
+
+/**
+ * Credito de imagem a partir dos campos da API, em ordem de preferencia
+ * (APOD: `copyright` e depois `credit`; NASA Image Library:
+ * `secondary_creator` e depois `photographer`). Os campos podem vir em HTML e
+ * com rotulo ("Image Credit & Copyright: Fulano"). Devolve so o nome, sem
+ * HTML, ou `undefined` se nao houver credito (APOD em dominio publico da NASA
+ * nao traz o campo). Campos que nao sao string sao ignorados.
+ */
+export function parseCredit(...candidates: readonly unknown[]): string | undefined {
+  for (const candidate of candidates) {
+    if (typeof candidate !== 'string') continue;
+    const clean = stripHtml(candidate)
+      .replace(/^(?:image|photo|video)?\s*credits?(?:\s*(?:&|and)\s*copyright)?\s*:\s*/i, '')
+      .replace(/^(?:copyright|©)\s*:?\s*/i, '')
+      .replace(/^©\s*/, '')
+      .trim();
+    if (clean.length === 0) continue;
+    if (clean.length <= CREDIT_MAX) return clean;
+    const cut = clean.slice(0, CREDIT_MAX);
+    const lastSpace = cut.lastIndexOf(' ');
+    return `${cut.slice(0, lastSpace > 0 ? lastSpace : CREDIT_MAX).replace(/[\s,;&]+$/, '')}…`;
+  }
+  return undefined;
 }
 
 async function tryApodWordpress(): Promise<Extract<SpaceView, { kind: 'photo' }> | null> {
@@ -195,6 +247,7 @@ async function tryApodWordpress(): Promise<Extract<SpaceView, { kind: 'photo' }>
     if (apod === undefined || apod.media_type !== 'image' || apod.hdurl === undefined) return null;
     const title = stripHtml(apod.title);
     if (isGenericLogoView(title, apod.hdurl)) return null;
+    const credit = parseCredit(apod.copyright, apod.credit);
     return {
       kind: 'photo',
       title,
@@ -202,6 +255,7 @@ async function tryApodWordpress(): Promise<Extract<SpaceView, { kind: 'photo' }>
       imageUrl: apod.hdurl,
       source: 'NASA APOD',
       date: apod.date,
+      ...(credit !== undefined ? { credit } : {}),
     };
   } catch {
     return null;
@@ -219,6 +273,7 @@ async function tryApod(): Promise<Extract<SpaceView, { kind: 'photo' }> | null> 
     if (!data.success) return null;
     const imageUrl = data.data.media_type === 'image' ? data.data.url : data.data.thumbnail_url;
     if (imageUrl === undefined || isGenericLogoView(data.data.title, imageUrl)) return null;
+    const credit = parseCredit(data.data.copyright);
 
     return {
       kind: 'photo',
@@ -227,6 +282,7 @@ async function tryApod(): Promise<Extract<SpaceView, { kind: 'photo' }> | null> 
       imageUrl,
       source: 'NASA APOD',
       date: data.data.date,
+      ...(credit !== undefined ? { credit } : {}),
     };
   } catch {
     return null;
@@ -295,6 +351,8 @@ const nasaLibrarySchema = z.object({
         description: z.string().optional(),
         date_created: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
         media_type: z.literal('image'),
+        secondary_creator: z.unknown().optional(),
+        photographer: z.unknown().optional(),
       })).min(1),
       links: z.array(z.object({
         href: z.string().url(),
@@ -320,6 +378,9 @@ async function tryNasaLibrary(): Promise<Extract<SpaceView, { kind: 'photo' }> |
     const meta = chosen.data[0];
     const link = chosen.links.find((l) => l.render === 'image') ?? chosen.links[0];
     if (meta === undefined || link === undefined) return null;
+    // So "NASA" ja esta dito na fonte; credito extra so quando nomeia alguem.
+    const libraryCredit = parseCredit(meta.secondary_creator, meta.photographer);
+    const credit = libraryCredit !== undefined && libraryCredit.toUpperCase() !== 'NASA' ? libraryCredit : undefined;
 
     return {
       kind: 'photo',
@@ -328,6 +389,7 @@ async function tryNasaLibrary(): Promise<Extract<SpaceView, { kind: 'photo' }> |
       imageUrl: link.href,
       source: 'NASA Image Library',
       date: meta.date_created.slice(0, 10),
+      ...(credit !== undefined ? { credit } : {}),
     };
   } catch {
     return null;
@@ -349,8 +411,8 @@ export interface LoadSpaceOptions {
 }
 
 /**
- * Imagem do espaco/Terra por satelite. Tenta APOD e cai em cascata para
- * NASA EPIC (DSCOVR), NOAA GOES-19 e NASA Image Library antes do fallback
+ * Imagem do espaco/Terra por satelite. Tenta NOAA GOES-19 e cai em cascata
+ * para NASA EPIC (DSCOVR), NASA APOD e NASA Image Library antes do fallback
  * offline. Nunca lanca.
  */
 export async function loadSpaceView(options?: LoadSpaceOptions): Promise<SpaceView> {

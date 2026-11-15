@@ -44,7 +44,9 @@ function SettingRow({
         <p className="font-display text-[0.98rem] font-extrabold leading-tight text-slate-100">{label}</p>
         <p className="mt-0.5 text-[0.76rem] font-semibold leading-snug text-slate-400">{hint}</p>
       </div>
-      <div className="shrink-0">{children}</div>
+      {/* max-w-full + min-w-0: controles largos (as 4 pilulas de tema do HUD)
+          quebram linha dentro da tela em vez de alargar a pagina no celular. */}
+      <div className="min-w-0 max-w-full shrink-0">{children}</div>
     </div>
   );
 }
@@ -185,7 +187,7 @@ function GameMeter({
 
 export function Settings(): JSX.Element {
   const t = useT();
-  const { go, prevScreen, startPlanningTutorial } = useGame();
+  const { go, prevScreen, startPlanningTutorial, savedRunExists, abandonSavedRun } = useGame();
   const locale = useI18n((s) => s.locale);
   const setLocale = useI18n((s) => s.setLocale);
   const settings = useAccount((s) => s.settings);
@@ -341,7 +343,14 @@ export function Settings(): JSX.Element {
               <button
                 type="button"
                 className={`${ACTION_BTN} min-h-[40px] rounded-xl bg-sky-400/15 px-4 py-2 text-[0.8rem] text-sky-300 hover:bg-sky-400/25`}
-                onClick={startPlanningTutorial}
+                onClick={() => {
+                  // O tutorial leva a uma missao nova: mesma confirmacao do "Nova missao" do Menu.
+                  if (savedRunExists) {
+                    if (!window.confirm(t('menu.confirmNewMission'))) return;
+                    abandonSavedRun();
+                  }
+                  startPlanningTutorial();
+                }}
               >
                 <CircleHelp size={15} aria-hidden /> {t('settings.planningTutorialButton')}
               </button>

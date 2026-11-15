@@ -7,7 +7,11 @@
     "center": "JSC",
     "thumbUrl": "https://images-assets.nasa.gov/image/iss065e241981/iss065e241981~medium.jpg",
     "localPath": "/cards/nasa/cmd_engineer.jpg",
-    "sourceUrl": "https://images.nasa.gov/details/iss065e241981"
+    "sourceUrl": "https://images.nasa.gov/details/iss065e241981",
+    "credit": "NASA/JSC",
+    "license": "NASA media, generally not subject to copyright in the U.S. (https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA; use must not imply NASA endorsement.",
+    "depicts": "NASA astronaut Shane Kimbrough",
+    "usageNote": "Real photo of a real person, used only as art for a FICTIONAL commander card. The card shows a visible caption: \"Real photo: NASA/JSC · fictional character\". The person pictured is not the game character and did not endorse this project."
   },
   "cmd_medic": {
     "nasaId": "iss074e0316047",
@@ -17,7 +21,11 @@
     "center": "JSC",
     "thumbUrl": "https://images-assets.nasa.gov/image/iss074e0316047/iss074e0316047~large.jpg",
     "localPath": "/cards/nasa/cmd_medic.jpg",
-    "sourceUrl": "https://images.nasa.gov/details/iss074e0316047"
+    "sourceUrl": "https://images.nasa.gov/details/iss074e0316047",
+    "credit": "NASA/JSC",
+    "license": "NASA media, generally not subject to copyright in the U.S. (https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA; use must not imply NASA endorsement.",
+    "depicts": "NASA astronaut Chris Williams",
+    "usageNote": "Real photo of a real person, used only as art for a FICTIONAL commander card. The card shows a visible caption: \"Real photo: NASA/JSC · fictional character\". The person pictured is not the game character and did not endorse this project."
   },
   "cmd_geologist": {
     "nasaId": "jsc2019e054994",
@@ -27,7 +35,11 @@
     "center": "JSC",
     "thumbUrl": "https://images-assets.nasa.gov/image/jsc2019e054994/jsc2019e054994~medium.jpg",
     "localPath": "/cards/nasa/cmd_geologist.jpg",
-    "sourceUrl": "https://images.nasa.gov/details/jsc2019e054994"
+    "sourceUrl": "https://images.nasa.gov/details/jsc2019e054994",
+    "credit": "NASA/Bill Stafford",
+    "license": "NASA media, generally not subject to copyright in the U.S. (https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA; use must not imply NASA endorsement.",
+    "depicts": "NASA astronaut candidates Kayla Barron and Jessica Watkins",
+    "usageNote": "Real photo of a real person, used only as art for a FICTIONAL commander card. The card shows a visible caption: \"Real photo: NASA/Bill Stafford · fictional character\". The person pictured is not the game character and did not endorse this project."
   },
   "cmd_botanist": {
     "nasaId": "iss059e035668",
@@ -37,7 +49,11 @@
     "center": "JSC",
     "thumbUrl": "https://images-assets.nasa.gov/image/iss059e035668/iss059e035668~medium.jpg",
     "localPath": "/cards/nasa/cmd_botanist.jpg",
-    "sourceUrl": "https://images.nasa.gov/details/iss059e035668"
+    "sourceUrl": "https://images.nasa.gov/details/iss059e035668",
+    "credit": "NASA/JSC",
+    "license": "NASA media, generally not subject to copyright in the U.S. (https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA; use must not imply NASA endorsement.",
+    "depicts": "NASA astronaut Christina Koch",
+    "usageNote": "Real photo of a real person, used only as art for a FICTIONAL commander card. The card shows a visible caption: \"Real photo: NASA/JSC · fictional character\". The person pictured is not the game character and did not endorse this project."
   },
   "str_regolith_vault": {
     "nasaId": "Moon to Mars Transportation and Habitation",
@@ -47,7 +63,9 @@
     "center": "HQ",
     "thumbUrl": "https://images-assets.nasa.gov/image/Moon to Mars Transportation and Habitation/Moon to Mars Transportation and Habitation~medium.jpg",
     "localPath": "/cards/nasa/str_regolith_vault.jpg",
-    "sourceUrl": "https://images.nasa.gov/details/Moon to Mars Transportation and Habitation"
+    "sourceUrl": "https://images.nasa.gov/details/Moon to Mars Transportation and Habitation",
+    "credit": "NASA HQ",
+    "license": "NASA media, generally not subject to copyright in the U.S. (https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA; use must not imply NASA endorsement."
   },
   "str_water_wall": {
     "nasaId": "KSC-08pd3208",
@@ -57,7 +75,9 @@
     "center": "KSC",
     "thumbUrl": "https://images-assets.nasa.gov/image/KSC-08pd3208/KSC-08pd3208~medium.jpg",
     "localPath": "/cards/nasa/str_water_wall.jpg",
-    "sourceUrl": "https://images.nasa.gov/details/KSC-08pd3208"
+    "sourceUrl": "https://images.nasa.gov/details/KSC-08pd3208",
+    "credit": "NASA/KSC",
+    "license": "NASA media, generally not subject to copyright in the U.S. (https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA; use must not imply NASA endorsement."
   },
   "str_solar_farm": {
     "nasaId": "0101424",
@@ -67,7 +87,9 @@
     "center": "MSFC",
     "thumbUrl": "https://images-assets.nasa.gov/image/0101424/0101424~medium.jpg",
     "localPath": "/cards/nasa/str_solar_farm.jpg",
-    "sourceUrl": "https://images.nasa.gov/details/0101424"
+    "sourceUrl": "https://images.nasa.gov/details/0101424",
+    "credit": "NASA/MSFC",
+    "license": "NASA media, generally not subject to copyright in the U.S. (https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA; use must not imply NASA endorsement."
   },
   "str_greenhouse": {
     "nasaId": "KSC-20170808-PH_CSH01_0092",
@@ -77,6 +99,8 @@
     "center": "KSC",
     "thumbUrl": "https://images-assets.nasa.gov/image/KSC-20170808-PH_CSH01_0092/KSC-20170808-PH_CSH01_0092~medium.jpg",
     "localPath": "/cards/nasa/str_greenhouse.jpg",
-    "sourceUrl": "https://images.nasa.gov/details/KSC-20170808-PH_CSH01_0092"
+    "sourceUrl": "https://images.nasa.gov/details/KSC-20170808-PH_CSH01_0092",
+    "credit": "NASA/KSC",
+    "license": "NASA media, generally not subject to copyright in the U.S. (https://www.nasa.gov/nasa-brand-center/images-and-media/). Credit NASA; use must not imply NASA endorsement."
   }
 }
