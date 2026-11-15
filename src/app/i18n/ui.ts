@@ -194,6 +194,12 @@ export const UI_EN: Dict = {
   'deck.kindConditional': 'Conditional',
   'deck.kindTemporal': 'Temporal',
   'deck.kindSequential': 'Sequential',
+  'deck.pageOf': 'Page {page} of {total}',
+  'deck.prevPage': 'Previous page',
+  'deck.nextPage': 'Next page',
+  'deck.explanationTitle': 'Card explanation & outcomes',
+  'deck.cardPreviewTitle': 'Card preview',
+  'deck.clearSearch': 'Clear search',
 
   // ----- card de decisao -----
   'card.phaseDay': 'Operations',
@@ -606,6 +612,12 @@ export const UI_PT: Dict = {
   'deck.kindConditional': 'Condicional',
   'deck.kindTemporal': 'Temporal',
   'deck.kindSequential': 'Sequencial',
+  'deck.pageOf': 'Página {page} de {total}',
+  'deck.prevPage': 'Página anterior',
+  'deck.nextPage': 'Próxima página',
+  'deck.explanationTitle': 'Explicação e desfechos da carta',
+  'deck.cardPreviewTitle': 'Visualização da carta',
+  'deck.clearSearch': 'Limpar busca',
 
   // ----- card de decisao -----
   'card.phaseDay': 'Operações',
