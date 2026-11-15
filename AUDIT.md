@@ -164,3 +164,19 @@ Medições feitas com o próprio engine, 1.500–3.000 partidas por caso.
 - A escolha de voz depende das vozes instaladas no aparelho. A ordem de
   preferência é determinística, mas o timbre muda de dispositivo para
   dispositivo.
+
+## 11. Terceira rodada: código morto, cache offline e fase do turno
+
+Verificado em navegador (Playwright) e com `typecheck`, `vitest` (90 testes) e `build`.
+
+| # | Onde | Problema | Correção | Status |
+|---|---|---|---|---|
+| 1 | `Game.tsx` (`phase`) | A fase vinha do card na mesa, que fica vazio enquanto o painel de desfecho está aberto. O relógio já avançava e a fase caía para `day`: decisão às 13:00 mostrava "20:00 · DAY SHIFT", às 20:00 mostrava "01:00 · DAY SHIFT", e a cena da base piscava para o dia | Fase lida do plano pelo mesmo índice do relógio (`run.config.plan[run.slot]`). Reproduzido antes e conferido depois no navegador | **corrigido** |
+| 2 | `vite.config.ts` (workbox) | Nenhuma imagem de `/cards/` ia para o cache: o precache só cobre js/css/html/svg/woff2 e as regras de runtime só cobriam APIs da NASA e fontes. Offline, as cartas apareciam sem moldura e os cards iniciais sem foto | Regra `CacheFirst` (`card-art`) para png/jpg/webp em `/cards/`. Não entram no precache porque somam ~7 MB | **corrigido** |
+| 3 | `useAccount.ts` | `THEME_LABEL` e `BADGE_LABEL`: textos fixos em português, sem nenhum uso, duplicando `settings.theme.*` e `result.badge.*`. Quem os usasse mostraria português para quem joga em inglês | Removidos | **corrigido** |
+| 4 | `public/cards/5.png`, `6.png` | Cópias byte a byte de `5-frame.png` e `6-frame.png` (mesmo md5), sem nenhuma referência no código | Removidas (428 KB) | **corrigido** |
+| 5 | `public/logo.ico` | 48 KB sem nenhuma referência; o favicon é `icon.svg` | Mantido: pode ser um favicon pretendido e não ligado | **pendente do dono** |
+| 6 | Molduras em `public/cards/` | `DiaCard1.png` 1,9 MB, `CardNoite1.png` 1,3 MB, outras 0,8–0,9 MB. É o maior custo de carregamento do jogo | Converter para WebP reduziria a uma fração, e aí caberia no precache | **pendente** |
+| 7 | Balanceamento com setup real | ciência: survival 84,1%, objective **72,9%**; habitat: survival 86,0%, objective **33,8%**. Sobreviver ficou acima da meta de ~65–75%, e o caminho de ciência vence por objetivo o dobro do de habitat. Fontes de ciência no setup inicial (Lindqvist +8, perfuratriz +6, Shackleton +6) não têm equivalente forte em suporte de vida para jogador novo | Decisão de design | **pendente do dono** |
+| 8 | Código exportado e nunca usado | `storageAvailable`, `hasContentKey`, `contentDict`, `validateGlossary`, `dailyDrain`, `clampStats`, `nextFloat`, `TRACK_STATS`, `TRACK_FOR_OBJECTIVE`. Funções pequenas e corretas, sem risco de uso errado | Mantidos: remover só gera diff | informativo |
+| 9 | `sim/` importa `app/data/` | O simulador depende de dados da camada de app (loadout, locais, setup). Hoje compila porque esses arquivos não usam DOM, mas qualquer import de navegador neles quebraria `npm run sim` | Nenhuma ação; vale mover esses dados para `src/content/` se crescerem | informativo |

@@ -221,23 +221,9 @@ export const useAccount = create<AccountState & AccountActions>()((set, get) => 
   },
 }));
 
-export const THEME_LABEL: Record<HudTheme, string> = {
-  mission: 'Missão (padrão)',
-  amber: 'Âmbar',
-  mint: 'Menta',
-  rose: 'Aurora',
-};
-
 export const THEME_UNLOCK: Record<HudTheme, string | null> = {
   mission: null,
   amber: 'theme_amber',
   mint: 'theme_mint',
   rose: 'theme_rose',
-};
-
-export const BADGE_LABEL: Record<string, { name: string; why: string }> = {
-  badge_outpost: { name: 'Outpost Fundado', why: 'Venceu uma missão' },
-  badge_discovery: { name: 'Descoberta', why: 'Levou a ciência a 100' },
-  badge_homestead: { name: 'Base Estável', why: 'Levou o suporte de vida a 100' },
-  badge_veteran: { name: 'Veterano', why: 'Venceu 3 missões' },
 };

@@ -44,6 +44,20 @@ export default defineConfig({
             },
           },
           {
+            // Molduras das cartas e fotos dos cards iniciais. Sem esta regra
+            // nenhuma imagem de /cards/ ia para o cache e, offline, as cartas
+            // apareciam sem moldura. Nao vao para o precache porque somam ~7 MB
+            // (algumas molduras passam de 1 MB); CacheFirst guarda cada uma na
+            // primeira vez que aparece.
+            urlPattern: /\/cards\/.+\.(png|jpe?g|webp)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'card-art',
+              expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: 'CacheFirst',
             options: {

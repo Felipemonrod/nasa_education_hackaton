@@ -72,7 +72,10 @@ export function Game(): JSX.Element {
   if (run === null) return <div className="p-6 text-slate-300">{t('game.noRun')}</div>;
 
   const slot = currentSlot();
-  const phase = slot?.phase ?? 'day';
+  // A fase vem do PLANO, pelo mesmo indice que o relogio usa. Antes vinha do
+  // card na mesa, que fica vazio enquanto o painel de desfecho esta aberto:
+  // o relogio ja mostrava 20:00 ou 01:00 e a fase caia para 'day'.
+  const phase = run.config.plan[run.slot]?.phase ?? 'day';
   const objectiveTrack = trackFor(run.config.objective);
   const isPair = slot?.shape === 'pair';
 
