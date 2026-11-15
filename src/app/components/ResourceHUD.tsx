@@ -95,13 +95,13 @@ export function ResourceHUD({
     : { stat: 'lifeSupport', labelKey: 'stat.lifeSupport', icon: HeartPulse, color: 'text-life', bar: 'bg-life', badgeBg: 'bg-life/15', goal: true };
 
   return (
-    <div className={`rounded-3xl glass bg-gradient-to-b ${THEME_ACCENT[theme]} to-transparent p-3 sm:p-3.5`}>
-      <div data-tutorial="hud-basic" className="grid grid-cols-2 gap-2">
+    <div className={`flex h-full flex-col rounded-3xl glass bg-gradient-to-b ${THEME_ACCENT[theme]} to-transparent p-3 sm:p-3.5`}>
+      <div data-tutorial="hud-basic" className="grid flex-[2] grid-cols-2 gap-2">
         {BASIC_ROWS.map((row) => (
           <StatRow key={row.stat} row={row} value={stats[row.stat]} />
         ))}
       </div>
-      <div data-tutorial="hud-tracks" className="mt-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-2">
+      <div data-tutorial="hud-tracks" className="mt-2 grid flex-1 grid-cols-2 gap-2 border-t border-white/10 pt-2">
         <StatRow
           row={{ stat: 'shielding', labelKey: 'stat.shielding', icon: Shield, color: 'text-slate-200', bar: 'bg-slate-300', badgeBg: 'bg-white/10' }}
           value={stats.shielding}

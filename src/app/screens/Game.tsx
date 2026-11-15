@@ -130,7 +130,7 @@ export function Game(): JSX.Element {
             <MoonScene phase={phase} />
           </div>
 
-          <div className="shrink-0">
+          <div className="flex flex-1 flex-col">
             <ResourceHUD stats={run.stats} objective={objectiveTrack} theme={theme} />
           </div>
         </section>
@@ -158,8 +158,8 @@ export function Game(): JSX.Element {
           ) : (
             <div className="flex min-h-0 flex-1 flex-col justify-center gap-2.5">
               <div className={isPair
-                ? 'grid min-h-0 grid-cols-1 items-stretch gap-3 sm:grid-cols-2 lg:gap-4'
-                : 'mx-auto w-full max-w-2xl'}
+                ? 'grid min-h-0 flex-1 grid-cols-1 items-stretch gap-3 sm:grid-cols-2 lg:gap-4'
+                : 'mx-auto grid min-h-0 w-full max-w-2xl flex-1'}
               >
                 {slot.cards.map((entry, index) => (
                   <CardView

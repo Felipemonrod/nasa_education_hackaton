@@ -119,7 +119,7 @@ export function CardView({
     <>
       <article
         data-tutorial={isFirstCard ? 'card-header' : undefined}
-        className={`relative mx-auto flex w-full max-w-[23rem] flex-col overflow-hidden animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
+        className={`relative mx-auto flex w-full ${compact === true ? 'max-w-[32rem]' : 'max-w-[23rem]'} flex-col overflow-hidden animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
                     ${dimmed === true ? 'opacity-70' : ''}`}
       >
         {/* Ícone de áudio alinhado no canto superior direito */}
