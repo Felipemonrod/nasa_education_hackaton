@@ -54,7 +54,7 @@ metadata; for the others we list what the image itself shows and leave the exact
 |---|---|---|---|---|
 | `public/cutscene/sky.jpg` | Night sky background | **Yes** (team). Tool: `TODO(team)` | Visible badge "Images made with AI" on the cutscene screen (`src/app/screens/Cutscene.tsx`) | Opening cutscene |
 | `public/cutscene/moon.jpg` | The Moon seen from orbit | **Yes** (team). Tool: `TODO(team)` | Same badge | Opening cutscene |
-| `public/icon.svg`, `public/icon-192.png`, `public/icon-512.png`, `public/icon-maskable.png` | App icon (stylized Moon) | **Yes** (team). The SVG was added in commit `705fd32`, co-authored by Claude | Declared in text here, in the README and on the Credits screen. A watermark is not legible at icon size (16–512 px). `TODO(team)`: keep as is or replace | Browser tab, installed PWA icon |
+| `public/logo.ico`, `public/icon-192.png`, `public/icon-512.png`, `public/icon-maskable.png` | App icon: HEAD X mission logo (triangle with "HEAD") | `TODO(team)`: declare whether the logo was AI-generated | The PNGs were rendered from the 256 px PNG inside `logo.ico` (maskable: logo at 72% on white, inside the safe zone) | Browser tab (favicon = `logo.ico`), installed PWA icon |
 
 ### 1.4 Team-made art
 
@@ -62,7 +62,6 @@ metadata; for the others we list what the image itself shows and leave the exact
 |---|---|---|---|---|---|
 | `public/cards/SolCard2.png`, `LuaCard2.png`, `CiencCard.png`, `HealCard.png`, `ItemCard.png`, `CommanderCard.png`, `StructureCard.png` | Card frames (day, night, science, life support, item, commander, structure) | Designed by the team in **Canva** (commit `5db593d`; Canva metadata) | Canva content license of the team's account: `TODO(team)` confirm (Free or Pro) | No (team) | All cards (`CardArtwork.tsx`, `CardView.tsx`, `Loadout.tsx`, `Deck.tsx`) |
 | `public/mascot/robot-points-left.webp`, `robot-points-right.webp` | Robot mascot of the tutorial (its emblem is **not** the NASA logo) | Drawn by the team (commit `1e549dc`). `TODO(team)`: author name | MIT, like the code (`TODO(team)` confirm) | No (team) | Tutorial (`TutorialOverlay.tsx`) |
-| `public/logo.ico` | Team "HEAD" logo | `TODO(team)` | `TODO(team)` | `TODO(team)` | **Not used** by the app. `TODO(team)`: keep or delete |
 
 **Metadata cleanup (15/11/2026).** The Canva export embedded an XMP block (PNG `iTXt` chunk) with a
 person's name and internal Canva account IDs in every frame. Because these files are public, the
@@ -125,7 +124,7 @@ The "look at space" window loads live images; each shows its own credit on scree
 1. Which AI tool generated the music and the cutscene images? (Add it to sections 1.3 and 2.)
 2. NASA IDs or page links for the seven destination photos in section 1.2.
 3. Canva license tier used for the card frames.
-4. Mascot author (name to credit) and whether `public/logo.ico` stays.
+4. Mascot author (name to credit) and whether `public/logo.ico` (now the app icon) was AI-generated.
 5. Keep the AI-generated app icon, or replace it?
 6. 3D models (section 1.5): who made them, and was AI used? Source and license of `2k_moon.jpg`, the
    star-field textures, `white_metal.jpg` and `black-road-texture.jpg`; which Google tool made the two

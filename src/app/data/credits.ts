@@ -15,7 +15,7 @@ export interface CreditEntry {
 }
 
 export const PROJECT = {
-  title: 'Lunar Outpost',
+  title: 'HEAD X',
   // Nada de "Missao NASA": o jogo nao e produto oficial nem endossado pela NASA.
   subtitle: 'NASA Space Apps Challenge 2026 — Proof of Concept',
   year: '2026',

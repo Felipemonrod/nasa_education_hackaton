@@ -1,5 +1,5 @@
 /**
- * Modelo de dominio do Lunar Outpost.
+ * Modelo de dominio do HEAD X.
  *
  * REGRA DE OURO DESTE MODULO: nada aqui importa React, chama fetch,
  * Date.now() ou Math.random(). Tudo que vem de fora entra como input.

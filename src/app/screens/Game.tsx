@@ -7,7 +7,7 @@ import { CardView, SHORT_LANDSCAPE_QUERY, useMediaQuery } from '../components/Ca
 import { GearMenu } from '../components/GearMenu.js';
 import { MoonScene } from '../components/MoonScene.js';
 import { OutcomePanel } from '../components/OutcomePanel.js';
-import { ResourceHUD } from '../components/ResourceHUD.js';
+import { ResourceHUD, statsAffectedBy } from '../components/ResourceHUD.js';
 import { SpaceWindow } from '../components/SpaceWindow.js';
 import { TUTORIAL_STEP_COUNT, TutorialOverlay } from '../components/TutorialOverlay.js';
 import { WeatherDialog, isLegacyWeather, stormEventSentence, weatherChipLabel } from '../components/WeatherNote.js';
@@ -115,17 +115,7 @@ export function Game(): JSX.Element {
     return () => { window.clearTimeout(timer); };
   }, [outcome]);
 
-  const affectedStats = useMemo<ReadonlySet<Stat>>(() => {
-    if (hoveredOption === null) return new Set();
-    const next = new Set<Stat>();
-    for (const eff of hoveredOption.effects) {
-      if (eff.delta !== 0) next.add(eff.stat);
-    }
-    for (const mod of hoveredOption.modifiers ?? []) {
-      if (mod.perSlot !== 0) next.add(mod.stat);
-    }
-    return next;
-  }, [hoveredOption]);
+  const affectedStats = useMemo<ReadonlySet<Stat>>(() => statsAffectedBy(hoveredOption), [hoveredOption]);
 
   const triggerCardFeel = (): void => {
     playPaperPullSfx(sfxVolume);
@@ -274,19 +264,6 @@ export function Game(): JSX.Element {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          {missionWeather !== null ? (
-            <button
-              type="button"
-              data-weather="chip"
-              onClick={() => { setWeatherDialog('chip'); }}
-              aria-haspopup="dialog"
-              aria-label={t('weather.chipAria', { label: weatherChipLabel(missionWeather, t) })}
-              className="flex h-11 min-w-11 items-center justify-center gap-1 rounded-2xl glass px-2 font-display text-xs font-extrabold text-amber-100 transition-colors hover:border-power/50 hover:bg-white/10 [@media(max-height:540px)]:h-9 [@media(max-height:540px)]:min-w-9 [@media(max-height:540px)]:rounded-xl lg:h-11 lg:min-w-11 lg:rounded-2xl lg:px-3"
-            >
-              <Sun size={17} className="shrink-0 text-power" aria-hidden />
-              <span className="max-[379px]:sr-only">{weatherChipLabel(missionWeather, t)}</span>
-            </button>
-          ) : null}
           <button
             type="button"
             data-tutorial="window"
@@ -323,6 +300,21 @@ export function Game(): JSX.Element {
         <section className="contents lg:col-span-4 lg:flex lg:min-h-0 lg:flex-col lg:justify-between lg:gap-3 lg:overflow-y-auto lg:scroll-thin">
           <div data-tutorial="scene" className="relative h-full min-h-0 overflow-hidden rounded-3xl border border-white/12 bg-space-950 shadow-inner sm:col-span-5 lg:min-h-[6.875rem] lg:flex-1">
             <MoonScene phase={phase} />
+            {/* Clima espacial da missao: canto superior esquerdo da cena 3D.
+                Mesma logica de antes (abre o WeatherDialog). */}
+            {missionWeather !== null ? (
+              <button
+                type="button"
+                data-weather="chip"
+                onClick={() => { setWeatherDialog('chip'); }}
+                aria-haspopup="dialog"
+                aria-label={t('weather.chipAria', { label: weatherChipLabel(missionWeather, t) })}
+                className="absolute left-2 top-2 z-20 flex h-9 items-center justify-center gap-1 rounded-xl border border-white/15 bg-space-950/70 px-2.5 font-display text-xs font-extrabold text-amber-100 backdrop-blur-md transition-colors hover:border-power/50 hover:bg-space-900/90"
+              >
+                <Sun size={16} className="shrink-0 text-power" aria-hidden />
+                <span>{weatherChipLabel(missionWeather, t)}</span>
+              </button>
+            ) : null}
           </div>
 
           <div className="flex h-full min-h-0 flex-col sm:col-span-5 lg:flex-1">
@@ -489,6 +481,14 @@ export function Game(): JSX.Element {
                         isFirstCard={index === 0}
                         weather={missionWeather}
                         onHoverOption={setHoveredOption}
+                        confirmAside={(option) => (
+                          <ResourceHUD
+                            stats={run.stats}
+                            objective={objectiveTrack}
+                            theme={theme}
+                            affectedStats={statsAffectedBy(option)}
+                          />
+                        )}
                         onChoose={(optionId) => {
                           setHoveredOption(null);
                           setDecisionsModalOpen(false);

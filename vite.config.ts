@@ -54,10 +54,10 @@ export default defineConfig({
       devOptions: { enabled: false },
       // Precache: o mascote do tutorial (~43 KB) e as fotos da cutscene, para
       // os dois funcionarem offline desde a primeira abertura.
-      includeAssets: ['icon.svg', 'mascot/*.webp', 'cutscene/sky.jpg', 'cutscene/moon.jpg'],
+      includeAssets: ['logo.ico', 'mascot/*.webp', 'cutscene/sky.jpg', 'cutscene/moon.jpg'],
       manifest: {
-        name: 'Lunar Outpost — NASA Space Apps 2026',
-        short_name: 'Lunar Outpost',
+        name: 'HEAD X — NASA Space Apps 2026',
+        short_name: 'HEAD X',
         description: 'Jogo educativo sobre montar um posto avançado na Lua, com dados abertos da NASA.',
         lang: 'pt-BR',
         theme_color: '#0b0e14',

@@ -55,6 +55,12 @@ export const UI_EN: Dict = {
   'menu.tagline': 'Founding a base means deciding what comes first.',
   'menu.resume': 'Resume mission',
   'menu.newMission': 'New mission',
+  'menu.quickPlay': 'Quick play',
+  'quickplay.title': 'Randomly chosen cards',
+  'quickplay.intro': 'Everything was drawn for you: landing site, objective and the three cards. Ready to go?',
+  'quickplay.site': 'Landing site',
+  'quickplay.objective': 'Objective',
+  'quickplay.start': 'Start mission',
   'menu.deck': 'Card deck',
   'menu.explore': 'Explore the base',
   'menu.settings': 'Settings',
@@ -382,7 +388,7 @@ export const UI_EN: Dict = {
   'planTutorial.step5.how': 'Inspect your drawn Structure and Equipment cards and click the reroll button below either card if you wish to swap it.',
   'planTutorial.step6.area': 'Launch · Start mission',
   'planTutorial.step6.title': 'Ready for liftoff',
-  'planTutorial.step6.body': 'Once your commander, structure and equipment are set, your lunar outpost is ready to launch toward the Moon.',
+  'planTutorial.step6.body': 'Once your commander, structure and equipment are set, your HEAD X outpost is ready to launch toward the Moon.',
   'planTutorial.step6.how': 'Click the "Prepare the descent" button (or "Got it" here) to start your mission!',
 
   // ----- resultado -----
@@ -521,9 +527,9 @@ export const UI_EN: Dict = {
   'credits.aiTitle': 'Use of AI',
   'credits.aiBody': 'The game idea and rules come from the team; AI helped draft the specification. AI tools (Claude Code, by Anthropic) helped write the code, card texts and research and check the NASA data, always reviewed by the team. The background music, the opening cutscene images, the app icon and two textures of the 3D base were generated with AI. Details in README.md.',
   'credits.software': 'Software, fonts & icons',
-  'credits.license': 'Lunar Outpost source code: MIT License. Third-party data, images, fonts and libraries keep their own licenses (see CREDITS.md).',
+  'credits.license': 'HEAD X source code: MIT License. Third-party data, images, fonts and libraries keep their own licenses (see CREDITS.md).',
   'credits.officialNote': 'Official notice from the NASA Space Apps Challenge.',
-  'credits.disclaimer': 'Lunar Outpost is an independent educational project created for the NASA Space Apps Challenge 2026. It is not an official NASA product, is not endorsed by NASA and does not represent real operational procedures.',
+  'credits.disclaimer': 'HEAD X is an independent educational project created for the NASA Space Apps Challenge 2026. It is not an official NASA product, is not endorsed by NASA and does not represent real operational procedures.',
 
   // ----- credito visivel nas fotos reais das cartas -----
   'cardArt.realPhotoFictional': 'Real photo: {credit} · fictional character',
@@ -571,6 +577,12 @@ export const UI_PT: Dict = {
   'menu.tagline': 'Fundar uma base é decidir o que vem primeiro.',
   'menu.resume': 'Continuar missão',
   'menu.newMission': 'Nova missão',
+  'menu.quickPlay': 'Quick play',
+  'quickplay.title': 'Cartas escolhidas aleatoriamente',
+  'quickplay.intro': 'Tudo foi sorteado para você: local de pouso, objetivo e as três cartas. Pronto para ir?',
+  'quickplay.site': 'Local de pouso',
+  'quickplay.objective': 'Objetivo',
+  'quickplay.start': 'Começar missão',
   'menu.deck': 'Baralho',
   'menu.explore': 'Explorar a base',
   'menu.settings': 'Configurações',
@@ -1037,9 +1049,9 @@ export const UI_PT: Dict = {
   'credits.aiTitle': 'Uso de IA',
   'credits.aiBody': 'A ideia e as regras do jogo são da equipe; a IA ajudou a redigir a especificação. Ferramentas de IA (Claude Code, da Anthropic) ajudaram a escrever o código, os textos das cartas e a pesquisar e conferir os dados da NASA, sempre revisados pela equipe. A música de fundo, as imagens da cena de abertura, o ícone do app e duas texturas da base 3D foram gerados com IA. Detalhes no README.md.',
   'credits.software': 'Software, fontes tipográficas e ícones',
-  'credits.license': 'Código-fonte do Lunar Outpost: licença MIT. Dados, imagens, fontes e bibliotecas de terceiros mantêm suas próprias licenças (veja CREDITS.md).',
+  'credits.license': 'Código-fonte do HEAD X: licença MIT. Dados, imagens, fontes e bibliotecas de terceiros mantêm suas próprias licenças (veja CREDITS.md).',
   'credits.officialNote': 'Tradução do aviso oficial do NASA Space Apps Challenge: “A NASA não endossa nenhuma entidade que não seja do Governo dos EUA e não é responsável por informações contidas em sites que não sejam do Governo dos EUA.”',
-  'credits.disclaimer': 'Lunar Outpost é um projeto educacional independente criado para o NASA Space Apps Challenge 2026. Não é um produto oficial da NASA, não é endossado pela NASA e não representa procedimentos operacionais reais.',
+  'credits.disclaimer': 'HEAD X é um projeto educacional independente criado para o NASA Space Apps Challenge 2026. Não é um produto oficial da NASA, não é endossado pela NASA e não representa procedimentos operacionais reais.',
 
   // ----- credito visivel nas fotos reais das cartas -----
   'cardArt.realPhotoFictional': 'Foto real: {credit} · personagem fictício',
