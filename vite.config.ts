@@ -11,7 +11,7 @@ export default defineConfig({
       // mudancas "nao aparecerem" e voce perde horas debugando o SW em vez
       // do jogo.
       devOptions: { enabled: false },
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon.svg', 'cutscene/sky.jpg', 'cutscene/moon.jpg'],
       manifest: {
         name: 'Lunar Outpost — Missao NASA',
         short_name: 'Lunar Outpost',

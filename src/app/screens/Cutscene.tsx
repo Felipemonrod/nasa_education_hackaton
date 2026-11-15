@@ -23,18 +23,38 @@ export function Cutscene({ onDone }: { onDone: () => void }): JSX.Element {
   const current = BEATS[Math.min(beat, BEATS.length - 1)];
 
   return (
-    <div className="relative flex h-dvh w-full flex-col items-center justify-center overflow-hidden px-8">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-[68%] h-[130vw] w-[130vw] -translate-x-1/2 rounded-full bg-gradient-to-b from-slate-300/85 to-slate-600/50 blur-[1px]" />
-        <div className="absolute left-1/2 top-[68%] h-[130vw] w-[130vw] -translate-x-1/2 rounded-full bg-gradient-to-t from-space-950 via-space-950/60 to-transparent" />
+    <div className="relative flex h-dvh w-full flex-col items-center justify-center overflow-hidden bg-space-950 px-8">
+      <div className="pointer-events-none absolute inset-0 select-none">
+        <img
+          src="/cutscene/sky.jpg"
+          alt=""
+          aria-hidden="true"
+          className="h-full w-full object-cover object-center opacity-85"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-space-950/55 via-space-950/25 to-space-950/80" />
+
+        <div className="absolute left-1/2 top-[66%] h-[min(125vw,145vh)] min-h-[520px] w-[min(125vw,145vh)] min-w-[520px] -translate-x-1/2 overflow-hidden rounded-full shadow-[0_0_90px_-8px_rgba(186,230,253,0.28)]">
+          <img
+            src="/cutscene/moon.jpg"
+            alt=""
+            aria-hidden="true"
+            className="h-full w-full scale-[1.015] object-cover"
+          />
+          <div className="absolute inset-0 rounded-full bg-gradient-to-t from-space-950 via-space-950/35 to-transparent" />
+        </div>
+
+        <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-space-950/90 via-space-950/45 to-transparent" />
       </div>
 
-      <div key={beat} className="relative z-10 max-w-2xl animate-fade-in px-4 text-center">
-        <p className="font-display text-3xl font-extrabold leading-tight text-white drop-shadow sm:text-4xl lg:text-5xl">
+      <div
+        key={beat}
+        className="relative z-10 max-w-2xl animate-fade-in px-4 text-center drop-shadow-[0_2px_16px_rgba(5,10,20,0.95)]"
+      >
+        <p className="font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
           {current === undefined ? '' : t(`${current.key}.text`)}
         </p>
         {current !== undefined && current.hasSub ? (
-          <p className="mt-4 text-lg font-semibold text-sky-200/90 sm:text-xl">{t(`${current.key}.sub`)}</p>
+          <p className="mt-4 text-lg font-semibold text-sky-200/95 sm:text-xl">{t(`${current.key}.sub`)}</p>
         ) : null}
       </div>
 
