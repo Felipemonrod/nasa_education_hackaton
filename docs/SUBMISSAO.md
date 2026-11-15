@@ -190,17 +190,12 @@ Notas:
 O formulário diz: conteúdo gerado por SI **não pode conter marcas da NASA** (logos, bandeiras,
 identificadores de missão), e **imagens geradas por SI precisam de marca d'água visível**.
 
-1. **Retrato da engenheira (`public/cards/commanders/cmd_engineer.jpg`).** No alto, perto do centro, a IA
-   desenhou um emblema redondo azul e branco que parece o logo da NASA. Na carta ele cai na borda de cima
-   do oval. Corrigir antes do envio: gerar a imagem de novo sem o emblema, ou cortá-la.
-2. **Marca d'água visível.**
-   - Hoje os retratos mostram só um ícone ⓘ, e o texto "AI-generated image" aparece ao tocar. Na lista de
-     comandantes o aviso é texto visível.
-   - As texturas 3D mostram um ✦, com o texto ao tocar.
-   - Para cumprir à risca, o aviso deve ficar sempre visível sobre a imagem, por exemplo um selo
-     pequeno "AI" fixo no canto.
-   - O ícone do app (parcialmente IA) não comporta marca d'água; a declaração fica no texto e nos
-     créditos.
+1. **Retrato da engenheira — corrigido.** A IA tinha desenhado no topo um emblema parecido com o logo da
+   NASA. Os 32 px de cima foram cortados; os outros 3 retratos e as 2 texturas foram conferidos e não têm
+   marca da NASA.
+2. **Marca d'água visível — corrigido.** Todo retrato mostra o selo fixo "Gerada por IA" / "AI-generated",
+   e toda cena 3D mostra "Texturas por IA" / "AI textures". O ícone do app (parcialmente IA) não comporta
+   marca d'água; a declaração fica no texto e nos créditos.
 3. **Demo:** até 30 s ou até 7 slides, link público, e legenda em inglês se a fala for em português.
 4. **Equipe:** todos os membros precisam estar na aba *Members* e inscritos no evento de Uberlândia
    (máximo de 6 pessoas).

@@ -10,5 +10,6 @@ import { ImageInfoBadge } from './ImageInfoBadge.js';
  */
 export function AiTexturesBadge({ className = 'bottom-2 left-2' }: { className?: string }): JSX.Element {
   const t = useT();
-  return <ImageInfoBadge kind="ai" text={t('scene.aiTextures')} className={className} align="left" />;
+  // Selo sempre visivel ("Texturas por IA"): marca d'agua exigida pelo Space Apps.
+  return <ImageInfoBadge kind="ai" text={t('scene.aiTextures')} label={t('scene.aiTexturesShort')} className={className} align="left" />;
 }

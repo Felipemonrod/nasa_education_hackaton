@@ -74,11 +74,12 @@ The NASA Space Apps guide asks teams to declare AI ("SI") use. What we can state
   - the **background music**: declared here, on the Credits screen, and in the MP3 metadata
     (`COMM` and `TXXX:AI_GENERATED=true`);
   - the **four commander portraits** (fictional people, no real astronauts): each file carries Google
-    C2PA metadata ("Created by Google Generative AI") and a SynthID watermark, and the game shows
-    "AI-generated image · fictional character" on the card and in the commander list.
+    C2PA metadata ("Created by Google Generative AI") and a SynthID watermark, and every portrait shows
+    an always-visible "AI-generated" label (the full line "AI-generated image · fictional character"
+    appears on tap and in the commander list).
   - two **3D textures** (door and solar panel of the 3D base): their files carry Google C2PA metadata
-    marking them as AI-generated; every 3D scene has a small ✦ icon in the corner that shows
-    "Some textures made with AI" when tapped, so the note stays visible without covering the scene.
+    marking them as AI-generated; every 3D scene shows an always-visible "AI textures" label in the
+    corner (tap it for "Some textures made with AI").
   - The music was generated with **Moreka.ai**.
   - The **app icon** (HEAD X logo) was made **partly with AI**; declared here, on the Credits screen and
     in `docs/ASSETS.md`.

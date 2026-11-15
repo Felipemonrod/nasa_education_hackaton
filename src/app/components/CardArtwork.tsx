@@ -229,7 +229,9 @@ export function NasaCardPhoto({
           {/* O oval da janela corta o que passa da borda (overflow-hidden): o
               balao fica com no maximo 60% da largura da janela e quebra linha. */}
           <ImageInfoBadge
+            kind="ai"
             text={t('cardArt.aiFictional')}
+            label={t('cardArt.aiShort')}
             className="bottom-[14%] right-[17%]"
             align="right"
             tooltipMaxWidth="max-w-[60cqw]"

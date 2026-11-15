@@ -18,6 +18,7 @@ export function ImageInfoBadge({
   className = 'bottom-2 left-2',
   align = 'left',
   tooltipMaxWidth = 'max-w-[15rem]',
+  label,
 }: {
   text: string;
   kind?: 'info' | 'ai';
@@ -30,6 +31,12 @@ export function ImageInfoBadge({
    * relativa ao container (cqw) para o texto quebrar e nao ser cortado.
    */
   tooltipMaxWidth?: string;
+  /**
+   * Texto curto SEMPRE visivel ao lado do icone (ex.: "Gerada por IA"). E a
+   * marca d'agua visivel que o Space Apps exige em imagem feita com IA; o texto
+   * completo continua no balao ao tocar.
+   */
+  label?: string;
 }): JSX.Element {
   const [open, setOpen] = useState(false);
   const toggle = (e: MouseEvent | KeyboardEvent): void => {
@@ -51,9 +58,14 @@ export function ImageInfoBadge({
         onPointerDown={stop}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggle(e); }}
         onBlur={() => { setOpen(false); }}
-        className="grid h-6 w-6 cursor-pointer place-items-center rounded-full bg-black/30 text-white/80 opacity-60 backdrop-blur-sm transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300"
+        className={`cursor-pointer backdrop-blur-sm transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300 ${
+          label === undefined
+            ? 'grid h-6 w-6 place-items-center rounded-full bg-black/30 text-white/80 opacity-60'
+            : 'inline-flex h-6 items-center gap-1 whitespace-nowrap rounded-full bg-black/65 px-2 text-[10px] font-extrabold uppercase tracking-wide text-white'
+        }`}
       >
         <Icon size={12} aria-hidden />
+        {label !== undefined ? <span aria-hidden>{label}</span> : null}
       </span>
       {open ? (
         <span
