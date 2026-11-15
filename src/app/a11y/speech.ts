@@ -26,9 +26,11 @@ import type { Locale } from '../../i18n/core.js';
  *    falar; sem isso o sintetizador lia "life_support" em voz alta.
  */
 
-/** Limites de velocidade: os mesmos do slider em Configuracoes. */
+/** Limites de velocidade e volume: os mesmos dos controles em Configuracoes. */
 export const RATE_MIN = 0.6;
 export const RATE_MAX = 1.6;
+export const VOLUME_MIN = 0;
+export const VOLUME_MAX = 1;
 
 /** Tamanho maximo de cada pedaco falado. */
 export const CHUNK_MAX = 200;
@@ -147,6 +149,7 @@ function bestLocalVoice(locale: Locale): SpeechSynthesisVoice | null {
 export interface SpeakOptions {
   readonly locale: Locale;
   readonly rate: number;
+  readonly volume?: number;
 }
 
 interface SpeechStore {
@@ -168,12 +171,17 @@ export const useSpeech = create<SpeechStore>()((set, get) => ({
   speaking: false,
   lastText: null,
 
-  speak(text, { locale, rate }) {
+  speak(text, { locale, rate, volume = 1 }) {
     if (!speechSupported()) return;
     const clean = plainText(text, labellerFor(locale));
     if (clean.length === 0) return;
 
     window.speechSynthesis.cancel();
+    const clampedVolume = Math.min(VOLUME_MAX, Math.max(VOLUME_MIN, volume));
+    if (clampedVolume <= 0) {
+      set({ speaking: false, lastText: null });
+      return;
+    }
     const chunks = chunkText(clean);
     const clampedRate = Math.min(RATE_MAX, Math.max(RATE_MIN, rate));
     let retried = false;
@@ -184,6 +192,7 @@ export const useSpeech = create<SpeechStore>()((set, get) => ({
         const utterance = new SpeechSynthesisUtterance(chunks[i]);
         utterance.lang = LOCALE_TAG[locale];
         utterance.rate = clampedRate;
+        utterance.volume = clampedVolume;
         if (voice !== null) utterance.voice = voice;
         const last = i === chunks.length - 1;
         utterance.onend = () => {

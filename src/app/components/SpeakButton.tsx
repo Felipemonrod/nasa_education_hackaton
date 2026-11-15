@@ -18,6 +18,7 @@ export function SpeakButton({
   const lastText = useSpeech((s) => s.lastText);
   const toggle = useSpeech((s) => s.toggle);
   const rate = useAccount((s) => s.settings.speechRate);
+  const volume = useAccount((s) => s.settings.speechVolume);
   const locale = useI18n((s) => s.locale);
 
   if (!speechSupported()) return null;
@@ -28,7 +29,7 @@ export function SpeakButton({
   return (
     <button
       type="button"
-      onClick={() => { toggle(text, { locale, rate }); }}
+      onClick={() => { toggle(text, { locale, rate, volume }); }}
       aria-label={label}
       className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10 transition-colors
                   hover:bg-white/20 ${className ?? ''}`}

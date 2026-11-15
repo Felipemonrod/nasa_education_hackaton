@@ -26,6 +26,7 @@ export function Game(): JSX.Element {
   const showWhyByDefault = useAccount((s) => s.settings.showWhyByDefault);
   const autoRead = useAccount((s) => s.settings.autoRead);
   const speechRate = useAccount((s) => s.settings.speechRate);
+  const speechVolume = useAccount((s) => s.settings.speechVolume);
   const locale = useI18n((s) => s.locale);
   const content = useContent();
   const speak = useSpeech((s) => s.speak);
@@ -52,8 +53,8 @@ export function Game(): JSX.Element {
 
   useEffect(() => {
     if (!autoRead || slotKey === null || outcome !== null || !cardReady || slotText.length === 0) return;
-    speak(slotText, { locale, rate: speechRate });
-  }, [autoRead, slotKey, outcome, cardReady, slotText, speak, locale, speechRate]);
+    speak(slotText, { locale, rate: speechRate, volume: speechVolume });
+  }, [autoRead, slotKey, outcome, cardReady, slotText, speak, locale, speechRate, speechVolume]);
 
   useEffect(() => {
     if (run === null) return;

@@ -32,6 +32,7 @@ export interface AccountState {
     /** Le card e desfecho em voz alta automaticamente. */
     autoRead: boolean;
     speechRate: number;
+    speechVolume: number;
     /** Exige um segundo toque para fechar a decisao. */
     confirmDecisions: boolean;
   };
@@ -57,6 +58,7 @@ const EMPTY: AccountState = {
     underlineLinks: true,
     autoRead: true,
     speechRate: 1,
+    speechVolume: 1,
     // Ligada de fabrica: a decisao e irreversivel e o publico tem 10 anos.
     // Um toque acidental nao deve martelar a escolha final.
     confirmDecisions: true,

@@ -107,8 +107,13 @@ describe('conta (progresso duravel)', () => {
     expect(state.totals.runs).toBe(4);
     expect(state.knownCards).toEqual(['flare_weak']);
     expect(state.settings.speechRate).toBe(1.2);
+    expect(state.settings.speechVolume).toBe(1);
     expect(state.settings.autoRead).toBe(false);
     expect('voiceURI' in state.settings).toBe(false);
+
+    useAccount.getState().setSetting('speechVolume', 0.5);
+    const reloaded = await reopenBrowser();
+    expect(reloaded.useAccount.getState().settings.speechVolume).toBe(0.5);
   });
 
   it('conta de versao futura: guarda copia em vez de apagar em silencio', async () => {
