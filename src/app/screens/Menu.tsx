@@ -4,6 +4,9 @@ import { useT } from '../i18n/useI18n.js';
 import { useAccount } from '../store/useAccount.js';
 import { useGame } from '../store/useGame.js';
 import { MoonScene } from '../components/MoonScene.js';
+import { SceneLoading } from '../components/SceneLoading.js';
+import { useFadeOut } from '../components/useSceneStatus.js';
+import type { SceneStatus } from '../components/useSceneStatus.js';
 
 export function Menu(): JSX.Element {
   const { go, newMission, savedRunExists, resumeRun, abandonSavedRun } = useGame();
@@ -15,6 +18,10 @@ export function Menu(): JSX.Element {
   // em silencio no confirmLoadout e nem entrava nos totais.
   const [confirmNew, setConfirmNew] = useState(false);
   const [resumeFailed, setResumeFailed] = useState(false);
+  // Tela de carregamento em TELA CHEIA ate a base 3D ficar pronta (ou falhar e
+  // cair no SVG); so entao o menu aparece, com fade.
+  const [sceneStatus, setSceneStatus] = useState<SceneStatus>('loading');
+  const loader = useFadeOut(sceneStatus === 'loading');
   const stayRef = useRef<HTMLButtonElement>(null);
 
   // O botao tocado some ao abrir a confirmacao: o foco vai para "Manter".
@@ -35,7 +42,7 @@ export function Menu(): JSX.Element {
           para o texto ficar legivel, e o selo de IA (z-10, dentro da cena) segue
           por cima deles. */}
       <div className="fixed inset-0">
-        <MoonScene phase="day" framing="backdrop" />
+        <MoonScene phase="day" framing="backdrop" onStatus={setSceneStatus} />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-space-950/75 via-space-950/10 to-space-950/55 md:bg-gradient-to-r md:from-space-950/85 md:via-space-950/15 md:to-space-950/55" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-space-950/80 to-transparent" />
       </div>
@@ -154,6 +161,8 @@ export function Menu(): JSX.Element {
         {t('menu.disclaimer')}
       </p>
       </div>
+
+      {loader.mounted ? <SceneLoading variant="fullscreen" hidden={loader.hidden} /> : null}
     </div>
   );
 }

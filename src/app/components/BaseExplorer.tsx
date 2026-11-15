@@ -7,7 +7,7 @@ import { prefersReducedMotion, supportsWebGL } from '../webgl.js';
 import { MoonSceneSVG } from './MoonSceneSVG.js';
 import { SceneErrorBoundary } from './SceneErrorBoundary.js';
 import { SceneLoading } from './SceneLoading.js';
-import { useSceneStatus } from './useSceneStatus.js';
+import { useFadeOut, useSceneStatus } from './useSceneStatus.js';
 
 // Carregamento tardio: o three.js + OrbitControls so baixam quando o usuario
 // abre a tela e o dispositivo e capaz. Entra no chunk ja code-split.
@@ -38,6 +38,9 @@ export function BaseExplorer(): JSX.Element {
   const { status, onReady, onError } = useSceneStatus(wantsGL);
   const useGL = wantsGL && status !== 'failed';
   const ready = status === 'ready';
+  // Carregamento em TELA CHEIA (por cima do botao Voltar e da dica) ate o 3D
+  // ficar pronto ou falhar; o limite de 30 s garante a saida.
+  const loader = useFadeOut(useGL && !ready);
 
   const svg = (
     <div className="absolute inset-0">
@@ -48,7 +51,7 @@ export function BaseExplorer(): JSX.Element {
   return (
     <div className="fixed inset-0 bg-space-950">
       {!useGL ? svg : null}
-      {useGL && !ready ? <SceneLoading /> : null}
+      {loader.mounted ? <SceneLoading variant="fullscreen" hidden={loader.hidden} /> : null}
       {useGL ? (
         <div className={`absolute inset-0 transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'}`} aria-hidden={!ready}>
           <SceneErrorBoundary fallback={null} onError={onError}>

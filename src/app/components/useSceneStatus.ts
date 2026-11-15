@@ -31,3 +31,21 @@ export function useSceneStatus(enabled: boolean, timeoutMs = 30000): {
 
   return { status, onReady, onError };
 }
+
+/**
+ * Mantem a tela de carregamento montada por `ms` depois que a carga termina,
+ * para ela sair com fade em vez de sumir de uma vez.
+ * `mounted`: renderizar a tela; `hidden`: aplicar o fade de saida.
+ */
+export function useFadeOut(active: boolean, ms = 500): { mounted: boolean; hidden: boolean } {
+  const [mounted, setMounted] = useState(active);
+  useEffect(() => {
+    if (active) {
+      setMounted(true);
+      return undefined;
+    }
+    const timer = window.setTimeout(() => { setMounted(false); }, ms);
+    return () => { window.clearTimeout(timer); };
+  }, [active, ms]);
+  return { mounted: mounted || active, hidden: !active };
+}

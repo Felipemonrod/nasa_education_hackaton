@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { SkipForward } from 'lucide-react';
 import { useT } from '../i18n/useI18n.js';
+import { preloadBaseScene } from '../components/scenePreload.js';
 
 const BEATS: readonly { readonly key: string; readonly hasSub: boolean }[] = [
   { key: 'cutscene.beat1', hasSub: true },
@@ -19,6 +20,9 @@ export function Cutscene({ onDone }: { onDone: () => void }): JSX.Element {
     const timer = window.setTimeout(() => { setBeat((b) => b + 1); }, 2800);
     return () => { window.clearTimeout(timer); };
   }, [beat, onDone]);
+
+  // Enquanto a abertura passa, a base 3D do Menu ja vai sendo baixada.
+  useEffect(() => { preloadBaseScene(); }, []);
 
   const current = BEATS[Math.min(beat, BEATS.length - 1)];
 
