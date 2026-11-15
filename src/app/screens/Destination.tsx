@@ -243,7 +243,8 @@ export function Destination(): JSX.Element {
                   key={s.id}
                   type="button"
                   onClick={() => { goToStep(s.id); }}
-                  className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[0.7rem] font-extrabold transition-all [@media(max-height:540px)]:py-1 sm:flex-initial sm:px-2.5 lg:gap-2 lg:rounded-xl lg:px-3.5 lg:py-2 lg:text-xs ${
+                  aria-label={t(s.labelKey)}
+                  className={`flex min-w-0 ${active ? 'flex-1' : 'flex-none'} items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[0.7rem] font-extrabold transition-all [@media(max-height:540px)]:py-1 sm:flex-initial sm:px-2.5 lg:gap-2 lg:rounded-xl lg:px-3.5 lg:py-2 lg:text-xs ${
                     active
                       ? 'border border-sky-400/70 bg-sky-400/20 text-white shadow-[0_0_20px_-6px_rgba(56,189,248,0.5)]'
                       : 'border border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200'
@@ -256,7 +257,7 @@ export function Destination(): JSX.Element {
                   >
                     {s.id}
                   </span>
-                  <span className="truncate">{t(s.labelKey)}</span>
+                  <span className={active ? 'truncate' : 'hidden truncate sm:inline'}>{t(s.labelKey)}</span>
                 </button>
               );
             })}
@@ -515,7 +516,7 @@ export function Destination(): JSX.Element {
                       }`}
                     >
                       {/* Imagem real da superficie/local de pouso maior */}
-                      <div className="relative min-h-0 w-full flex-1 overflow-hidden bg-black sm:h-24 sm:flex-none [@media(max-height:500px)]:h-[4.25rem] lg:h-60 lg:shrink-0">
+                      <div className="relative min-h-0 w-full flex-1 overflow-hidden bg-black [@media(max-height:500px)]:h-[4.25rem] lg:h-60 lg:flex-none lg:shrink-0">
                         <img
                           src={meta.image}
                           alt={siteName}
@@ -531,7 +532,7 @@ export function Destination(): JSX.Element {
                         ) : null}
                       </div>
 
-                      <div className="flex min-h-0 shrink-0 flex-col justify-between overflow-y-auto p-4 text-center max-sm:max-h-[55%] max-sm:shrink sm:flex-1 sm:p-2.5 [@media(max-height:500px)]:p-2 lg:p-5">
+                      <div className="flex min-h-0 shrink-0 flex-col justify-between overflow-y-auto p-4 text-center max-sm:max-h-[55%] max-sm:shrink sm:p-2.5 lg:flex-1 [@media(max-height:500px)]:p-2 lg:p-5">
                         <div className="my-auto flex flex-col items-center">
                           <h3 className="font-display text-lg font-extrabold leading-snug text-white sm:text-sm [@media(max-height:500px)]:text-xs lg:text-xl">
                             {siteName}

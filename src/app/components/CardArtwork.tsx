@@ -58,6 +58,7 @@ export function getCardFrameMeta(card: Card, phase: Phase): CardFrameMeta {
  */
 export function CardShell({
   frame, title, titleLevel = 2, sizeClass, speak, dataTutorial, dimmed, children,
+  titleSizeClass = 'text-[clamp(0.62rem,4.1cqw,1.02rem)]',
 }: {
   frame: CardFrameMeta;
   title: string;
@@ -67,6 +68,8 @@ export function CardShell({
   dataTutorial?: string | undefined;
   dimmed?: boolean | undefined;
   children: ReactNode;
+  /** Tamanho do titulo em cqw; a mesa de decisao aumenta no celular deitado. */
+  titleSizeClass?: string;
 }): JSX.Element {
   const Heading = titleLevel === 2 ? 'h2' : 'h3';
   return (
@@ -109,7 +112,7 @@ export function CardShell({
       <div className="absolute z-10 flex items-center justify-center text-center" style={CARD_TITLE_BOX}>
         <Heading
           className={`line-clamp-2 w-full select-none text-center font-display font-extrabold uppercase leading-tight tracking-tight
-                      text-[clamp(0.62rem,4.1cqw,1.02rem)] ${frame.titleTextClass}`}
+                      ${titleSizeClass} ${frame.titleTextClass}`}
         >
           {title}
         </Heading>

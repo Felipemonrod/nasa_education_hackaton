@@ -154,6 +154,18 @@ export function CardView({
      ha largura para isso. */
   const isShortLandscape = useMediaQuery(SHORT_LANDSCAPE_QUERY);
   const sideOptions = isShortLandscape && (inModal || compact !== true);
+  /* Com as opcoes ao lado, a caixa da moldura fica so com o texto. A carta
+     encolhe com a altura da tela (~200-240 px de largura no celular deitado)
+     e 3,6cqw dava ~8 px, preso no piso de 0,7rem: letra minuscula e metade da
+     caixa vazia. Aqui a letra acompanha a carta em proporcao maior. */
+  const bodyTextClass = sideOptions
+    ? 'text-[clamp(0.75rem,5.2cqw,1rem)]'
+    : 'text-[clamp(0.7rem,3.6cqw,0.92rem)]';
+  // Titulo: 4,6cqw ainda cabe em 2 linhas na faixa do titulo (8,2% da altura).
+  const titleSizeClass = sideOptions ? 'text-[clamp(0.62rem,4.6cqw,1.02rem)]' : undefined;
+  const badgeTextClass = sideOptions
+    ? 'text-[clamp(0.6rem,3.6cqw,0.75rem)]'
+    : 'text-[clamp(0.55rem,2.7cqw,0.68rem)]';
 
   /* Largura da carta limitada tambem pela ALTURA da tela (proporcao
      1432/2000 = 0.716): a carta inteira sempre cabe, sem rolar a mesa. */
@@ -235,6 +247,7 @@ export function CardView({
         frame={frame}
         title={title}
         sizeClass={sizeClass}
+        {...(titleSizeClass !== undefined ? { titleSizeClass } : {})}
         dataTutorial={isFirstCard ? 'card-header' : undefined}
         dimmed={dimmed}
         speak={(
@@ -248,18 +261,18 @@ export function CardView({
           {hasBadges ? (
             <div className="mb-[1.8cqw] flex flex-wrap items-center gap-[1.4cqw]">
               {card.role === 'extra' ? (
-                <span className={`rounded-lg px-2 py-0.5 text-[clamp(0.55rem,2.7cqw,0.68rem)] font-extrabold uppercase tracking-wider
+                <span className={`rounded-lg px-2 py-0.5 ${badgeTextClass} font-extrabold uppercase tracking-wider
                   ${card.track === 'science' ? 'bg-science/20 text-science border border-science/30' : 'bg-life/20 text-life border border-life/30'}`}>
                   {t(card.track === 'science' ? 'stat.science' : 'stat.lifeSupport')}
                 </span>
               ) : null}
               {card.role === 'event' ? (
-                <span className="inline-flex items-center gap-1 rounded-lg border border-power/30 bg-power/20 px-2 py-0.5 text-[clamp(0.55rem,2.7cqw,0.68rem)] font-extrabold uppercase tracking-wider text-power">
+                <span className={`inline-flex items-center gap-1 rounded-lg border border-power/30 bg-power/20 px-2 py-0.5 ${badgeTextClass} font-extrabold uppercase tracking-wider text-power`}>
                   <Rocket size={11} aria-hidden /> {t('card.event')}
                 </span>
               ) : null}
               {badge !== null ? (
-                <span className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/10 px-2 py-0.5 text-[clamp(0.55rem,2.7cqw,0.68rem)] font-bold uppercase tracking-wider text-slate-200">
+                <span className={`inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/10 px-2 py-0.5 ${badgeTextClass} font-bold uppercase tracking-wider text-slate-200`}>
                   <badge.icon size={11} aria-hidden />
                   {stage !== undefined
                     ? t('card.kindStage', { label: t(badge.key), stage: stage + 1 })
@@ -288,7 +301,7 @@ export function CardView({
           >
             <GlossaryText
               text={text}
-              className="block text-[clamp(0.7rem,3.6cqw,0.92rem)] leading-snug text-slate-200"
+              className={`block ${bodyTextClass} leading-snug text-slate-200`}
             />
           </div>
         </div>
