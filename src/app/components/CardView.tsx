@@ -146,7 +146,7 @@ export function CardView({
         </div>
 
         {/* Ícone de áudio mais para cima e na diagonal, longe da imagem da carta */}
-        <div className="absolute -right-1.5 -top-1 z-20">
+        <div className="absolute right-1 top-1 z-20 lg:-right-1.5 lg:-top-1">
           <SpeakButton
             text={`${title}. ${text}. ${options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option)).join('. ')}`}
             label={t('card.listenAria', { title })}

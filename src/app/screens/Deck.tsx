@@ -136,7 +136,7 @@ function DeckCardPreview({ card, known }: {
     >
       <article
         data-deck-keep-open
-        className={`relative mx-auto flex w-full max-w-[22.5rem] flex-col animate-card-in drop-shadow-[0_18px_36px_rgba(0,0,0,0.72)] ${
+        className={`relative mx-auto flex w-full max-w-[22.5rem] max-lg:w-[min(84vw,20.5rem)] max-lg:landscape:w-[min(42vw,19rem)] flex-col animate-card-in drop-shadow-[0_18px_36px_rgba(0,0,0,0.72)] ${
           known ? '' : 'opacity-80'
         }`}
       >
@@ -171,7 +171,7 @@ function DeckCardPreview({ card, known }: {
 
         {/* Ícone de text-to-speech mais para cima e na diagonal, longe da imagem da carta */}
         {known ? (
-          <div className="absolute -right-1.5 -top-1 z-20">
+          <div className="absolute right-1 top-1 z-20 lg:-right-1.5 lg:-top-1">
             <SpeakButton
               text={`${title}. ${text}. ${card.options.map((o) => content.optionLabel(card, o)).join('. ')}`}
               label={t('card.listenAria', { title })}
@@ -413,6 +413,7 @@ export function Deck(): JSX.Element {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
 
   const visible = useMemo(() => CARDS.filter((card) => {
     if (card.isFallback === true) return false;
@@ -525,7 +526,7 @@ export function Deck(): JSX.Element {
   ) : null;
 
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-4 pb-10 pt-5 sm:px-6 lg:px-10">
+    <div className="mx-auto w-full max-w-[1440px] max-lg:max-w-[100vw] max-lg:overflow-x-hidden px-4 pb-10 pt-5 sm:px-6 lg:px-10">
       {/* Cabecalho horizontal */}
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
@@ -630,10 +631,18 @@ export function Deck(): JSX.Element {
             >
               {t('deck.filterKnownOnly')}
             </button>
+            <button
+              type="button"
+              onClick={() => { setUnlockModalOpen(true); }}
+              className="inline-flex items-center gap-1.5 rounded-xl glass px-3 py-1.5 text-[0.76rem] font-bold text-sky-300 hover:bg-white/10 lg:hidden"
+            >
+              <Sparkles size={13} aria-hidden /> {t('deck.unlockTitle')}
+            </button>
           </div>
         </div>
 
-        <section className="rounded-3xl glass p-4 lg:col-span-4">
+        {/* Desktop: seção lateral fixa (inalterada). Mobile: liberado espaço com modal */}
+        <section className="hidden rounded-3xl glass p-4 lg:col-span-4 lg:block">
           <h2 className="flex items-center gap-1.5 text-[0.7rem] font-extrabold uppercase tracking-widest text-sky-300">
             <Sparkles size={13} aria-hidden /> {t('deck.unlockTitle')}
           </h2>
@@ -646,10 +655,46 @@ export function Deck(): JSX.Element {
         </section>
       </div>
 
-      {/* Quando nenhuma carta está selecionada: grade de 3 colunas + paginação */}
+      {/* Modal mobile para dicas de desbloqueio ("Como liberar mais") */}
+      {unlockModalOpen ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('deck.unlockTitle')}
+          onClick={() => { setUnlockModalOpen(false); }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/80 p-[4vw] backdrop-blur-md animate-fade-in lg:hidden"
+        >
+          <section
+            onClick={(e) => { e.stopPropagation(); }}
+            className="card-surface max-h-[85dvh] w-[min(92vw,28rem)] overflow-y-auto p-5 shadow-2xl animate-card-in"
+          >
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => { setUnlockModalOpen(false); }}
+                aria-label={t('common.back')}
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10 transition-colors hover:bg-white/20"
+              >
+                <ArrowLeft size={16} className="text-sky-300" aria-hidden />
+              </button>
+              <h2 className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-sky-300">
+                <Sparkles size={14} aria-hidden /> {t('deck.unlockTitle')}
+              </h2>
+            </div>
+            <ul className="mt-3 flex flex-col gap-2 text-sm leading-relaxed text-slate-200">
+              <li>· {t('deck.unlock1')}</li>
+              <li>· {t('deck.unlock2')}</li>
+              <li>· {t('deck.unlock3')}</li>
+              <li>· {t('deck.unlock4')}</li>
+            </ul>
+          </section>
+        </div>
+      ) : null}
+
+      {/* Quando nenhuma carta está selecionada: grade de 3 colunas (desktop) / adaptativa (mobile vertical e horizontal) + paginação */}
       {selectedCard === null ? (
         <div className="mt-5">
-          <ul className="grid grid-cols-1 items-start gap-3.5 md:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid grid-cols-1 items-start gap-3.5 max-lg:landscape:grid-cols-2 md:grid-cols-2 xl:grid-cols-3">
             {paginated.map((card) => (
               <CardEntry
                 key={card.id}
@@ -669,13 +714,10 @@ export function Deck(): JSX.Element {
           {paginationControls}
         </div>
       ) : (
-        /* Quando uma carta é clicada:
-           - Coluna 1: Todas as cartas empilhadas em 1 coluna só + paginação
-           - Coluna 2 (Ao lado da paginação): A carta sem fundo, com leve blur atrás e efeito de shine + distorção ao arrastar
-           - Coluna 3 (Ao lado): As 3 decisões dentro de divs limpas (título, recursos simplificados e texto do resultado) */
-        <div className="mt-5 grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
-          <div className="lg:col-span-4">
-            <ul className="grid grid-cols-1 gap-3">
+        <>
+          {/* Mobile (< lg): mantém a lista visível ao fundo e abre uma modal responsiva (vertical/horizontal) sem scroll lateral */}
+          <div className="mt-5 lg:hidden">
+            <ul className="grid grid-cols-1 items-start gap-3.5 max-lg:landscape:grid-cols-2 md:grid-cols-2">
               {paginated.map((card) => (
                 <CardEntry
                   key={card.id}
@@ -690,23 +732,89 @@ export function Deck(): JSX.Element {
               ))}
             </ul>
             {paginationControls}
+
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={t('deck.cardPreviewTitle')}
+              onClick={(e) => {
+                const target = e.target as HTMLElement | null;
+                if (
+                  target !== null
+                  && (target.closest('[data-deck-keep-open]') !== null || target.closest('[data-glossary]') !== null)
+                ) {
+                  return;
+                }
+                setSelectedCardId(null);
+              }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/85 p-[3vw] backdrop-blur-md animate-fade-in"
+            >
+              {/* Botão de voltar padronizado (apenas setinha <-) bem no canto superior esquerdo da página/modal */}
+              <button
+                type="button"
+                onClick={() => { setSelectedCardId(null); }}
+                aria-label={t('common.back')}
+                className="fixed left-3 top-3 z-50 grid h-9 w-9 shrink-0 place-items-center rounded-xl glass transition-colors hover:bg-white/20"
+              >
+                <ArrowLeft size={16} className="text-sky-300" aria-hidden />
+              </button>
+
+              <div className="scroll-thin max-h-[92dvh] w-[min(94vw,54rem)] overflow-y-auto overflow-x-hidden overscroll-contain py-[2dvh]">
+                <div className="grid grid-cols-1 items-center gap-5 landscape:grid-cols-12 landscape:items-start landscape:gap-4">
+                  <div className="landscape:col-span-6">
+                    <DeckCardPreview
+                      card={selectedCard}
+                      known={knownCards.includes(selectedCard.id)}
+                    />
+                  </div>
+                  <div className="mx-auto w-full max-w-[90vw] landscape:col-span-6 landscape:max-w-none">
+                    <DeckDecisionsColumn
+                      card={selectedCard}
+                      known={knownCards.includes(selectedCard.id)}
+                      knownOutcomes={knownOutcomes}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="lg:col-span-4">
-            <DeckCardPreview
-              card={selectedCard}
-              known={knownCards.includes(selectedCard.id)}
-            />
-          </div>
+          {/* Desktop (lg+): layout de 3 colunas 100% preservado */}
+          <div className="mt-5 hidden items-start gap-6 lg:grid lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <ul className="grid grid-cols-1 gap-3">
+                {paginated.map((card) => (
+                  <CardEntry
+                    key={card.id}
+                    card={card}
+                    known={knownCards.includes(card.id)}
+                    knownOutcomes={knownOutcomes}
+                    selected={card.id === selectedCard.id}
+                    onSelect={() => {
+                      setSelectedCardId((prev) => (prev === card.id ? null : card.id));
+                    }}
+                  />
+                ))}
+              </ul>
+              {paginationControls}
+            </div>
 
-          <div className="lg:col-span-4">
-            <DeckDecisionsColumn
-              card={selectedCard}
-              known={knownCards.includes(selectedCard.id)}
-              knownOutcomes={knownOutcomes}
-            />
+            <div className="lg:col-span-4">
+              <DeckCardPreview
+                card={selectedCard}
+                known={knownCards.includes(selectedCard.id)}
+              />
+            </div>
+
+            <div className="lg:col-span-4">
+              <DeckDecisionsColumn
+                card={selectedCard}
+                known={knownCards.includes(selectedCard.id)}
+                knownOutcomes={knownOutcomes}
+              />
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
