@@ -46,11 +46,17 @@ export const UI_EN: Dict = {
   'stat.science.inline': 'science',
   'stat.lifeSupport.inline': 'life support',
 
+  // ----- cena da base (menu e jogo) -----
+  'scene.base': 'Lunar base',
+  'base.hint': 'Drag to rotate · scroll or pinch to zoom',
+  'scene.aiTextures': 'Some textures made with AI',
+
   // ----- menu -----
   'menu.tagline': 'Founding a base means deciding what comes first.',
   'menu.resume': 'Resume mission',
   'menu.newMission': 'New mission',
   'menu.deck': 'Card deck',
+  'menu.explore': 'Explore the base',
   'menu.settings': 'Settings',
   'menu.credits': 'Credits',
   'menu.statsMissions': 'Missions',
@@ -513,7 +519,7 @@ export const UI_EN: Dict = {
   'credits.images': 'Images & art',
   'credits.imagesBody': 'Photos of the Moon, Mars, astronauts and space station hardware: NASA (Image and Video Library, LRO, Apollo and other missions). Astronaut photos are used as art for fictional characters. The opening cutscene sky and Moon are AI-generated images (marked on screen). Card frames made with Canva. Full list of every file and its license in docs/ASSETS.md.',
   'credits.aiTitle': 'Use of AI',
-  'credits.aiBody': 'The game idea and rules come from the team; AI helped draft the specification. AI tools (Claude Code, by Anthropic) helped write the code, card texts and research and check the NASA data, always reviewed by the team. The background music, the opening cutscene images and the app icon were generated with AI. Details in README.md.',
+  'credits.aiBody': 'The game idea and rules come from the team; AI helped draft the specification. AI tools (Claude Code, by Anthropic) helped write the code, card texts and research and check the NASA data, always reviewed by the team. The background music, the opening cutscene images, the app icon and two textures of the 3D base were generated with AI. Details in README.md.',
   'credits.software': 'Software, fonts & icons',
   'credits.license': 'Lunar Outpost source code: MIT License. Third-party data, images, fonts and libraries keep their own licenses (see CREDITS.md).',
   'credits.officialNote': 'Official notice from the NASA Space Apps Challenge.',
@@ -556,11 +562,17 @@ export const UI_PT: Dict = {
   'stat.science.inline': 'ciência',
   'stat.lifeSupport.inline': 'suporte de vida',
 
+  // ----- cena da base (menu e jogo) -----
+  'scene.base': 'Base lunar',
+  'base.hint': 'Arraste para girar · role ou pince para aproximar',
+  'scene.aiTextures': 'Algumas texturas feitas com IA',
+
   // ----- menu -----
   'menu.tagline': 'Fundar uma base é decidir o que vem primeiro.',
   'menu.resume': 'Continuar missão',
   'menu.newMission': 'Nova missão',
   'menu.deck': 'Baralho',
+  'menu.explore': 'Explorar a base',
   'menu.settings': 'Configurações',
   'menu.credits': 'Créditos',
   'menu.statsMissions': 'Missões',
@@ -1023,7 +1035,7 @@ export const UI_PT: Dict = {
   'credits.images': 'Imagens e arte',
   'credits.imagesBody': 'Fotos da Lua, de Marte, de astronautas e de equipamentos da estação espacial: NASA (Image and Video Library, LRO, Apollo e outras missões). As fotos de astronautas são usadas como arte de personagens fictícios. O céu e a Lua da cena de abertura são imagens geradas por IA (marcadas na tela). Molduras das cartas feitas no Canva. Lista completa de cada arquivo e sua licença em docs/ASSETS.md.',
   'credits.aiTitle': 'Uso de IA',
-  'credits.aiBody': 'A ideia e as regras do jogo são da equipe; a IA ajudou a redigir a especificação. Ferramentas de IA (Claude Code, da Anthropic) ajudaram a escrever o código, os textos das cartas e a pesquisar e conferir os dados da NASA, sempre revisados pela equipe. A música de fundo, as imagens da cena de abertura e o ícone do app foram gerados com IA. Detalhes no README.md.',
+  'credits.aiBody': 'A ideia e as regras do jogo são da equipe; a IA ajudou a redigir a especificação. Ferramentas de IA (Claude Code, da Anthropic) ajudaram a escrever o código, os textos das cartas e a pesquisar e conferir os dados da NASA, sempre revisados pela equipe. A música de fundo, as imagens da cena de abertura, o ícone do app e duas texturas da base 3D foram gerados com IA. Detalhes no README.md.',
   'credits.software': 'Software, fontes tipográficas e ícones',
   'credits.license': 'Código-fonte do Lunar Outpost: licença MIT. Dados, imagens, fontes e bibliotecas de terceiros mantêm suas próprias licenças (veja CREDITS.md).',
   'credits.officialNote': 'Tradução do aviso oficial do NASA Space Apps Challenge: “A NASA não endossa nenhuma entidade que não seja do Governo dos EUA e não é responsável por informações contidas em sites que não sejam do Governo dos EUA.”',

@@ -1,0 +1,27 @@
+# Compose do FRONTEND (desenvolvimento).
+#
+# O projeto e um PWA estatico, sem backend (ver DESIGN.md §5: dados da NASA
+# sao offline-first e a API DONKI e consumida direto do cliente). Por isso ha
+# um unico servico. Quando existir um backend, basta acrescentar outro servico
+# aqui (ou um segundo arquivo compose) e liga-los por uma rede comum.
+#
+# Subir:   docker compose up
+# Acessar: http://localhost:5173
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lunar-outpost-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      # Codigo do host -> container: edicoes aparecem na hora (HMR).
+      - .:/app
+      # Volume anonimo: preserva o node_modules instalado NA IMAGEM, para o
+      # bind mount acima nao esconde-lo com a pasta (vazia) do host.
+      - /app/node_modules
+    # tini como PID 1: Ctrl-C encerra o Vite de forma limpa, sem processo
+    # orfao segurando a porta.
+    init: true
+    stop_grace_period: 5s

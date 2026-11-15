@@ -70,6 +70,28 @@ person's name and internal Canva account IDs in every frame. Because these files
 byte-identical and the concatenated `IDAT` data has the same SHA-256 before and after. The old frames
 in the git history still contain that metadata; removing it from history would require rewriting it.
 
+### 1.5 3D lunar base (three.js scene: menu, game panel and "Explore the base")
+
+The 3D scene loads only on devices with WebGL and without high contrast or reduced motion; otherwise the
+drawn SVG base is shown. The models were exported from Blender (`asset.generator` = "Khronos glTF Blender
+I/O v4.5.47" in each file).
+
+| File | What it is | Source / evidence | License | AI? |
+|---|---|---|---|---|
+| `public/models/base.glb` | Lunar base model (domes, modules) | Made in Blender by the team. `TODO(team)`: author name | `TODO(team)` (MIT if team-made) | `TODO(team)` |
+| `public/models/rover.glb` | Rover model | Made in Blender. `TODO(team)`: author / source | `TODO(team)` | `TODO(team)` |
+| `public/models/solar.glb` | Solar panel model | Made in Blender. `TODO(team)`: author / source | `TODO(team)` | `TODO(team)` |
+| `public/textures/DoorTexture.jpg` | Door texture | File carries a **Google C2PA manifest** with `digitalSourceType` = `trainedAlgorithmicMedia` and a SynthID mark | Google generative AI terms (`TODO(team)`: tool name) | **Yes** (proven by metadata). Visible badge "Some textures made with AI" on every 3D scene (`src/app/components/AiTexturesBadge.tsx`) |
+| `public/textures/solarPanel.jpg` | Solar panel texture | Same Google C2PA manifest (`trainedAlgorithmicMedia`, SynthID) | Same | **Yes** (proven by metadata). Same badge |
+| `public/textures/world.topo.200401.3x5400x2700.jpg` | Earth texture | File name matches NASA's **Blue Marble Next Generation** (January 2004, with topography), NASA Earth Observatory / Visible Earth. `TODO(team)`: confirm download page | NASA, public domain | No |
+| `public/textures/2k_moon.jpg` | Moon surface texture | Name and size (2048×1024) match the **Solar System Scope** texture set, which is based on NASA data. `TODO(team)`: confirm | Solar System Scope textures are CC BY 4.0 (credit required) | No |
+| `public/textures/stars_milky_way_4k.jpg`, `stars_milky_way_8k.jpg` | Star field / Milky Way sky | Probably Solar System Scope ("stars_milky_way") or ESO's Milky Way panorama (eso0932a, ESO/S. Brunier). `TODO(team)`: confirm which | Both are CC BY 4.0 (credit required) | No |
+| `public/textures/white_metal.jpg` | Metal texture (1000×1000) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
+| `public/textures/black-road-texture.jpg` | Ground texture (5616×3744, **13.6 MB**) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
+
+Size note: the textures add about 25 MB to the site (13.6 MB from `black-road-texture.jpg` alone). Re-exporting
+it at 2048 px would cut most of that without a visible difference in the small scene.
+
 ## 2. Audio
 
 | File | What it is | AI? | Acknowledgment | Used in |
@@ -105,3 +127,6 @@ The "look at space" window loads live images; each shows its own credit on scree
 3. Canva license tier used for the card frames.
 4. Mascot author (name to credit) and whether `public/logo.ico` stays.
 5. Keep the AI-generated app icon, or replace it?
+6. 3D models (section 1.5): who made them, and was AI used? Source and license of `2k_moon.jpg`, the
+   star-field textures, `white_metal.jpg` and `black-road-texture.jpg`; which Google tool made the two
+   AI textures.
