@@ -24,7 +24,7 @@ export interface OptionState {
 }
 
 export function CardView({
-  card, options, phase, stage, onChoose, dimmed, compact,
+  card, options, phase, stage, onChoose, dimmed, compact, isFirstCard = true,
 }: {
   card: Card;
   options: readonly OptionState[];
@@ -33,6 +33,7 @@ export function CardView({
   onChoose: (optionId: string) => void;
   dimmed?: boolean;
   compact?: boolean;
+  isFirstCard?: boolean;
 }): JSX.Element {
   const t = useT();
   const content = useContent();
@@ -56,6 +57,7 @@ export function CardView({
 
   return (
     <article
+      data-tutorial={isFirstCard ? 'card-header' : undefined}
       className={`relative mx-auto flex w-full max-w-[23rem] flex-col overflow-hidden animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
                   ${dimmed === true ? 'opacity-70' : ''}`}
     >
@@ -136,7 +138,10 @@ export function CardView({
             />
           </div>
 
-          <div className={`flex flex-col ${compact === true ? 'mt-2.5 gap-1.5' : 'mt-3 gap-1.5'}`}>
+          <div
+            data-tutorial={isFirstCard ? 'card-options' : undefined}
+            className={`flex flex-col ${compact === true ? 'mt-2.5 gap-1.5' : 'mt-3 gap-1.5'}`}
+          >
             {options.map(({ option, selectable }) => {
               const label = content.optionLabel(card, option);
               const openBrief = briefId === option.id;

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Check, Home, Save, Settings2, X } from 'lucide-react';
+import { Check, CircleHelp, Home, Save, Settings2, X } from 'lucide-react';
 import { useT } from '../i18n/useI18n.js';
 
 export function GearMenu({
-  onSave, onSettings, onMenu, onClose,
+  onSave, onSettings, onTutorial, onMenu, onClose,
 }: {
   onSave: () => boolean;
   onSettings: () => void;
+  onTutorial?: () => void;
   onMenu: () => void;
   onClose: () => void;
 }): JSX.Element {
@@ -53,13 +54,16 @@ export function GearMenu({
               {t('gear.saveFailed')}
             </p>
           ) : null}
-          <p className="px-1 text-[0.72rem] leading-snug text-slate-300">
-            {t('gear.autoSave')}
-          </p>
 
           <button type="button" className="btn-ghost w-full justify-start" onClick={onSettings}>
             <Settings2 size={17} aria-hidden /> {t('settings.title')}
           </button>
+
+          {onTutorial !== undefined ? (
+            <button type="button" className="btn-ghost w-full justify-start" onClick={onTutorial}>
+              <CircleHelp size={17} aria-hidden /> {t('gear.tutorial')}
+            </button>
+          ) : null}
 
           {confirmExit ? (
             <div className="rounded-2xl border border-radiation/30 bg-radiation/10 p-3">

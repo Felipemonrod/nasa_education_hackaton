@@ -76,6 +76,9 @@ interface GameStore {
   decide(cardId: string, optionId: string): void;
   dismissOutcome(): void;
   advanceTutorial(): void;
+  prevTutorial(): void;
+  goToTutorialStep(step: number): void;
+  startTutorial(): void;
   skipTutorial(): void;
   saveRun(): boolean;
   resumeRun(): boolean;
@@ -276,6 +279,9 @@ export const useGame = create<GameStore>()((set, get) => ({
   },
 
   advanceTutorial() { set((s) => ({ tutorialStep: s.tutorialStep + 1 })); },
+  prevTutorial() { set((s) => ({ tutorialStep: Math.max(1, s.tutorialStep - 1) })); },
+  goToTutorialStep(step) { set({ tutorialStep: step }); },
+  startTutorial() { set({ tutorialStep: 1 }); },
   skipTutorial() { set({ tutorialStep: 0 }); },
 
   saveRun() {

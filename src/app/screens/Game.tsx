@@ -20,7 +20,8 @@ const SLOT_CLOCK: readonly string[] = ['08:00', '13:00', '20:00', '01:00'];
 export function Game(): JSX.Element {
   const {
     run, outcome, decide, dismissOutcome, currentSlot,
-    tutorialStep, advanceTutorial, skipTutorial, saveRun, go, abandonRun,
+    tutorialStep, advanceTutorial, prevTutorial, goToTutorialStep, startTutorial,
+    skipTutorial, saveRun, go, abandonRun,
   } = useGame();
   const theme = useAccount((s) => s.hudTheme);
   const showWhyByDefault = useAccount((s) => s.settings.showWhyByDefault);
@@ -80,7 +81,7 @@ export function Game(): JSX.Element {
       {/* Barra superior de telemetria */}
       <header className="flex shrink-0 items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 sm:gap-3">
-          <div className="flex items-center gap-3 rounded-2xl glass px-3.5 py-2">
+          <div data-tutorial="clock" className="flex items-center gap-3 rounded-2xl glass px-3.5 py-2">
             <div>
               <p className="text-[0.62rem] font-extrabold uppercase tracking-widest text-sky-300">
                 {t('game.dayOf', { day: run.day, total: run.config.days })}
@@ -102,6 +103,7 @@ export function Game(): JSX.Element {
         <div className="flex items-center gap-2">
           <button
             type="button"
+            data-tutorial="window"
             onClick={() => { setSpaceOpen(true); }}
             aria-label={t('game.windowAria')}
             className="grid h-11 w-11 place-items-center rounded-2xl glass hover:border-sky-300/40 hover:bg-white/10 transition-colors"
@@ -110,6 +112,7 @@ export function Game(): JSX.Element {
           </button>
           <button
             type="button"
+            data-tutorial="gear"
             onClick={() => { setGearOpen(true); }}
             aria-label={t('common.options')}
             className="grid h-11 w-11 place-items-center rounded-2xl glass hover:border-sky-300/40 hover:bg-white/10 transition-colors"
@@ -123,7 +126,7 @@ export function Game(): JSX.Element {
       <main className="mt-2.5 grid min-h-0 flex-1 grid-cols-12 gap-3.5 sm:mt-3 sm:gap-4 lg:gap-6">
         {/* Coluna esquerda: Visor da Base Lunar + Telemetria de Recursos */}
         <section className="col-span-5 flex min-h-0 flex-col justify-between gap-2.5 overflow-y-auto scroll-thin lg:col-span-4 lg:gap-3">
-          <div className="relative min-h-[84px] flex-1 overflow-hidden rounded-3xl border border-white/12 bg-space-950 shadow-inner sm:min-h-[110px]">
+          <div data-tutorial="scene" className="relative min-h-[84px] flex-1 overflow-hidden rounded-3xl border border-white/12 bg-space-950 shadow-inner sm:min-h-[110px]">
             <MoonScene phase={phase} />
           </div>
 
@@ -154,16 +157,11 @@ export function Game(): JSX.Element {
             </div>
           ) : (
             <div className="flex min-h-0 flex-1 flex-col justify-center gap-2.5">
-              {isPair ? (
-                <p className="shrink-0 rounded-2xl border border-power/35 bg-power/10 px-4 py-1.5 text-center text-[0.76rem] font-bold leading-snug text-power">
-                  {t('game.pairNotice', { one: t('game.pairNoticeOne') })}
-                </p>
-              ) : null}
               <div className={isPair
                 ? 'grid min-h-0 grid-cols-2 items-stretch gap-3 lg:gap-4'
                 : 'mx-auto w-full max-w-2xl'}
               >
-                {slot.cards.map((entry) => (
+                {slot.cards.map((entry, index) => (
                   <CardView
                     key={entry.card.id}
                     card={entry.card}
@@ -171,6 +169,7 @@ export function Game(): JSX.Element {
                     phase={slot.phase}
                     stage={slot.stage}
                     compact={isPair}
+                    isFirstCard={index === 0}
                     onChoose={(optionId) => { decide(entry.card.id, optionId); }}
                   />
                 ))}
@@ -186,6 +185,7 @@ export function Game(): JSX.Element {
         <GearMenu
           onSave={saveRun}
           onSettings={() => { setGearOpen(false); go('settings'); }}
+          onTutorial={() => { setGearOpen(false); startTutorial(); }}
           onMenu={() => { saveRun(); setGearOpen(false); go('menu'); }}
           onClose={() => { setGearOpen(false); }}
         />
@@ -206,6 +206,8 @@ export function Game(): JSX.Element {
             if (tutorialStep >= TUTORIAL_STEP_COUNT) skipTutorial();
             else advanceTutorial();
           }}
+          onPrev={prevTutorial}
+          onStep={goToTutorialStep}
           onSkip={skipTutorial}
         />
       ) : null}

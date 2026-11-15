@@ -90,28 +90,24 @@ export function ResourceHUD({
   objective: TrackStat;
   theme: HudTheme;
 }): JSX.Element {
-  const t = useT();
   const trackRow: Row = objective === 'science'
     ? { stat: 'science', labelKey: 'stat.science', icon: Microscope, color: 'text-science', bar: 'bg-science', badgeBg: 'bg-science/15', goal: true }
     : { stat: 'lifeSupport', labelKey: 'stat.lifeSupport', icon: HeartPulse, color: 'text-life', bar: 'bg-life', badgeBg: 'bg-life/15', goal: true };
 
   return (
     <div className={`rounded-3xl glass bg-gradient-to-b ${THEME_ACCENT[theme]} to-transparent p-3 sm:p-3.5`}>
-      <div className="grid grid-cols-2 gap-2">
+      <div data-tutorial="hud-basic" className="grid grid-cols-2 gap-2">
         {BASIC_ROWS.map((row) => (
           <StatRow key={row.stat} row={row} value={stats[row.stat]} />
         ))}
       </div>
-      <div className="mt-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-2">
+      <div data-tutorial="hud-tracks" className="mt-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-2">
         <StatRow
           row={{ stat: 'shielding', labelKey: 'stat.shielding', icon: Shield, color: 'text-slate-200', bar: 'bg-slate-300', badgeBg: 'bg-white/10' }}
           value={stats.shielding}
         />
         <StatRow row={trackRow} value={stats[trackRow.stat]} />
       </div>
-      <p className="mt-2 text-center text-[0.68rem] leading-tight text-slate-300">
-        {t('hud.doseNote', { limit: t('hud.doseLimit') })}
-      </p>
     </div>
   );
 }
