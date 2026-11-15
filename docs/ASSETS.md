@@ -16,17 +16,11 @@ people under 18.
 
 Source: NASA Image and Video Library (<https://images.nasa.gov>). License: NASA Images and Media Usage
 Guidelines (generally not copyrighted in the U.S.; credit NASA; do not imply endorsement). IDs are also
-in `public/cards/nasa/manifest.json` and in `src/app/components/CardArtwork.tsx`. The four commander
-photos show **real astronauts used as art for fictional characters**: a small ⓘ icon in the corner of each
-photo shows "Real photo: NASA/… · fictional character" when tapped or hovered, and the commander list shows
-the same line as text. The people pictured are not the characters and do not endorse the project.
+in `public/cards/nasa/manifest.json` and in `src/app/components/CardArtwork.tsx`. No photo of a real
+person is used on the cards: the commanders are fictional and use AI-generated images (section 1.3).
 
 | File | What it is | NASA ID / credit | AI? | Used in |
 |---|---|---|---|---|
-| `public/cards/nasa/cmd_engineer.jpg` | Astronaut Shane Kimbrough servicing a microscope on the ISS (2021) | `iss065e241981`, NASA/JSC | No | Commander card |
-| `public/cards/nasa/cmd_medic.jpg` | Astronaut Chris Williams in Crew Medical Officer training on the ISS (2026) | `iss074e0316047`, NASA/JSC | No | Commander card |
-| `public/cards/nasa/cmd_geologist.jpg` | Astronaut candidates Kayla Barron and Jessica Watkins in geology training (2019) | `jsc2019e054994`, NASA/Bill Stafford | No | Commander card |
-| `public/cards/nasa/cmd_botanist.jpg` | Astronaut Christina Koch with the Veggie PONDS experiment on the ISS (2019) | `iss059e035668`, NASA/JSC | No | Commander card |
 | `public/cards/nasa/str_regolith_vault.jpg` | Illustration of a lunar habitat and pressurized rover (2025) | "Moon to Mars Transportation and Habitation", NASA HQ | No (NASA illustration) | Structure card |
 | `public/cards/nasa/str_greenhouse.jpg` | Plants in Veggie hardware, ISS simulation chamber at Kennedy (2017) | `KSC-20170808-PH_CSH01_0092`, NASA/KSC | No | Structure card |
 | `public/cards/nasa/str_water_wall.jpg` | ISS Water Recovery System rack (2008) | `KSC-08pd3208`, NASA/KSC | No | Structure card |
@@ -54,6 +48,7 @@ metadata; for the others we list what the image itself shows and leave the exact
 
 | File | What it is | AI? | Watermark | Used in |
 |---|---|---|---|---|
+| `public/cards/commanders/cmd_engineer.jpg`, `cmd_medic.jpg`, `cmd_geologist.jpg`, `cmd_botanist.jpg` | Commander portraits: **fictional people**, one scene per specialty (station electronics, flight medicine, field geology, space greenhouse) | **Yes**. Each file carries a **Google C2PA manifest** ("Created by Google Generative AI", `digitalSourceType` = `trainedAlgorithmicMedia`) and a SynthID watermark; files are kept byte-for-byte as generated, so the manifest still validates. The manifest also records an input image being opened, and the scenes match the NASA photos used before (`iss065e241981`, `iss074e0316047`, `jsc2019e054994`, `iss059e035668`); `TODO(team)`: confirm they were the reference and the tool name | SynthID (invisible) + visible text: an ⓘ icon on the card shows "AI-generated image · fictional character", and the commander list shows the same line | Commander cards and commander list (`CardArtwork.tsx`, `Loadout.tsx`) |
 | `public/logo.ico`, `public/icon-192.png`, `public/icon-512.png`, `public/icon-maskable.png` | App icon: HEAD X mission logo (triangle with "HEAD") | `TODO(team)`: declare whether the logo was AI-generated | The PNGs were rendered from the 256 px PNG inside `logo.ico` (maskable: logo at 72% on white, inside the safe zone) | Browser tab (favicon = `logo.ico`), installed PWA icon |
 
 ### 1.4 Team-made art

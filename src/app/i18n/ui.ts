@@ -500,7 +500,7 @@ export const UI_EN: Dict = {
   'credits.disclaimer': 'HEAD X is an independent educational project created for the NASA Space Apps Challenge 2026. It is not an official NASA product, is not endorsed by NASA and does not represent real operational procedures.',
 
   // ----- credito visivel nas fotos reais das cartas -----
-  'cardArt.realPhotoFictional': 'Real photo: {credit} · fictional character',
+  'cardArt.aiFictional': 'AI-generated image · fictional character',
   'cardArt.imageCredit': 'Image: {credit}',
 
   // ----- cena da base -----
@@ -989,7 +989,7 @@ export const UI_PT: Dict = {
   'credits.disclaimer': 'HEAD X é um projeto educacional independente criado para o NASA Space Apps Challenge 2026. Não é um produto oficial da NASA, não é endossado pela NASA e não representa procedimentos operacionais reais.',
 
   // ----- credito visivel nas fotos reais das cartas -----
-  'cardArt.realPhotoFictional': 'Foto real: {credit} · personagem fictício',
+  'cardArt.aiFictional': 'Imagem gerada por IA · personagem fictício',
   'cardArt.imageCredit': 'Imagem: {credit}',
 
   // ----- cena da base -----

@@ -3,7 +3,7 @@ import { useEscapeKey } from '../a11y/useEscapeKey.js';
 import { ArrowLeft, ArrowRight, Check, Lock, Maximize2, Plus, RefreshCw, X } from 'lucide-react';
 import { COMMANDERS, findLoadout } from '../data/loadout.js';
 import type { LoadoutCard } from '../data/loadout.js';
-import { NASA_CARD_PHOTOS, NasaCardPhoto, getLoadoutFrameMeta } from '../components/CardArtwork.js';
+import { COMMANDER_ART, NasaCardPhoto, getLoadoutFrameMeta } from '../components/CardArtwork.js';
 import { PLANNING_TUTORIAL_STEP_COUNT, PlanningTutorialOverlay } from '../components/TutorialOverlay.js';
 import { iconFor } from '../components/icons.js';
 import { useContent } from '../i18n/useContent.js';
@@ -201,10 +201,9 @@ function CommanderPicker({
         <div className="grid grid-cols-1 gap-2.5 p-3 sm:grid-cols-2 sm:gap-3 sm:p-4 lg:p-5">
           {COMMANDERS.map((cmd) => {
             const locked = cmd.unlockedBy !== undefined && !unlocks.includes(cmd.unlockedBy);
-            // O avatar de 56px e foto REAL de astronauta da NASA usada como
-            // arte de personagem ficticio; no avatar a legenda da foto nao
-            // cabe, entao o aviso vai em texto sob a descricao.
-            const photo = NASA_CARD_PHOTOS[cmd.id];
+            // O avatar de 56px e imagem gerada por IA (personagem ficticio); no
+            // avatar o aviso nao cabe, entao vai em texto sob a descricao.
+            const aiArt = COMMANDER_ART[cmd.id] !== undefined;
             return (
               <button
                 key={cmd.id}
@@ -237,9 +236,9 @@ function CommanderPicker({
                   <span className="mt-2.5 block text-[0.8rem] leading-relaxed text-slate-300">
                     {content.loadout(cmd.id, 'blurb', cmd.blurb)}
                   </span>
-                  {!locked && photo?.depicts !== undefined ? (
+                  {!locked && aiArt ? (
                     <span className="mt-1.5 block text-[0.78rem] font-semibold leading-snug text-slate-400">
-                      {t('cardArt.realPhotoFictional', { credit: photo.shortCredit })}
+                      {t('cardArt.aiFictional')}
                     </span>
                   ) : null}
                 </div>

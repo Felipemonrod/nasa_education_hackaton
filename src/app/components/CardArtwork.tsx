@@ -152,65 +152,15 @@ export interface NasaCardPhotoMeta {
   readonly credit: string;
   /** Credito curto para a legenda VISIVEL na carta (cabe em 2 linhas). */
   readonly shortCredit: string;
-  /**
-   * Pessoa(s) REAL(IS) na foto. Se presente, a carta e de personagem
-   * ficticio e a legenda avisa: "Foto real: ... · personagem ficticio".
-   */
-  readonly depicts?: string;
 }
 
 /**
  * Imagens reais oficiais coletadas da NASA Image and Video Library
- * (`images-api.nasa.gov` / `images-assets.nasa.gov`) exclusivamente para
- * as cartas de Comandante (CommanderCard) e de Estrutura (StructureCard).
- *
- * As 4 fotos de comandante mostram ASTRONAUTAS REAIS (`depicts`) usadas como
- * arte de personagens ficticios. Por isso a carta exibe uma legenda visivel
- * (nao so tooltip, que nao existe no toque): "Foto real: NASA/... ·
- * personagem ficticio". Detalhes de cada foto: public/cards/nasa/manifest.json
- * e CREDITS.md.
+ * (`images-api.nasa.gov` / `images-assets.nasa.gov`) para as cartas de
+ * Estrutura (StructureCard). Detalhes de cada foto:
+ * public/cards/nasa/manifest.json e CREDITS.md.
  */
 export const NASA_CARD_PHOTOS: Readonly<Record<string, NasaCardPhotoMeta>> = {
-  cmd_engineer: {
-    nasaId: 'iss065e241981',
-    title: 'Expedition 65 Systems & Microscope Maintenance on ISS',
-    localPath: '/cards/nasa/cmd_engineer.jpg',
-    remoteUrl: 'https://images-assets.nasa.gov/image/iss065e241981/iss065e241981~medium.jpg',
-    sourceUrl: 'https://images.nasa.gov/details/iss065e241981',
-    credit: 'NASA / JSC (iss065e241981)',
-    shortCredit: 'NASA/JSC',
-    depicts: 'NASA astronaut Shane Kimbrough',
-  },
-  cmd_medic: {
-    nasaId: 'iss074e0316047',
-    title: 'Crew Medical Officer Training Inside Destiny Lab',
-    localPath: '/cards/nasa/cmd_medic.jpg',
-    remoteUrl: 'https://images-assets.nasa.gov/image/iss074e0316047/iss074e0316047~large.jpg',
-    sourceUrl: 'https://images.nasa.gov/details/iss074e0316047',
-    credit: 'NASA / JSC (iss074e0316047)',
-    shortCredit: 'NASA/JSC',
-    depicts: 'NASA astronaut Chris Williams',
-  },
-  cmd_geologist: {
-    nasaId: 'jsc2019e054994',
-    title: 'NASA Astronaut Planetary Geology Sample Training',
-    localPath: '/cards/nasa/cmd_geologist.jpg',
-    remoteUrl: 'https://images-assets.nasa.gov/image/jsc2019e054994/jsc2019e054994~medium.jpg',
-    sourceUrl: 'https://images.nasa.gov/details/jsc2019e054994',
-    credit: 'NASA / Bill Stafford (jsc2019e054994)',
-    shortCredit: 'NASA/Bill Stafford',
-    depicts: 'NASA astronaut candidates Kayla Barron and Jessica Watkins',
-  },
-  cmd_botanist: {
-    nasaId: 'iss059e035668',
-    title: 'Veggie PONDS Space Botany Experiment on ISS',
-    localPath: '/cards/nasa/cmd_botanist.jpg',
-    remoteUrl: 'https://images-assets.nasa.gov/image/iss059e035668/iss059e035668~medium.jpg',
-    sourceUrl: 'https://images.nasa.gov/details/iss059e035668',
-    credit: 'NASA / JSC (iss059e035668)',
-    shortCredit: 'NASA/JSC',
-    depicts: 'NASA astronaut Christina Koch',
-  },
   str_regolith_vault: {
     nasaId: 'Moon to Mars Transportation and Habitation',
     title: 'NASA Moon to Mars Lunar Surface Habitat & Pressurized Rover',
@@ -249,6 +199,19 @@ export const NASA_CARD_PHOTOS: Readonly<Record<string, NasaCardPhotoMeta>> = {
   },
 };
 
+/**
+ * Arte dos COMANDANTES: imagens geradas por IA (personagens ficticios, nenhuma
+ * pessoa real). Os arquivos guardam o manifesto C2PA da ferramenta que os gerou
+ * (digitalSourceType = trainedAlgorithmicMedia), e a carta mostra o aviso
+ * "Imagem gerada por IA · personagem ficticio". Ver docs/ASSETS.md.
+ */
+export const COMMANDER_ART: Readonly<Record<string, { readonly path: string; readonly alt: string }>> = {
+  cmd_engineer: { path: '/cards/commanders/cmd_engineer.jpg', alt: 'AI-generated image: fictional systems engineer repairing electronics on a space station' },
+  cmd_medic: { path: '/cards/commanders/cmd_medic.jpg', alt: 'AI-generated image: fictional flight surgeon holding a medical probe on a space station' },
+  cmd_geologist: { path: '/cards/commanders/cmd_geologist.jpg', alt: 'AI-generated image: fictional planetary geologist examining a volcanic rock in the field' },
+  cmd_botanist: { path: '/cards/commanders/cmd_botanist.jpg', alt: 'AI-generated image: fictional botanist tending lettuce in a space station greenhouse' },
+};
+
 export function NasaCardPhoto({
   loadoutId,
   className = 'h-full w-full object-cover',
@@ -257,13 +220,21 @@ export function NasaCardPhoto({
   className?: string;
 }): JSX.Element | null {
   const t = useT();
+  const art = COMMANDER_ART[loadoutId];
+  if (art !== undefined) {
+    return (
+      <span className="relative block h-full w-full [container-type:inline-size]">
+        <img src={art.path} alt={art.alt} title={t('cardArt.aiFictional')} className={className} />
+        <span className="hidden [@container_(min-width:96px)]:contents">
+          <ImageInfoBadge text={t('cardArt.aiFictional')} className="bottom-[14%] right-[17%]" align="right" />
+        </span>
+      </span>
+    );
+  }
   const meta = NASA_CARD_PHOTOS[loadoutId];
   if (meta === undefined) return null;
   const src = `/cards/nasa/${loadoutId}.jpg`;
-  const caption = meta.depicts !== undefined
-    ? t('cardArt.realPhotoFictional', { credit: meta.shortCredit })
-    : t('cardArt.imageCredit', { credit: meta.shortCredit });
-  const isCommander = loadoutId.startsWith('cmd_');
+  const caption = t('cardArt.imageCredit', { credit: meta.shortCredit });
   return (
     // O wrapper ocupa exatamente o lugar que a <img> ocupava (h-full w-full)
     // e e a referencia de uma container query: a legenda so aparece quando a
@@ -272,8 +243,8 @@ export function NasaCardPhoto({
     <span className="relative block h-full w-full [container-type:inline-size]">
       <img
         src={src}
-        alt={meta.depicts !== undefined ? `${meta.title} (${meta.depicts})` : meta.title}
-        title={`${meta.title} — ${meta.credit}${meta.depicts !== undefined ? ` — ${meta.depicts}` : ''}`}
+        alt={meta.title}
+        title={`${meta.title} — ${meta.credit}`}
         onError={(e) => {
           const target = e.currentTarget;
           if (target.src !== meta.remoteUrl) {
@@ -286,11 +257,7 @@ export function NasaCardPhoto({
           ao tocar (em vez de legenda por cima da arte). Some no avatar de 56px
           da lista de comandantes (container query), onde a lista ja tem a linha. */}
       <span className="hidden [@container_(min-width:96px)]:contents">
-        <ImageInfoBadge
-          text={caption}
-          className={isCommander ? 'bottom-[14%] right-[17%]' : 'bottom-[6%] right-[8%]'}
-          align="right"
-        />
+        <ImageInfoBadge text={caption} className="bottom-[6%] right-[8%]" align="right" />
       </span>
     </span>
   );
