@@ -17,7 +17,8 @@
     "tests/spaceView.test.ts",
     "tests/speech.test.ts",
     "tests/music.test.ts",
-    "tests/weather.test.ts"
+    "tests/weather.test.ts",
+    "tests/scene.test.ts"
   ],
   "//exclude": [
     "Estes testes exercitam codigo de BROWSER de proposito: render.test",

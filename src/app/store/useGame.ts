@@ -22,7 +22,7 @@ export const engine = createEngine(CARDS);
 
 export type Screen =
   | 'cutscene' | 'menu' | 'destination' | 'loadout'
-  | 'loading' | 'game' | 'result' | 'deck' | 'settings' | 'credits';
+  | 'loading' | 'game' | 'result' | 'deck' | 'settings' | 'credits' | 'base';
 
 export interface OutcomeView {
   readonly card: Card;
