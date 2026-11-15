@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Check, ChevronRight, Clock3, Link2, Lock, Repeat, Rocket, X,
@@ -18,28 +18,6 @@ const KIND_BADGE: Record<Card['kind'], { key: string; icon: typeof Repeat } | nu
   temporal: { key: 'card.kindTemporal', icon: Clock3 },
   sequential: { key: 'card.kindSequential', icon: Link2 },
 };
-
-interface TiltState {
-  readonly rotateX: number;
-  readonly rotateY: number;
-  readonly skewY: number;
-  readonly shiftX: number;
-  readonly shineX: number;
-  readonly shineY: number;
-}
-
-const REST_TILT: TiltState = {
-  rotateX: 0,
-  rotateY: 0,
-  skewY: 0,
-  shiftX: 0,
-  shineX: 50,
-  shineY: 50,
-};
-
-function clamp(v: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, v));
-}
 
 export interface OptionState {
   readonly option: CardOption;
@@ -62,43 +40,11 @@ export function CardView({
   const content = useContent();
   const confirmDecisions = useAccount((st) => st.settings.confirmDecisions);
   const [briefId, setBriefId] = useState<string | null>(null);
-  const cardRef = useRef<HTMLElement | null>(null);
-  const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
-  const [dragging, setDragging] = useState(false);
-  const [tilt, setTilt] = useState<TiltState>(REST_TILT);
   const badge = KIND_BADGE[card.kind];
 
   const title = content.cardTitle(card);
   const text = content.cardText(card);
   const frame = getCardFrameMeta(card, phase);
-
-  useEffect(() => {
-    setTilt(REST_TILT);
-    setDragging(false);
-    dragOriginRef.current = null;
-  }, [card.id]);
-
-  const updateFromDrag = (clientX: number, clientY: number): void => {
-    const el = cardRef.current;
-    const origin = dragOriginRef.current;
-    if (el === null || origin === null) return;
-    const rect = el.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return;
-
-    const dx = clientX - origin.x;
-    const dy = clientY - origin.y;
-    const nx = clamp(dx / (rect.width * 0.42), -1, 1);
-    const ny = clamp(dy / (rect.height * 0.45), -1, 1);
-
-    setTilt({
-      rotateY: nx * 18,
-      rotateX: -ny * 8,
-      skewY: nx * 2,
-      shiftX: nx * 10,
-      shineX: clamp(50 + nx * 55, -10, 110),
-      shineY: clamp(50 + ny * 40, 5, 95),
-    });
-  };
 
   const briefOption = briefId === null
     ? undefined
@@ -172,64 +118,23 @@ export function CardView({
   return (
     <>
       <article
-        ref={cardRef}
         data-tutorial={isFirstCard ? 'card-header' : undefined}
-        onPointerDown={(e) => {
-          if ((e.target as HTMLElement).closest('button') !== null) return;
-          dragOriginRef.current = { x: e.clientX, y: e.clientY };
-          setDragging(true);
-          e.currentTarget.setPointerCapture(e.pointerId);
-          updateFromDrag(e.clientX, e.clientY);
-        }}
-        onPointerMove={(e) => {
-          if (!dragging) return;
-          updateFromDrag(e.clientX, e.clientY);
-        }}
-        onPointerUp={(e) => {
-          if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-            e.currentTarget.releasePointerCapture(e.pointerId);
-          }
-          dragOriginRef.current = null;
-          setDragging(false);
-          setTilt(REST_TILT);
-        }}
-        onPointerCancel={() => {
-          dragOriginRef.current = null;
-          setDragging(false);
-          setTilt(REST_TILT);
-        }}
-        style={{
-          transform: `perspective(950px) translate3d(${tilt.shiftX}px, 0, 0) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) skewY(${tilt.skewY}deg) scale3d(${dragging ? 1.02 : 1}, ${dragging ? 1.02 : 1}, 1)`,
-          transition: dragging
-            ? 'transform 45ms ease-out'
-            : 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)',
-          transformStyle: 'preserve-3d',
-        }}
-        className={`relative mx-auto flex w-full ${compact === true ? 'max-w-[32rem]' : 'max-w-[23rem]'} cursor-grab select-none flex-col overflow-hidden animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)] active:cursor-grabbing
+        className={`relative mx-auto flex w-full ${compact === true ? 'max-w-[32rem]' : 'max-w-[23rem]'} flex-col overflow-hidden animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
                     ${dimmed === true ? 'opacity-70' : ''}`}
       >
-        {/* Camada de Shine recortada na moldura da carta:
-            - Sem agarrar: brilho estático e suave
-            - Com agarrão (onPress/drag): o brilho corre de um lado para o outro conforme vira a carta */}
+        {/* Brilho suave, contínuo e mais lento percorrendo a imagem inteira da carta */}
         <div
           aria-hidden
-          className="pointer-events-none absolute bottom-[2%] left-[4.8%] right-[4.8%] top-[9.3%] z-10 overflow-hidden rounded-2xl"
+          style={{
+            clipPath: 'polygon(26% 0%, 74% 0%, 74% 9.2%, 89% 9.2%, 95.5% 13.8%, 95.5% 98.5%, 4.5% 98.5%, 4.5% 13.8%, 11% 9.2%, 26% 9.2%)',
+          }}
+          className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
         >
           <div
             style={{
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 38%, transparent 65%)',
-              opacity: dragging ? 0 : 1,
-              transition: 'opacity 250ms ease-out',
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.03) 25%, rgba(186, 230, 253, 0.13) 45%, rgba(255, 255, 255, 0.22) 50%, rgba(186, 230, 253, 0.13) 55%, rgba(255, 255, 255, 0.03) 75%, transparent 100%)',
             }}
-            className="absolute inset-0 mix-blend-screen"
-          />
-          <div
-            style={{
-              background: `linear-gradient(110deg, transparent ${tilt.shineX - 24}%, rgba(255, 255, 255, 0.05) ${tilt.shineX - 12}%, rgba(186, 230, 253, 0.28) ${tilt.shineX - 3}%, rgba(255, 255, 255, 0.46) ${tilt.shineX}%, rgba(186, 230, 253, 0.28) ${tilt.shineX + 3}%, rgba(255, 255, 255, 0.05) ${tilt.shineX + 12}%, transparent ${tilt.shineX + 24}%)`,
-              opacity: dragging ? 1 : 0,
-              transition: dragging ? 'opacity 70ms ease-out' : 'opacity 280ms ease-out',
-            }}
-            className="absolute inset-0 mix-blend-screen"
+            className="animate-card-shine absolute -inset-y-6 left-0 w-[55%] mix-blend-screen"
           />
         </div>
 

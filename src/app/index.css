@@ -147,3 +147,13 @@ html[data-underline='always'] button[data-glossary] {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
+
+/* Brilho suave, continuo e mais lento percorrendo a carta inteira. */
+@keyframes card-shine-slow {
+  0%   { transform: translateX(-140%) skewX(-22deg); }
+  100% { transform: translateX(240%) skewX(-22deg); }
+}
+
+.animate-card-shine {
+  animation: card-shine-slow 8.5s ease-in-out infinite;
+}
