@@ -138,20 +138,93 @@ function Popover({
   );
 }
 
+/**
+ * Dica curta ao passar o cursor (ou focar pelo teclado): termo + definicao,
+ * sem precisar abrir a janela. Toque nao mostra a dica -- no celular o
+ * toque abre a janela completa, como antes.
+ *
+ * Tambem vai por portal: a descricao do card agora rola dentro de um
+ * container com overflow, que cortaria uma dica posicionada ali dentro.
+ */
+const TIP_HALF_WIDTH = 136; // metade de max-w-[16rem] + margem de 8px
+
+function Tooltip({
+  id, entry, label, short, anchor,
+}: {
+  id: string; entry: GlossaryTerm; label: string; short: string; anchor: DOMRect;
+}): JSX.Element {
+  const center = anchor.left + anchor.width / 2;
+  const left = Math.min(Math.max(center, TIP_HALF_WIDTH), window.innerWidth - TIP_HALF_WIDTH);
+  const above = anchor.top > 96;
+  return createPortal(
+    <div
+      id={id}
+      role="tooltip"
+      style={{
+        left,
+        top: above ? anchor.top - 8 : anchor.bottom + 8,
+        transform: `translate(-50%, ${above ? '-100%' : '0'})`,
+      }}
+      className="pointer-events-none fixed z-[90] w-max max-w-[16rem] rounded-xl border border-white/20
+                 bg-space-850 px-3 py-2 text-left text-[0.8rem] leading-snug text-slate-100
+                 shadow-[0_12px_30px_-8px_rgba(0,0,0,.9)] animate-fade-in"
+    >
+      <span className={`block font-extrabold capitalize ${COLOR_CLASS[entry.color]}`}>{label}</span>
+      <span className="mt-0.5 block">{short}</span>
+    </div>,
+    document.body,
+  );
+}
+
 function Keyword({ entry }: { entry: GlossaryTerm }): JSX.Element {
   const [open, setOpen] = useState(false);
+  const [anchor, setAnchor] = useState<DOMRect | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const tipId = useId();
   const content = useContent();
   const t = useT();
   const Icon = iconFor(entry.icon);
   const label = content.glossaryTerm(entry.id, entry.term);
   const short = content.glossaryShort(entry.id, entry.short);
 
+  const showTip = (): void => {
+    if (open || buttonRef.current === null) return;
+    setAnchor(buttonRef.current.getBoundingClientRect());
+  };
+  const hideTip = (): void => { setAnchor(null); };
+
+  // A dica usa posicao fixa: se a pagina ou a descricao rolar, ela ficaria
+  // solta no lugar errado. Mais simples e honesto esconder.
+  useEffect(() => {
+    if (anchor === null) return undefined;
+    const onKey = (e: KeyboardEvent): void => { if (e.key === 'Escape') setAnchor(null); };
+    window.addEventListener('scroll', hideTip, true);
+    window.addEventListener('resize', hideTip);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('scroll', hideTip, true);
+      window.removeEventListener('resize', hideTip);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [anchor]);
+
   return (
     <span className="relative inline-block">
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => { setOpen((v) => !v); }}
+        onClick={() => { hideTip(); setOpen((v) => !v); }}
+        onPointerEnter={(e) => { if (e.pointerType === 'mouse') showTip(); }}
+        onPointerLeave={hideTip}
+        onFocus={(e) => {
+          // So foco de teclado mostra a dica; o toque ja abre a janela.
+          let keyboard = false;
+          try { keyboard = e.currentTarget.matches(':focus-visible'); } catch { keyboard = false; }
+          if (keyboard) showTip();
+        }}
+        onBlur={hideTip}
         aria-expanded={open}
+        aria-describedby={anchor !== null ? tipId : undefined}
         data-glossary=""
         aria-label={t('glossary.openAria', { term: label })}
         /* Alvo de toque: um termo inline com py-0.5 dava ~21px, metade do
@@ -164,6 +237,9 @@ function Keyword({ entry }: { entry: GlossaryTerm }): JSX.Element {
         <Icon size={13} className="shrink-0" aria-hidden />
         {label}
       </button>
+      {anchor !== null && !open ? (
+        <Tooltip id={tipId} entry={entry} label={label} short={short} anchor={anchor} />
+      ) : null}
       {open ? (
         <Popover entry={entry} label={label} short={short} onClose={() => { setOpen(false); }} />
       ) : null}
