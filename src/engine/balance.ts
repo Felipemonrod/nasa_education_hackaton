@@ -44,6 +44,21 @@ export interface Balance {
   readonly sequentialMaxCarryDays: number;
 
   /**
+   * Pressao de fim de missao: a partir de `fromDay`, cada turno drena
+   * `powerPerSlot` de energia a mais (equipamento desgastado, poeira acumulada).
+   * Faz sobreviver deixar de ser garantido e da ao objetivo o papel de rota
+   * de saida antes dos ciclos finais.
+   */
+  readonly latePressure: { readonly fromDay: number; readonly powerPerSlot: number };
+
+  /**
+   * Cada ponto de mitigacao de dose (medica) corta tambem esta quantidade da
+   * dose diaria absorvida. Sem isso a medica so agia em opcoes que dao dose,
+   * que quem joga com cuidado evita, e equivalia a nao ter comandante.
+   */
+  readonly dailyDosePerMitigation: number;
+
+  /**
    * Multiplicador da chance de sortear card de tempestade, pela classe do
    * clima espacial real da missao (`config.spaceWeather`). Os VALORES sao
    * escolha de design de jogo, nao dado fisico; a CLASSE vem do dado real.
@@ -54,7 +69,8 @@ export interface Balance {
 export const DEFAULT_BALANCE: Balance = {
   startRanges: {
     oxygen: [75, 90],
-    power: [75, 90],
+    // +10 sobre o valor antigo: reserva para a pressao de fim de missao.
+    power: [85, 100],
     food: [62, 75],
     shielding: [75, 90],
   },
@@ -79,18 +95,28 @@ export const DEFAULT_BALANCE: Balance = {
 
   declaredTrackBias: 0.7,
 
+  // Todos os marcos devolvem ENERGIA, o recurso que mais aperta: investir no
+  // trilho passa a ajudar a sobreviver, e o progresso pela metade vale algo.
+  // Habitat devolve menos nos marcos 50/75 porque ja ganha suporte de vida em
+  // muito mais cards basicos (medido em docs/balanceamento-analise.md §7).
   trackMilestones: [
-    { track: 'science', at: 25, stat: 'power', reliefPerDay: 1, label: 'Perfil termico mapeado' },
-    { track: 'science', at: 50, stat: 'power', reliefPerDay: 1, label: 'Ciclo de carga otimizado' },
-    { track: 'science', at: 75, stat: 'oxygen', reliefPerDay: 1, label: 'Eletrolise mais eficiente' },
-    { track: 'lifeSupport', at: 25, stat: 'oxygen', reliefPerDay: 1, label: 'Loop de ar fechado' },
-    { track: 'lifeSupport', at: 50, stat: 'food', reliefPerDay: 1, label: 'Cultivo estabilizado' },
-    { track: 'lifeSupport', at: 75, stat: 'oxygen', reliefPerDay: 1, label: 'Redundancia de scrubbers' },
+    { track: 'science', at: 25, stat: 'power', reliefPerDay: 2, label: 'Perfil termico mapeado' },
+    { track: 'science', at: 50, stat: 'power', reliefPerDay: 2, label: 'Ciclo de carga otimizado' },
+    { track: 'science', at: 75, stat: 'power', reliefPerDay: 2, label: 'Eletrolise mais eficiente' },
+    { track: 'lifeSupport', at: 25, stat: 'power', reliefPerDay: 2, label: 'Loop de ar fechado' },
+    { track: 'lifeSupport', at: 50, stat: 'power', reliefPerDay: 1, label: 'Cultivo estabilizado' },
+    { track: 'lifeSupport', at: 75, stat: 'power', reliefPerDay: 1, label: 'Redundancia de scrubbers' },
   ],
 
   sequentialMaxCarryDays: 1,
 
-  flareWeight: { none: 1, C: 1.3, M: 2, X: 3 },
+  latePressure: { fromDay: 7, powerPerSlot: 1 },
+
+  dailyDosePerMitigation: 2,
+
+  // none = 0: em dia sem flare (classe A/B) nenhuma tempestade e sorteada.
+  // A tempestade forte so tem peso em dia classe X (ver flareWeightFor).
+  flareWeight: { none: 0, C: 1.3, M: 2, X: 3 },
 };
 
 /** Dreno total por dia de um recurso, dado o plano de slots do MVP. */

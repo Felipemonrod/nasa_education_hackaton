@@ -73,9 +73,9 @@ describe('clima espacial no engine', () => {
   const weak = CARDS.find((c) => c.id === 'flare_weak')!;
 
   it('peso por classe segue a regra declarada', () => {
-    expect(flareWeightFor(weak, 'none', DEFAULT_BALANCE)).toBe(1);
+    expect(flareWeightFor(weak, 'none', DEFAULT_BALANCE)).toBe(0); // dia calmo: sem tempestade
     expect(flareWeightFor(weak, 'C', DEFAULT_BALANCE)).toBe(DEFAULT_BALANCE.flareWeight.C);
-    expect(flareWeightFor(strong, 'M', DEFAULT_BALANCE)).toBe(1); // card diz "classe X"
+    expect(flareWeightFor(strong, 'M', DEFAULT_BALANCE)).toBe(0); // card diz "classe X"
     expect(flareWeightFor(strong, 'X', DEFAULT_BALANCE)).toBe(DEFAULT_BALANCE.flareWeight.X);
   });
 

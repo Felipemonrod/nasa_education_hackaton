@@ -65,13 +65,14 @@ export interface DrawQuery {
 
 /**
  * Peso de sorteio de um card dado o clima espacial. Card que nao e de
- * tempestade pesa 1. Tempestade fraca responde a qualquer classe; a forte
- * (o card diz "classe X") so ganha peso em dia classe X -- dar peso a ela num
- * dia classe C contradiria o dado real.
+ * tempestade pesa 1. Tempestade fraca usa o peso da classe do dia (0 em dia
+ * calmo); a forte (o card diz "classe X") pesa 0 fora de dia classe X. Antes
+ * ela pesava 1 nesses dias e aparecia em ~95% das partidas de dia calmo,
+ * contradizendo o dado real da NOAA.
  */
 export function flareWeightFor(card: Card, flareClass: FlareClass, balance: Balance): number {
   if (card.solarFlare === undefined) return 1;
-  if (card.solarFlare === 'strong' && flareClass !== 'X') return 1;
+  if (card.solarFlare === 'strong' && flareClass !== 'X') return 0;
   return balance.flareWeight[flareClass];
 }
 
