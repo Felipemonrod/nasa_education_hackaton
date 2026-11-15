@@ -146,6 +146,7 @@ export const UI_EN: Dict = {
   'travel.start': 'Begin the descent',
 
   // ----- descida (loading) -----
+  'loading.title': 'Heading to the Moon',
   'loading.landerAlt': 'Lander coming down',
   'loading.step1': 'Computing the descent trajectory…',
   'loading.step2': 'Confirming the landing window…',
@@ -614,6 +615,7 @@ export const UI_PT: Dict = {
   'travel.start': 'Iniciar descida',
 
   // ----- descida (loading) -----
+  'loading.title': 'Rumo à Lua',
   'loading.landerAlt': 'Módulo descendo',
   'loading.step1': 'Calculando trajetória de descida…',
   'loading.step2': 'Confirmando janela de pouso…',

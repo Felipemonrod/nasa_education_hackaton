@@ -161,7 +161,57 @@ const apodSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
+/**
+ * APOD novo (WordPress do science.nasa.gov): sem chave, com CORS, e e para
+ * onde a API antiga aponta desde 09/2026 -- ela sera arquivada em
+ * 01/12/2026 (docs/RECURSOS_NASA.md secao 6). Devolve so o APOD de hoje;
+ * `explanation` e `title` vem em HTML.
+ */
+const apodWpSchema = z.array(z.object({
+  title: z.string().min(1),
+  explanation: z.string().optional(),
+  hdurl: z.string().url().optional(),
+  media_type: z.string(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+})).min(1);
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&#8217;|&rsquo;/g, '’')
+    .replace(/&#8220;|&#8221;|&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .replace(/^Explanation:\s*/i, '')
+    .trim();
+}
+
+async function tryApodWordpress(): Promise<Extract<SpaceView, { kind: 'photo' }> | null> {
+  try {
+    const parsed = apodWpSchema.safeParse(await fetchJson('https://science.nasa.gov/wp-json/wp/v2/apod-basic?per_page=1'));
+    if (!parsed.success) return null;
+    const apod = parsed.data[0];
+    if (apod === undefined || apod.media_type !== 'image' || apod.hdurl === undefined) return null;
+    const title = stripHtml(apod.title);
+    if (isGenericLogoView(title, apod.hdurl)) return null;
+    return {
+      kind: 'photo',
+      title,
+      caption: captionFrom(stripHtml(apod.explanation ?? '')),
+      imageUrl: apod.hdurl,
+      source: 'NASA APOD',
+      date: apod.date,
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function tryApod(): Promise<Extract<SpaceView, { kind: 'photo' }> | null> {
+  const fresh = await tryApodWordpress();
+  if (fresh !== null) return fresh;
+  // Reserva: API antiga (precisa de chave; com DEMO_KEY costuma dar 429).
   try {
     const data = apodSchema.safeParse(await fetchJson(
       `https://api.nasa.gov/planetary/apod?api_key=${NASA_API_KEY}&thumbs=true`,

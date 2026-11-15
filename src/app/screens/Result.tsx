@@ -4,6 +4,7 @@ import type { LossCause, Stat } from '../../engine/types.js';
 import { THEME_UNLOCK, useAccount } from '../store/useAccount.js';
 import type { HudTheme } from '../store/useAccount.js';
 import { useGame } from '../store/useGame.js';
+import { joinSpoken } from '../a11y/speech.js';
 import { SpeakButton } from '../components/SpeakButton.js';
 import { useT } from '../i18n/useI18n.js';
 
@@ -44,11 +45,19 @@ export function Result(): JSX.Element {
       : t('result.wonSurvivedBody')
     : lossWhy;
 
-  const narration = won
-    ? t('result.narrationWon', {
-      detail: byObjective ? t('result.narrationObjective') : t('result.narrationSurvived'),
-    })
-    : t('result.narrationLost', { title: lossTitle, why: lossWhy, tip: lossTip });
+  const headline = won ? t('result.won') : lossTitle;
+  const subline = won
+    ? byObjective ? t('result.wonObjective') : t('result.wonSurvived', { days: config.days })
+    : t('result.lost', { day: result.day, total: config.days });
+
+  // A narracao le EXATAMENTE as frases do painel, na ordem em que aparecem.
+  // Antes ela usava frases proprias (result.narration*), diferentes da tela.
+  const narration = joinSpoken([
+    headline,
+    subline,
+    whatHappened,
+    won ? null : t('result.tip', { tip: lossTip }),
+  ]);
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col justify-center px-4 py-6 sm:px-8">
@@ -68,12 +77,10 @@ export function Result(): JSX.Element {
           </span>
           <div className="min-w-0">
             <h1 className="font-display text-2xl font-extrabold leading-tight text-white sm:text-3xl">
-              {won ? t('result.won') : lossTitle}
+              {headline}
             </h1>
             <p className="mt-1 text-sm font-semibold text-slate-200">
-              {won
-                ? byObjective ? t('result.wonObjective') : t('result.wonSurvived', { days: config.days })
-                : t('result.lost', { day: result.day, total: config.days })}
+              {subline}
             </p>
           </div>
         </header>

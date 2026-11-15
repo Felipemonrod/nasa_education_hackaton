@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, ArrowRight, Compass, X } from 'lucide-react';
-import { useSpeech } from '../a11y/speech.js';
+import { joinSpoken, useSpeech } from '../a11y/speech.js';
 import { useI18n, useT } from '../i18n/useI18n.js';
 import { useAccount } from '../store/useAccount.js';
 import { GlossaryText } from './GlossaryText.js';
@@ -119,13 +119,13 @@ export function TutorialOverlay({
   const how = active ? t(`${keyPrefix}.step${step}.how`) : '';
   const isLast = step >= totalSteps;
 
-  const stepNarration = (s: number): string =>
-    `${t(`${keyPrefix}.step${s}.title`)}. ${t(`${keyPrefix}.step${s}.body`)} ${t(`${keyPrefix}.step${s}.how`)}`;
-
   // Toca o audio automaticamente assim que o passo do tutorial abre ou muda.
+  // E o UNICO lugar que narra o passo: os botoes so trocam o passo. Falar
+  // tambem no clique duplicava a fala (cancel + speak seguidos), o que no
+  // Chrome do Android corta ou reinicia o audio.
   useEffect(() => {
     if (!active) return;
-    speak(`${title}. ${body} ${how}`, { locale, rate, volume });
+    speak(joinSpoken([title, body, how]), { locale, rate, volume });
   }, [active, step, title, body, how, locale, rate, volume, speak]);
 
   useEffect(() => {
@@ -195,18 +195,15 @@ export function TutorialOverlay({
       onNext();
       return;
     }
-    speak(stepNarration(step + 1), { locale, rate, volume });
     onNext();
   };
 
   const handlePrev = (): void => {
     if (step <= 1) return;
-    speak(stepNarration(step - 1), { locale, rate, volume });
     onPrev();
   };
 
   const handleStep = (targetStep: number): void => {
-    speak(stepNarration(targetStep), { locale, rate, volume });
     onStep(targetStep);
   };
 
@@ -289,7 +286,7 @@ export function TutorialOverlay({
                 <h3 className="mt-1 font-display text-base font-extrabold text-white">{title}</h3>
               </div>
               <div className="flex shrink-0 items-center gap-1">
-                <SpeakButton text={`${title}. ${body} ${how}`} label={t('tutorial.listenAria')} />
+                <SpeakButton text={joinSpoken([title, body, how])} label={t('tutorial.listenAria')} />
                 <button
                   type="button"
                   onClick={handleSkip}
