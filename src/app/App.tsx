@@ -11,6 +11,7 @@ import { Game } from './screens/Game.js';
 import { Loading } from './screens/Loading.js';
 import { Loadout } from './screens/Loadout.js';
 import { Menu } from './screens/Menu.js';
+import { QuickPlay } from './screens/QuickPlay.js';
 import { Result } from './screens/Result.js';
 import { Settings } from './screens/Settings.js';
 import { useAccount } from './store/useAccount.js';
@@ -62,6 +63,7 @@ export function App(): JSX.Element {
       ) : screen === 'menu' ? <Menu />
         : screen === 'destination' ? <Destination />
         : screen === 'loadout' ? <Loadout />
+        : screen === 'quickplay' ? <QuickPlay />
         : screen === 'loading' ? <Loading onDone={enterGame} />
         : screen === 'game' ? <Game />
         : screen === 'result' ? <Result />

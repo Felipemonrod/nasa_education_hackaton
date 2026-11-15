@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { BookOpen, Info, Orbit, Play, RotateCcw, Settings2, Trophy, Rocket, Award } from 'lucide-react';
+import { BookOpen, Info, Orbit, Play, RotateCcw, Settings2, Shuffle, Trophy, Rocket, Award } from 'lucide-react';
 import { useT } from '../i18n/useI18n.js';
 import { useAccount } from '../store/useAccount.js';
 import { useGame } from '../store/useGame.js';
@@ -9,14 +9,15 @@ import { useFadeOut } from '../components/useSceneStatus.js';
 import type { SceneStatus } from '../components/useSceneStatus.js';
 
 export function Menu(): JSX.Element {
-  const { go, newMission, savedRunExists, resumeRun, abandonSavedRun } = useGame();
+  const { go, newMission, quickPlay, savedRunExists, resumeRun, abandonSavedRun } = useGame();
   const totals = useAccount((s) => s.totals);
   const badges = useAccount((s) => s.badges);
   const t = useT();
   // "Nova missao" com partida salva pede confirmacao (mesmo padrao do
   // "Voltar ao menu" do GearMenu): antes, a partida antiga era sobrescrita
   // em silencio no confirmLoadout e nem entrava nos totais.
-  const [confirmNew, setConfirmNew] = useState(false);
+  // Guarda QUAL acao pediu a confirmacao: nova missao ou quick play.
+  const [confirmNew, setConfirmNew] = useState<'new' | 'quick' | false>(false);
   const [resumeFailed, setResumeFailed] = useState(false);
   // Tela de carregamento em TELA CHEIA ate a base 3D ficar pronta (ou falhar e
   // cair no SVG); so entao o menu aparece, com fade.
@@ -56,7 +57,7 @@ export function Menu(): JSX.Element {
         <div className="flex flex-col gap-5 md:col-span-7">
           <div>
             <h1 className="font-display text-4xl font-extrabold leading-none tracking-tight text-white drop-shadow-[0_2px_18px_rgba(5,10,20,0.9)] sm:text-5xl lg:text-7xl">
-              Lunar<span className="text-power"> Outpost</span>
+              HEAD<span className="text-power"> X</span>
             </h1>
             <p className="mt-2.5 max-w-xl text-base font-semibold text-slate-200 drop-shadow-[0_1px_10px_rgba(5,10,20,0.95)] sm:text-lg">
               {t('menu.tagline')}
@@ -124,7 +125,7 @@ export function Menu(): JSX.Element {
                   <button
                     type="button"
                     className="btn-primary flex-1 py-2 text-sm"
-                    onClick={() => { abandonSavedRun(); newMission(); }}
+                    onClick={() => { abandonSavedRun(); if (confirmNew === 'quick') quickPlay(); else newMission(); }}
                   >
                     {t('menu.confirmNewMissionYes')}
                   </button>
@@ -134,11 +135,20 @@ export function Menu(): JSX.Element {
               <button
                 type="button"
                 className={`${savedRunExists ? 'btn-ghost' : 'btn-primary'} w-full py-3.5 text-base`}
-                onClick={() => { if (savedRunExists) setConfirmNew(true); else newMission(); }}
+                onClick={() => { if (savedRunExists) setConfirmNew('new'); else newMission(); }}
               >
                 <Play size={19} aria-hidden /> {t('menu.newMission')}
               </button>
             )}
+            {!confirmNew ? (
+              <button
+                type="button"
+                className="btn-ghost w-full py-3"
+                onClick={() => { if (savedRunExists) setConfirmNew('quick'); else quickPlay(); }}
+              >
+                <Shuffle size={18} className="text-power" aria-hidden /> {t('menu.quickPlay')}
+              </button>
+            ) : null}
             <button type="button" className="btn-ghost w-full py-3" onClick={() => { go('deck'); }}>
               <BookOpen size={18} aria-hidden /> {t('menu.deck')}
             </button>

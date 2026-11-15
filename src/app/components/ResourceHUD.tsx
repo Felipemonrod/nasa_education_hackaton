@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Activity, Salad, Shield, Wind, Zap, Microscope, HeartPulse } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import type { Stat, Stats, TrackStat } from '../../engine/types.js';
+import type { CardOption, Stat, Stats, TrackStat } from '../../engine/types.js';
 import type { HudTheme } from '../store/useAccount.js';
 import { useT } from '../i18n/useI18n.js';
 
@@ -125,6 +125,19 @@ function StatRow({ row, value, trembling = false }: { row: Row; value: number; t
       </div>
     </div>
   );
+}
+
+/** Stats que uma opcao mexe (efeito imediato ou modificador por turno): sao os que tremem. */
+export function statsAffectedBy(option: CardOption | null | undefined): ReadonlySet<Stat> {
+  const next = new Set<Stat>();
+  if (option === null || option === undefined) return next;
+  for (const eff of option.effects) {
+    if (eff.delta !== 0) next.add(eff.stat);
+  }
+  for (const mod of option.modifiers ?? []) {
+    if (mod.perSlot !== 0) next.add(mod.stat);
+  }
+  return next;
 }
 
 export function ResourceHUD({

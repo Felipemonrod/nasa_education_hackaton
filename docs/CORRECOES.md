@@ -1,4 +1,4 @@
-# Lunar Outpost — Lista de correções (bugs e balanceamento)
+# HEAD X — Lista de correções (bugs e balanceamento)
 
 Origem: quatro rodadas de testes com subagentes em 2026-11-14 e 2026-11-15. Nenhuma linha
 de código foi alterada durante os testes. Scripts e saídas brutas ficaram na pasta temporária

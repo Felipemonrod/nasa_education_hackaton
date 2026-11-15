@@ -10,7 +10,7 @@ import { useT } from '../i18n/useI18n.js';
 import { useAccount } from '../store/useAccount.js';
 import { useGame } from '../store/useGame.js';
 
-function CardFace({
+export function CardFace({
   card,
   variant = 'inline',
 }: {

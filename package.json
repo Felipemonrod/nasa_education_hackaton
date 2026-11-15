@@ -1,10 +1,10 @@
 {
-  "name": "lunar-outpost-engine",
+  "name": "headx-engine",
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
   "type": "module",
-  "description": "Engine deterministico (TS puro) do PoC Lunar Outpost. Fase 1: regras + balanceamento, sem UI.",
+  "description": "Engine deterministico (TS puro) do PoC HEAD X. Fase 1: regras + balanceamento, sem UI.",
   "scripts": {
     "dev": "vite",
     "build": "npm run validate && npm run typecheck && vite build",

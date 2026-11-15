@@ -1,6 +1,6 @@
 # Credits, sources and licenses
 
-Lunar Outpost is an independent educational game created for the **NASA Space Apps Challenge 2026**,
+HEAD X is an independent educational game created for the **NASA Space Apps Challenge 2026**,
 challenge **"Build a Junior Astronaut Mission Trainer"**. Its original source code is released under the
 **MIT License** (see [`LICENSE`](LICENSE)). This file lists every data source, API, reference and software
 library used to build it, as the Space Apps rules require. Every image, sound and font file is listed,
@@ -10,7 +10,7 @@ license.
 > **NASA does not endorse any non-U.S. Government entity and is not responsible for information contained
 > on non-U.S. Government websites.**
 >
-> Lunar Outpost is not an official NASA product, is not endorsed by NASA, and does not use the NASA logo.
+> HEAD X is not an official NASA product, is not endorsed by NASA, and does not use the NASA logo.
 
 The in-game **Credits** screen (`src/app/screens/Credits.tsx`, data in `src/app/data/credits.ts`) shows a
 summary of this file. When adding an API, image, sound or dependency, update both.

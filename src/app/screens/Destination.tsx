@@ -531,7 +531,7 @@ export function Destination(): JSX.Element {
                         ) : null}
                       </div>
 
-                      <div className="flex min-h-0 shrink-0 flex-col justify-between p-4 text-center sm:flex-1 sm:p-2.5 [@media(max-height:500px)]:p-2 lg:p-5">
+                      <div className="flex min-h-0 shrink-0 flex-col justify-between overflow-y-auto p-4 text-center max-sm:max-h-[55%] max-sm:shrink sm:flex-1 sm:p-2.5 [@media(max-height:500px)]:p-2 lg:p-5">
                         <div className="my-auto flex flex-col items-center">
                           <h3 className="font-display text-lg font-extrabold leading-snug text-white sm:text-sm [@media(max-height:500px)]:text-xs lg:text-xl">
                             {siteName}

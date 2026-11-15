@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Check, ChevronRight, Clock3, Link2, Lock, Repeat, Rocket, X,
@@ -51,7 +52,14 @@ export function useMediaQuery(query: string): boolean {
 
 export function CardView({
   card, options, phase, stage, onChoose, onHoverOption, dimmed, compact, isFirstCard = true, inModal = false, weather = null,
+  confirmAside,
 }: {
+  /**
+   * Conteudo mostrado ABAIXO da confirmacao de decisao, so no celular
+   * (< lg): la o painel de atributos fica escondido atras do modal, entao
+   * ele e repetido aqui com os stats afetados tremendo.
+   */
+  confirmAside?: (option: CardOption) => ReactNode;
   card: Card;
   options: readonly OptionState[];
   phase: Phase;
@@ -102,15 +110,18 @@ export function CardView({
 
   const confirmModal = briefOption !== undefined ? (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/75 p-4 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex overflow-y-auto overscroll-contain bg-space-950/75 p-4 backdrop-blur-sm animate-fade-in"
       onClick={(e) => { e.stopPropagation(); setBriefId(null); }}
     >
+      {/* m-auto: confirmacao + atributos centralizados juntos; se nao
+          couberem (celular deitado), o overlay rola em vez de cortar. */}
+      <div className="m-auto flex w-full max-w-md flex-col gap-3">
       <div
         role="dialog"
         aria-modal="true"
         aria-label={t('card.briefTitle')}
         onClick={(e) => { e.stopPropagation(); }}
-        className="card-surface w-full max-w-md border border-sky-400/40 p-5 shadow-2xl sm:p-6 animate-card-in"
+        className="card-surface w-full border border-sky-400/40 p-5 shadow-2xl sm:p-6 animate-card-in"
       >
         <p className="text-xs font-extrabold uppercase tracking-wider text-sky-300">
           {t('card.briefTitle')}
@@ -142,6 +153,15 @@ export function CardView({
             <Check size={16} aria-hidden /> {t('card.confirm')}
           </button>
         </div>
+      </div>
+      {confirmAside !== undefined ? (
+        <div
+          className="w-full animate-card-in lg:hidden"
+          onClick={(e) => { e.stopPropagation(); }}
+        >
+          {confirmAside(briefOption)}
+        </div>
+      ) : null}
       </div>
     </div>
   ) : null;

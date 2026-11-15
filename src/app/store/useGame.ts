@@ -9,7 +9,7 @@ import { ALL_STATS } from '../../engine/types.js';
 import type {
   Card, CardOption, MissionObjective, RunState, Stats,
 } from '../../engine/types.js';
-import { EQUIPMENT, STRUCTURES, findLoadout } from '../data/loadout.js';
+import { COMMANDERS, EQUIPMENT, STRUCTURES, findLoadout } from '../data/loadout.js';
 import { LUNAR_SITES, findSite } from '../data/sites.js';
 import type { LoadoutCard } from '../data/loadout.js';
 import { missionSetup } from '../data/setup.js';
@@ -21,7 +21,7 @@ import { useAccount } from './useAccount.js';
 export const engine = createEngine(CARDS);
 
 export type Screen =
-  | 'cutscene' | 'menu' | 'destination' | 'loadout'
+  | 'cutscene' | 'menu' | 'destination' | 'loadout' | 'quickplay'
   | 'loading' | 'game' | 'result' | 'deck' | 'settings' | 'credits' | 'base';
 
 export interface OutcomeView {
@@ -68,6 +68,12 @@ interface GameStore {
 
   go(screen: Screen): void;
   newMission(): void;
+  /**
+   * Quick play: sorteia TODA a selecao inicial (local, objetivo, comandante,
+   * estrutura, equipamento) e abre a tela que mostra o sorteio. Dali segue
+   * o fluxo normal via confirmLoadout().
+   */
+  quickPlay(): void;
   setDestinationStep(step: 1 | 2 | 3): void;
   setSite(siteId: string): void;
   setObjective(objective: MissionObjective): void;
@@ -284,6 +290,36 @@ export const useGame = create<GameStore>()((set, get) => ({
       outcome: null,
       rewardsGranted: null,
       screen: 'destination',
+    });
+  },
+
+  quickPlay() {
+    prefetchLiveWeather();
+    const { unlocks, tutorialSeen } = useAccount.getState();
+    const site = pickRandom(LUNAR_SITES);
+    const commander = pickRandom(availableOf(COMMANDERS, unlocks));
+    const structure = pickRandom(availableOf(STRUCTURES, unlocks));
+    const equipment = pickRandom(availableOf(EQUIPMENT, unlocks));
+    set({
+      draft: {
+        ...FRESH_DRAFT,
+        siteId: site?.id ?? FRESH_DRAFT.siteId,
+        objective: Math.random() < 0.5 ? 'science' : 'habitat',
+        // O tutorial da PARTIDA continua para quem nunca jogou; o de
+        // planejamento nao faz sentido aqui (nao ha escolha a ensinar).
+        tutorial: !tutorialSeen,
+        commanderId: commander?.id ?? null,
+        structureId: structure?.id ?? null,
+        equipmentId: equipment?.id ?? null,
+        rerollsLeft: { structure: 0, equipment: 0 },
+      },
+      destinationStep: 1,
+      planningTutorialStep: 0,
+      tutorialStep: 0,
+      run: null,
+      outcome: null,
+      rewardsGranted: null,
+      screen: 'quickplay',
     });
   },
 

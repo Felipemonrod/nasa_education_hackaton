@@ -1,4 +1,4 @@
-# Lunar Outpost
+# HEAD X
 
 **A decision game where kids (ages 7–12) run a base on the Moon and feel the real trade-offs of a space
 mission: air, power, food and radiation.** Built for the **NASA Space Apps Challenge 2026**, challenge
@@ -144,7 +144,7 @@ Original code: **MIT** (see [`LICENSE`](LICENSE)). Data, images, fonts and libra
 licenses ([`CREDITS.md`](CREDITS.md), [`docs/ASSETS.md`](docs/ASSETS.md)).
 
 **NASA does not endorse any non-U.S. Government entity and is not responsible for information contained
-on non-U.S. Government websites.** Lunar Outpost is an independent project; it is not an official NASA
+on non-U.S. Government websites.** HEAD X is an independent project; it is not an official NASA
 product and is not endorsed by NASA.
 
 ## References

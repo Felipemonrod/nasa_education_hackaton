@@ -1,4 +1,4 @@
-# Lunar Outpost — Modelo formal (Fase 1: engine + balanceamento)
+# HEAD X — Modelo formal (Fase 1: engine + balanceamento)
 
 Documento de decisões, não de intenções. Tudo aqui está implementado e coberto
 por teste. O que ainda é decisão aberta está na última seção.
