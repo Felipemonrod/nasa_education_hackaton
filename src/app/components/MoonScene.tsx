@@ -4,6 +4,7 @@ import { useAccount } from '../store/useAccount.js';
 import { prefersReducedMotion, supportsWebGL } from '../webgl.js';
 import { MoonSceneSVG } from './MoonSceneSVG.js';
 import { SceneErrorBoundary } from './SceneErrorBoundary.js';
+import { SceneLoading } from './SceneLoading.js';
 import { useSceneStatus } from './useSceneStatus.js';
 
 export interface MoonSceneProps {
@@ -29,8 +30,9 @@ const MoonSceneGL = lazy(() =>
  *  - a cena 3D FALHOU: chunk do three.js, WebGL, contexto perdido, base.glb
  *    com erro ou demora acima do limite (ver useSceneStatus).
  *
- * Com 3D: o SVG aparece na hora e o canvas carrega por baixo, invisivel; quando
- * o modelo principal entra, o 3D aparece com fade. Nunca ha tela vazia.
+ * Com 3D: uma tela "Carregando modelos 3D" aparece na hora e o canvas carrega
+ * por baixo, invisivel; quando o modelo principal entra, o 3D aparece com fade.
+ * Nunca ha tela vazia, e o SVG nao pisca antes do 3D: ele e so o fallback.
  */
 export function MoonScene({ phase, framing = 'panel' }: MoonSceneProps): JSX.Element {
   const t = useT();
@@ -48,9 +50,13 @@ export function MoonScene({ phase, framing = 'panel' }: MoonSceneProps): JSX.Ele
   const ready = status === 'ready';
   return (
     <div className="relative h-full w-full">
-      <div className={`absolute inset-0 transition-opacity duration-700 ${ready ? 'opacity-0' : 'opacity-100'}`} aria-hidden={ready}>
-        {svg}
-      </div>
+      {ready ? null : (
+        <SceneLoading
+          className={framing === 'backdrop'
+            ? 'items-end justify-center pb-24 md:items-center md:justify-start md:pb-0 md:pl-[18%]'
+            : 'items-center justify-center'}
+        />
+      )}
       <div className={`absolute inset-0 transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'}`} aria-hidden={!ready}>
         <SceneErrorBoundary fallback={null} onError={onError}>
           <Suspense fallback={null}>

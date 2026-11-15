@@ -27,7 +27,6 @@ export const UI_EN: Dict = {
   'common.skip': 'Skip',
   'common.options': 'Options',
   'common.soon': 'Coming soon',
-  'common.aiImages': 'Images made with AI',
 
   // ----- rotulos de recurso, usados no HUD, no resultado e na viagem -----
   'stat.oxygen': 'Oxygen',
@@ -50,6 +49,7 @@ export const UI_EN: Dict = {
   'scene.base': 'Lunar base',
   'base.hint': 'Drag to rotate · scroll or pinch to zoom',
   'scene.aiTextures': 'Some textures made with AI',
+  'scene.loading': 'Loading 3D models…',
 
   // ----- menu -----
   'menu.tagline': 'Founding a base means deciding what comes first.',
@@ -517,9 +517,9 @@ export const UI_EN: Dict = {
   'credits.donkiNote': '“Experimental Research Information” from NASA CCMC DONKI / Moon to Mars Space Weather Analysis Office (M2M SWAO).',
   'credits.references': 'Science references',
   'credits.images': 'Images & art',
-  'credits.imagesBody': 'Photos of the Moon, Mars, astronauts and space station hardware: NASA (Image and Video Library, LRO, Apollo and other missions). Astronaut photos are used as art for fictional characters. The opening cutscene sky and Moon are AI-generated images (marked on screen). Card frames made with Canva. Full list of every file and its license in docs/ASSETS.md.',
+  'credits.imagesBody': 'Photos of the Moon, Mars, astronauts and space station hardware: NASA (Image and Video Library, LRO, Apollo and other missions). Astronaut photos are used as art for fictional characters. Card frames made with Canva. Full list of every file and its license in docs/ASSETS.md.',
   'credits.aiTitle': 'Use of AI',
-  'credits.aiBody': 'The game idea and rules come from the team; AI helped draft the specification. AI tools (Claude Code, by Anthropic) helped write the code, card texts and research and check the NASA data, always reviewed by the team. The background music, the opening cutscene images, the app icon and two textures of the 3D base were generated with AI. Details in README.md.',
+  'credits.aiBody': 'The game idea and rules come from the team; AI helped draft the specification. AI tools (Claude Code, by Anthropic) helped write the code, card texts and research and check the NASA data, always reviewed by the team. The background music, the app icon and two textures of the 3D base were generated with AI (marked with a small ✦ icon on the scene). Details in README.md.',
   'credits.software': 'Software, fonts & icons',
   'credits.license': 'Lunar Outpost source code: MIT License. Third-party data, images, fonts and libraries keep their own licenses (see CREDITS.md).',
   'credits.officialNote': 'Official notice from the NASA Space Apps Challenge.',
@@ -543,7 +543,6 @@ export const UI_PT: Dict = {
   'common.skip': 'Pular',
   'common.options': 'Opções',
   'common.soon': 'Em breve',
-  'common.aiImages': 'Imagens feitas com IA',
 
   // ----- rotulos de recurso, usados no HUD, no resultado e na viagem -----
   'stat.oxygen': 'Oxigênio',
@@ -566,6 +565,7 @@ export const UI_PT: Dict = {
   'scene.base': 'Base lunar',
   'base.hint': 'Arraste para girar · role ou pince para aproximar',
   'scene.aiTextures': 'Algumas texturas feitas com IA',
+  'scene.loading': 'Carregando modelos 3D…',
 
   // ----- menu -----
   'menu.tagline': 'Fundar uma base é decidir o que vem primeiro.',
@@ -1033,9 +1033,9 @@ export const UI_PT: Dict = {
   'credits.donkiNote': '“Experimental Research Information” (informação experimental de pesquisa) da NASA CCMC DONKI / Moon to Mars Space Weather Analysis Office (M2M SWAO).',
   'credits.references': 'Referências científicas',
   'credits.images': 'Imagens e arte',
-  'credits.imagesBody': 'Fotos da Lua, de Marte, de astronautas e de equipamentos da estação espacial: NASA (Image and Video Library, LRO, Apollo e outras missões). As fotos de astronautas são usadas como arte de personagens fictícios. O céu e a Lua da cena de abertura são imagens geradas por IA (marcadas na tela). Molduras das cartas feitas no Canva. Lista completa de cada arquivo e sua licença em docs/ASSETS.md.',
+  'credits.imagesBody': 'Fotos da Lua, de Marte, de astronautas e de equipamentos da estação espacial: NASA (Image and Video Library, LRO, Apollo e outras missões). As fotos de astronautas são usadas como arte de personagens fictícios. Molduras das cartas feitas no Canva. Lista completa de cada arquivo e sua licença em docs/ASSETS.md.',
   'credits.aiTitle': 'Uso de IA',
-  'credits.aiBody': 'A ideia e as regras do jogo são da equipe; a IA ajudou a redigir a especificação. Ferramentas de IA (Claude Code, da Anthropic) ajudaram a escrever o código, os textos das cartas e a pesquisar e conferir os dados da NASA, sempre revisados pela equipe. A música de fundo, as imagens da cena de abertura, o ícone do app e duas texturas da base 3D foram gerados com IA. Detalhes no README.md.',
+  'credits.aiBody': 'A ideia e as regras do jogo são da equipe; a IA ajudou a redigir a especificação. Ferramentas de IA (Claude Code, da Anthropic) ajudaram a escrever o código, os textos das cartas e a pesquisar e conferir os dados da NASA, sempre revisados pela equipe. A música de fundo, o ícone do app e duas texturas da base 3D foram gerados com IA (marcadas com um pequeno ícone ✦ na cena). Detalhes no README.md.',
   'credits.software': 'Software, fontes tipográficas e ícones',
   'credits.license': 'Código-fonte do Lunar Outpost: licença MIT. Dados, imagens, fontes e bibliotecas de terceiros mantêm suas próprias licenças (veja CREDITS.md).',
   'credits.officialNote': 'Tradução do aviso oficial do NASA Space Apps Challenge: “A NASA não endossa nenhuma entidade que não seja do Governo dos EUA e não é responsável por informações contidas em sites que não sejam do Governo dos EUA.”',

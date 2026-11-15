@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import type { Card, Phase } from '../../engine/types.js';
 import type { LoadoutCard } from '../data/loadout.js';
 import { useT } from '../i18n/useI18n.js';
+import { ImageInfoBadge } from './ImageInfoBadge.js';
 
 /**
  * MOLDURAS DAS CARTAS (public/cards, vindas do diretorio HeadXimage).
@@ -281,20 +282,15 @@ export function NasaCardPhoto({
         }}
         className={className}
       />
-      <span
-        className={`pointer-events-none absolute hidden text-center [@container_(min-width:96px)]:block ${
-          isCommander ? 'inset-x-[18%] bottom-[12%]' : 'inset-x-[14%] bottom-[4%]'
-        }`}
-        // Fonte proporcional a largura da janela (cqw), entre 6px e 11px.
-        // 5.2cqw: nas cartas medias (celular em pe, carta ampliada) a legenda
-        // sobe para 8-11px. O piso fica em 6px: na janela de ~100 px (celular
-        // deitado) 7px quebrava em 4 linhas e o line-clamp cortava justamente
-        // "personagem ficticio".
-        style={{ fontSize: 'clamp(6px, 5.2cqw, 11px)' }}
-      >
-        <span className="line-clamp-3 rounded-md bg-black/65 px-[0.5em] py-[0.2em] font-semibold leading-[1.2] text-white">
-          {caption}
-        </span>
+      {/* Credito discreto: icone pequeno no canto da foto, que mostra o texto
+          ao tocar (em vez de legenda por cima da arte). Some no avatar de 56px
+          da lista de comandantes (container query), onde a lista ja tem a linha. */}
+      <span className="hidden [@container_(min-width:96px)]:contents">
+        <ImageInfoBadge
+          text={caption}
+          className={isCommander ? 'bottom-[14%] right-[17%]' : 'bottom-[6%] right-[8%]'}
+          align="right"
+        />
       </span>
     </span>
   );

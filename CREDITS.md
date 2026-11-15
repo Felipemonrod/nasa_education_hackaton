@@ -80,7 +80,7 @@ CC-BY-4.0 (1: caniuse-lite, browser data from "Can I use" by Alexis Deveria, use
   as author or co-author in the git history. Full declaration in the README ("Use of AI").
 - **Blender** — the 3D models of the lunar base (`public/models/*.glb`).
 - **Docker** — optional development container (`Dockerfile`, `docker-compose.yml`).
-- AI-generated media: background music, opening cutscene images, app icon (tools: `TODO(team)`) and two
-  3D textures (door and solar panel; Google C2PA metadata), marked as described in `docs/ASSETS.md`.
+- AI-generated media: background music and app icon (tools: `TODO(team)`) and two 3D textures (door and
+  solar panel; Google C2PA metadata), marked as described in `docs/ASSETS.md`.
 - Textures from third parties (NASA Blue Marble; probably Solar System Scope / ESO, CC BY 4.0) are listed
   with their credit in `docs/ASSETS.md` §1.5.

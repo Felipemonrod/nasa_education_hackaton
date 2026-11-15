@@ -6,6 +6,7 @@ import { useGame } from '../store/useGame.js';
 import { prefersReducedMotion, supportsWebGL } from '../webgl.js';
 import { MoonSceneSVG } from './MoonSceneSVG.js';
 import { SceneErrorBoundary } from './SceneErrorBoundary.js';
+import { SceneLoading } from './SceneLoading.js';
 import { useSceneStatus } from './useSceneStatus.js';
 
 // Carregamento tardio: o three.js + OrbitControls so baixam quando o usuario
@@ -32,8 +33,8 @@ export function BaseExplorer(): JSX.Element {
 
   const wantsGL = capable && !highContrast;
   const autoRotate = !reducedMotion && !prefersReducedMotion();
-  // Mesmo fallback da MoonScene: SVG na hora, 3D com fade quando o modelo entra,
-  // e so o SVG se o 3D falhar ou demorar demais.
+  // Mesmo fallback da MoonScene: "Carregando modelos 3D" na hora, 3D com fade
+  // quando o modelo entra, e o SVG so se o 3D falhar ou demorar demais.
   const { status, onReady, onError } = useSceneStatus(wantsGL);
   const useGL = wantsGL && status !== 'failed';
   const ready = status === 'ready';
@@ -46,7 +47,8 @@ export function BaseExplorer(): JSX.Element {
 
   return (
     <div className="fixed inset-0 bg-space-950">
-      {!useGL || !ready ? svg : null}
+      {!useGL ? svg : null}
+      {useGL && !ready ? <SceneLoading /> : null}
       {useGL ? (
         <div className={`absolute inset-0 transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'}`} aria-hidden={!ready}>
           <SceneErrorBoundary fallback={null} onError={onError}>

@@ -72,7 +72,11 @@ export function useBaseSceneGL(
 
     let renderer: WebGLRenderer;
     try {
-      renderer = new WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'low-power' });
+      // preserveDrawingBuffer: o quadro fica no buffer depois de exibido, para o
+      // print do celular (e capturas do navegador) nao sairem pretos/vazios.
+      renderer = new WebGLRenderer({
+        antialias: true, alpha: false, powerPreference: 'low-power', preserveDrawingBuffer: true,
+      });
     } catch {
       // Sem contexto WebGL (driver bloqueado, GPU sem memoria): o componente cai no SVG.
       eventsRef.current.onError?.();

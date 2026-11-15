@@ -66,15 +66,15 @@ The NASA Space Apps guide asks teams to declare AI ("SI") use. What we can state
 - **NASA data research:** AI helped research the NASA APIs and check the data (for example, comparing
   the 15 historical flare days with NOAA reports). Notes in `docs/RECURSOS_NASA.md`.
 - **AI-generated media:**
-  - the opening **cutscene images** (sky and Moon): marked on screen with "Images made with AI";
   - the **background music**: declared here, on the Credits screen, and in the MP3 metadata
     (`COMM` and `TXXX:AI_GENERATED=true`);
   - the **app icon**: declared here and in `docs/ASSETS.md`.
   - two **3D textures** (door and solar panel of the 3D base): their files carry Google C2PA metadata
-    marking them as AI-generated; every 3D scene shows a "Some textures made with AI" badge.
-  - The generation tools for the music and cutscene images: `TODO(team)`.
+    marking them as AI-generated; every 3D scene has a small ✦ icon in the corner that shows
+    "Some textures made with AI" when tapped, so the note stays visible without covering the scene.
+  - The generation tool for the music: `TODO(team)`.
 - **Not AI-generated** (per the team): the card frames (designed in Canva), the robot mascot, and the
-  NASA photos.
+  NASA photos (including the opening cutscene).
 
 The same summary appears on the in-game Credits screen. File-by-file details: [`docs/ASSETS.md`](docs/ASSETS.md).
 
@@ -106,9 +106,9 @@ committed) raises the rate limit of the legacy APOD API.
 - **React + TypeScript + Vite + Tailwind**, state in **Zustand**, installable **PWA** (vite-plugin-pwa).
 - The lunar base is a **3D scene in three.js** (Blender models, loaded on demand in a separate chunk), with
   an "Explore the base" screen to orbit and zoom. Devices without WebGL, or with high contrast or reduced
-  motion turned on, get the drawn SVG base instead. The SVG also shows instantly while the 3D scene loads
-  (about 1 MB of compressed models and textures, cached after the first visit) and stays if the 3D scene
-  fails or takes longer than 20 seconds.
+  motion turned on, get the drawn SVG base instead. While the 3D scene loads (compressed models and textures,
+  cached after the first visit) a "Loading 3D models…" screen is shown; if the 3D scene fails or takes longer
+  than 30 seconds, the SVG base takes its place.
 - The game rules live in a **pure, deterministic engine** (`src/engine`): no React, no network, no clock,
   no `Math.random()`. The same seed always gives the same mission, so saves can't be "re-rolled" and bugs
   are reproducible. Space weather enters the engine as an input chosen when the mission starts.

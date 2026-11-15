@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SkipForward, Sparkles } from 'lucide-react';
+import { SkipForward } from 'lucide-react';
 import { useT } from '../i18n/useI18n.js';
 
 const BEATS: readonly { readonly key: string; readonly hasSub: boolean }[] = [
@@ -46,12 +46,6 @@ export function Cutscene({ onDone }: { onDone: () => void }): JSX.Element {
         <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-space-950/90 via-space-950/45 to-transparent" />
       </div>
 
-      {/* Marca d'agua exigida pelo guia do Space Apps: o ceu (sky.jpg) e a Lua
-          (moon.jpg) desta cena foram gerados com IA. Ver docs/ASSETS.md. */}
-      <span className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-space-950/70 px-3 py-1 text-xs font-bold text-slate-200 backdrop-blur-md sm:left-6 sm:top-5">
-        <Sparkles size={13} aria-hidden />
-        {t('common.aiImages')}
-      </span>
 
       <div
         key={beat}

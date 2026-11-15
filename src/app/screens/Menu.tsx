@@ -40,8 +40,11 @@ export function Menu(): JSX.Element {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-space-950/80 to-transparent" />
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col justify-between px-5 py-6 sm:px-8 lg:px-12">
-      <div className="my-auto grid grid-cols-1 items-center gap-6 md:grid-cols-12 lg:gap-10">
+      {/* pointer-events-none na camada do conteudo: ela cobre a tela toda, e sem
+          isso o icone de IA no canto da cena nao receberia o toque. Os blocos do
+          menu (filhos do grid) voltam a receber cliques. */}
+      <div className="pointer-events-none relative z-10 mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col justify-between px-5 py-6 sm:px-8 lg:px-12">
+      <div className="my-auto grid grid-cols-1 items-center gap-6 md:grid-cols-12 lg:gap-10 [&>*]:pointer-events-auto">
         {/* Lado esquerdo: Identidade visual do jogo + Panorama da Base Lunar */}
         <div className="flex flex-col gap-5 md:col-span-7">
           <div>

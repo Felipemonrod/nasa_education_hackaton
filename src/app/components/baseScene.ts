@@ -30,6 +30,7 @@ import {
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { maxTextureSize } from '../webgl.js';
 
 /**
  * Construcao do grafo da base lunar, compartilhada entre a cena de painel
@@ -466,9 +467,10 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
   // --- Ceu: panorama 360 do universo (equiretangular) como fundo ---
   // 8K onde a GPU aguenta, 4K onde nao (evita "textura grande demais -> ceu
   // preto"). Fallback escuro ate a imagem carregar (ou se falhar).
-  // Um so arquivo 4K (~90 KB): o 8K pesava 1,9 MB e nao mudava nada visivel
-  // num ceu de estrelas; 4096 px cabe no limite de textura de qualquer GPU alvo.
-  const skyUrl = '/textures/stars_milky_way_4k.jpg';
+  // Arquivos ORIGINAIS (sem recompressao: a versao reduzida perdia estrelas).
+  const skyUrl = maxTextureSize() >= 8192
+    ? '/textures/stars_milky_way_8k.jpg'
+    : '/textures/stars_milky_way_4k.jpg';
   scene.background = new Color(0x05070c);
   const sky = loader.load(skyUrl, (tex) => {
     tex.mapping = EquirectangularReflectionMapping;

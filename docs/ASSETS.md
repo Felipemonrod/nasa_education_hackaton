@@ -17,9 +17,9 @@ people under 18.
 Source: NASA Image and Video Library (<https://images.nasa.gov>). License: NASA Images and Media Usage
 Guidelines (generally not copyrighted in the U.S.; credit NASA; do not imply endorsement). IDs are also
 in `public/cards/nasa/manifest.json` and in `src/app/components/CardArtwork.tsx`. The four commander
-photos show **real astronauts used as art for fictional characters**; every one of them carries a
-visible caption on screen ("Real photo: NASA/… · fictional character"). The people pictured are not the
-characters and do not endorse the project.
+photos show **real astronauts used as art for fictional characters**: a small ⓘ icon in the corner of each
+photo shows "Real photo: NASA/… · fictional character" when tapped or hovered, and the commander list shows
+the same line as text. The people pictured are not the characters and do not endorse the project.
 
 | File | What it is | NASA ID / credit | AI? | Used in |
 |---|---|---|---|---|
@@ -47,13 +47,13 @@ metadata; for the others we list what the image itself shows and leave the exact
 | `public/cards/nasa/obj_science.jpg` | Apollo 17 astronaut at the split boulder | Probably `AS17-140-21496`. `TODO(team)`: confirm ID | No (team) | Objective "Science" |
 | `public/cards/nasa/obj_life_invitro.jpg` | Seedlings in a growth plate (ISS) | `TODO(team)`: NASA ID | No (team) | Objective "Life support" |
 | `public/cards/nasa/obj_life_chamber.jpg` | Radishes in the ISS Advanced Plant Habitat | `TODO(team)`: NASA ID | No (team) | Objective "Life support" |
+| `public/cutscene/sky.jpg` | Night sky with the Milky Way | Team-confirmed NASA image. `TODO(team)`: NASA ID / page | No (team) | Opening cutscene |
+| `public/cutscene/moon.jpg` | The Moon | Team-confirmed NASA image (looks like the LRO/LROC mosaic). `TODO(team)`: NASA ID / page | No (team) | Opening cutscene |
 
 ### 1.3 AI-generated images (watermarked)
 
 | File | What it is | AI? | Watermark | Used in |
 |---|---|---|---|---|
-| `public/cutscene/sky.jpg` | Night sky background | **Yes** (team). Tool: `TODO(team)` | Visible badge "Images made with AI" on the cutscene screen (`src/app/screens/Cutscene.tsx`) | Opening cutscene |
-| `public/cutscene/moon.jpg` | The Moon seen from orbit | **Yes** (team). Tool: `TODO(team)` | Same badge | Opening cutscene |
 | `public/icon.svg`, `public/icon-192.png`, `public/icon-512.png`, `public/icon-maskable.png` | App icon (stylized Moon) | **Yes** (team). The SVG was added in commit `705fd32`, co-authored by Claude | Declared in text here, in the README and on the Credits screen. A watermark is not legible at icon size (16–512 px). `TODO(team)`: keep as is or replace | Browser tab, installed PWA icon |
 
 ### 1.4 Team-made art
@@ -81,8 +81,8 @@ I/O v4.5.47" in each file).
 | `public/models/base.glb` | Lunar base model (domes, modules) | Made in Blender by the team. `TODO(team)`: author name | `TODO(team)` (MIT if team-made) | `TODO(team)` |
 | `public/models/rover.glb` | Rover model | Made in Blender. `TODO(team)`: author / source | `TODO(team)` | `TODO(team)` |
 | `public/models/solar.glb` | Solar panel model | Made in Blender. `TODO(team)`: author / source | `TODO(team)` | `TODO(team)` |
-| `public/textures/DoorTexture.jpg` | Door texture | File carries a **Google C2PA manifest** with `digitalSourceType` = `trainedAlgorithmicMedia` and a SynthID mark | Google generative AI terms (`TODO(team)`: tool name) | **Yes** (proven by metadata). Visible badge "Some textures made with AI" on every 3D scene (`src/app/components/AiTexturesBadge.tsx`) |
-| `public/textures/solarPanel.jpg` | Solar panel texture | Same Google C2PA manifest (`trainedAlgorithmicMedia`, SynthID) | Same | **Yes** (proven by metadata). Same badge |
+| `public/textures/DoorTexture.jpg` | Door texture | File carries a **Google C2PA manifest** with `digitalSourceType` = `trainedAlgorithmicMedia` and a SynthID mark | Google generative AI terms (`TODO(team)`: tool name) | **Yes** (proven by metadata). A small ✦ icon in the corner of every 3D scene shows "Some textures made with AI" when tapped (`src/app/components/AiTexturesBadge.tsx`) |
+| `public/textures/solarPanel.jpg` | Solar panel texture | Same Google C2PA manifest (`trainedAlgorithmicMedia`, SynthID) | Same | **Yes** (proven by metadata). Same icon |
 | `public/textures/world.topo.200401.3x5400x2700.jpg` | Earth texture | File name matches NASA's **Blue Marble Next Generation** (January 2004, with topography), NASA Earth Observatory / Visible Earth. `TODO(team)`: confirm download page | NASA, public domain | No |
 | `public/textures/2k_moon.jpg` | Moon surface texture | Name and size (2048×1024) match the **Solar System Scope** texture set, which is based on NASA data. `TODO(team)`: confirm | Solar System Scope textures are CC BY 4.0 (credit required) | No |
 | `public/textures/stars_milky_way_4k.jpg` | Star field / Milky Way sky | Probably Solar System Scope ("stars_milky_way") or ESO's Milky Way panorama (eso0932a, ESO/S. Brunier). `TODO(team)`: confirm which | Both are CC BY 4.0 (credit required) | No |
@@ -90,8 +90,9 @@ I/O v4.5.47" in each file).
 | `public/textures/black-road-texture.jpg` | Rover tire texture (original 5616×3744, 13.6 MB; now 512 px) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
 
 **Optimization (15/11/2026).** Textures were resized to the size they are shown at and re-encoded (mozjpeg,
-progressive): 25.3 MB → 0.83 MB (ground 2048 px, sky 4096 px from the former 8K file, which was removed;
-Earth 1024 px; door 1024 px; solar panel 768 px; tire and metal 512 px). Models were compressed with
+progressive): ground 2048 px, Earth 1024 px, door 1024 px, solar panel 768 px, tire and metal 512 px. The
+star-field sky keeps the **original** 8K and 4K files (the GPU picks one), because the re-encoded sky lost
+detail. Models were compressed with
 gltf-transform (`EXT_meshopt_compression` + quantization, node and material names kept): 1.51 MB → 0.24 MB;
 the decoder ships with three.js. Re-encoding drops the C2PA block of the two AI textures, so each now carries
 a JPEG comment stating it is AI-generated; the originals with the C2PA manifest are kept by the team. Scene
@@ -127,8 +128,8 @@ The "look at space" window loads live images; each shows its own credit on scree
 
 ## 5. Open questions for the team
 
-1. Which AI tool generated the music and the cutscene images? (Add it to sections 1.3 and 2.)
-2. NASA IDs or page links for the seven destination photos in section 1.2.
+1. Which AI tool generated the music? (Add it to section 2.)
+2. NASA IDs or page links for the destination and cutscene photos in section 1.2.
 3. Canva license tier used for the card frames.
 4. Mascot author (name to credit) and whether `public/logo.ico` stays.
 5. Keep the AI-generated app icon, or replace it?
