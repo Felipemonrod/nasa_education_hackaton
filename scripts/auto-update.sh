@@ -180,12 +180,32 @@ if [[ "$MODE" == "preview" ]]; then
 fi
 start_server || exit 1
 
+# Vigia tambem a SAUDE do processo. Um supervisor que so reage ao Git
+# deixa a instancia morta no ar sem ninguem perceber -- foi o que
+# aconteceu quando um comando externo matou o vite.
+server_healthy() {
+  [[ -n "$SERVER_PID" ]] && kill -0 "$SERVER_PID" 2>/dev/null \
+    && curl -sf -o /dev/null --max-time 3 "http://localhost:$PORT/"
+}
+
 LAST_SEEN="$(git rev-parse HEAD)"
 while true; do
   sleep "$INTERVAL"
+
+  if ! server_healthy; then
+    warn "a instancia nao esta respondendo — subindo de novo"
+    stop_server
+    start_server || err "nao consegui subir; tento em ${INTERVAL}s"
+  fi
+
   REMOTE="$(remote_head || true)"
   if [[ -z "$REMOTE" ]]; then warn "nao consegui falar com o Git; tento de novo em ${INTERVAL}s"; continue; fi
   [[ "$REMOTE" == "$(git rev-parse HEAD)" ]] && continue
+
+  # Local A FRENTE do remoto nao e commit novo: e o estado normal de quem
+  # tem trabalho ainda nao merjado. Sem esta checagem o script via
+  # "diferente" e reiniciava a instancia a cada ciclo, para sempre.
+  if git merge-base --is-ancestor "$REMOTE" HEAD 2>/dev/null; then continue; fi
 
   echo
   info "commit novo em origin/$BRANCH: ${REMOTE:0:7}"
