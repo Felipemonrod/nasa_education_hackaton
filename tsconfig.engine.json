@@ -14,6 +14,7 @@
   "exclude": [
     "tests/render.test.ts",
     "tests/persistence.test.ts",
+    "tests/spaceView.test.ts",
     "tests/speech.test.ts",
     "tests/weather.test.ts"
   ],

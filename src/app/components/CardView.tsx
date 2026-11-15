@@ -25,16 +25,18 @@ export interface OptionState {
 }
 
 export function CardView({
-  card, options, phase, stage, onChoose, dimmed, compact, isFirstCard = true,
+  card, options, phase, stage, onChoose, onHoverOption, dimmed, compact, isFirstCard = true, inModal = false,
 }: {
   card: Card;
   options: readonly OptionState[];
   phase: Phase;
   stage?: number | undefined;
   onChoose: (optionId: string) => void;
+  onHoverOption?: (option: CardOption | null) => void;
   dimmed?: boolean;
   compact?: boolean;
   isFirstCard?: boolean;
+  inModal?: boolean;
 }): JSX.Element {
   const t = useT();
   const content = useContent();
@@ -72,7 +74,7 @@ export function CardView({
   const confirmModal = briefOption !== undefined ? (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/75 p-4 backdrop-blur-sm animate-fade-in"
-      onClick={() => { setBriefId(null); }}
+      onClick={(e) => { e.stopPropagation(); setBriefId(null); }}
     >
       <div
         role="dialog"
@@ -119,7 +121,13 @@ export function CardView({
     <>
       <article
         data-tutorial={isFirstCard ? 'card-header' : undefined}
-        className={`relative mx-auto flex w-full ${compact === true ? 'max-w-[32rem]' : 'max-w-[23rem]'} flex-col animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
+        className={`relative mx-auto flex w-full ${
+          inModal
+            ? 'max-w-[23.5rem] [@media(max-height:540px)]:max-w-[min(42vw,calc(44dvh*1.44))]'
+            : compact === true
+              ? 'max-w-[33.5rem]'
+              : 'max-w-[24.5rem]'
+        } flex-col animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
                     ${dimmed === true ? 'opacity-70' : ''}`}
       >
         {/* Brilho suave, contínuo e mais lento mascarado exatamente na silhueta real da carta (sem plástico torto) */}
@@ -182,7 +190,7 @@ export function CardView({
 
         {/* Corpo central da moldura (expansível conforme texto e opções) */}
         <div
-          className="relative -my-px flex flex-1 flex-col px-[11.5%] py-1.5"
+          className="relative -my-px flex flex-1 flex-col px-[11.5%] py-0.5"
           style={{
             backgroundImage: `url(${frame.image})`,
             backgroundSize: '100% 300%',
@@ -190,10 +198,10 @@ export function CardView({
             backgroundRepeat: 'no-repeat',
           }}
         >
-          <div className="flex flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 p-3 shadow-lg">
+          <div className={`flex flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 px-2.5 py-2 shadow-lg ${inModal ? '[@media(max-height:540px)]:p-2' : ''}`}>
             <div>
               {hasBadges ? (
-                <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+                <div className={`mb-1.5 flex flex-wrap items-center gap-1.5 ${inModal ? '[@media(max-height:540px)]:mb-1' : ''}`}>
                   {card.role === 'extra' ? (
                     <span className={`rounded-lg px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wider
                       ${card.track === 'science' ? 'bg-science/20 text-science border border-science/30' : 'bg-life/20 text-life border border-life/30'}`}>
@@ -219,13 +227,14 @@ export function CardView({
               <GlossaryText
                 text={text}
                 className={`block leading-snug text-slate-200
-                            ${compact === true ? 'text-[0.78rem] sm:text-[0.82rem]' : 'text-[0.82rem] sm:text-[0.88rem]'}`}
+                            ${compact === true ? 'text-[0.78rem] sm:text-[0.82rem]' : 'text-[0.82rem] sm:text-[0.88rem]'}
+                            ${inModal ? '[@media(max-height:540px)]:text-[0.72rem] [@media(max-height:540px)]:leading-tight' : ''}`}
               />
             </div>
 
             <div
               data-tutorial={isFirstCard ? 'card-options' : undefined}
-              className={`flex flex-col ${compact === true ? 'mt-2.5 gap-1.5' : 'mt-3 gap-1.5'}`}
+              className={`flex flex-col ${compact === true ? 'mt-2 gap-1.5' : 'mt-2.5 gap-1.5'} ${inModal ? '[@media(max-height:540px)]:mt-1.5 [@media(max-height:540px)]:gap-1' : ''}`}
             >
               {options.map(({ option, selectable }) => {
                 const label = content.optionLabel(card, option);
@@ -236,14 +245,20 @@ export function CardView({
                       type="button"
                       aria-disabled={!selectable}
                       aria-expanded={confirmDecisions ? openBrief : undefined}
+                      onMouseEnter={() => { if (selectable) onHoverOption?.(option); }}
+                      onMouseLeave={() => { onHoverOption?.(null); }}
+                      onFocus={() => { if (selectable) onHoverOption?.(option); }}
+                      onBlur={() => { onHoverOption?.(null); }}
                       onClick={() => {
                         if (!selectable) return;
+                        onHoverOption?.(null);
                         if (confirmDecisions) setBriefId(openBrief ? null : option.id);
                         else onChoose(option.id);
                       }}
-                      className={`group flex min-h-[2.5rem] w-full items-center justify-between gap-2.5 rounded-xl border
+                      className={`group flex min-h-[2.25rem] w-full items-center justify-between gap-2.5 rounded-xl border
                         text-left transition-all duration-150
                         ${compact === true ? 'px-3 py-1.5' : 'px-3.5 py-2'}
+                        ${inModal ? '[@media(max-height:540px)]:min-h-[1.8rem] [@media(max-height:540px)]:px-2.5 [@media(max-height:540px)]:py-1' : ''}
                         ${openBrief
                           ? 'border-sky-400/70 bg-sky-400/15 shadow-[0_0_20px_-6px_rgba(56,189,248,0.4)]'
                           : selectable
@@ -253,6 +268,7 @@ export function CardView({
                       <div className="min-w-0 flex-1">
                         <span className={`flex items-center gap-2 font-bold leading-snug
                           ${compact === true ? 'text-[0.78rem]' : 'text-[0.82rem] sm:text-[0.86rem]'}
+                          ${inModal ? '[@media(max-height:540px)]:text-[0.72rem]' : ''}
                           ${selectable ? 'text-slate-100' : 'text-slate-400'}`}>
                           {!selectable ? <Lock size={13} className="shrink-0 text-slate-400" aria-hidden /> : null}
                           {label}

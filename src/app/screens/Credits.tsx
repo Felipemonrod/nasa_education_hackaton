@@ -1,4 +1,5 @@
-import { ArrowLeft, ExternalLink, Mail } from 'lucide-react';
+import { ExternalLink, Mail } from 'lucide-react';
+import { TopNavbar } from '../components/TopNavbar.js';
 import { CREDITS, DATA_SOURCES, PROJECT } from '../data/credits.js';
 import { useGame } from '../store/useGame.js';
 import { useT } from '../i18n/useI18n.js';
@@ -8,15 +9,14 @@ export function Credits(): JSX.Element {
   const t = useT();
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col justify-between px-5 py-6 sm:px-8 lg:px-10">
-      <header className="flex items-center gap-3.5">
-        <button type="button" onClick={() => { go('menu'); }} className="btn-ghost px-3.5 py-2 text-sm">
-          <ArrowLeft size={16} aria-hidden /> {t('common.menu')}
-        </button>
-        <div>
-          <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">{PROJECT.title}</h1>
-          <p className="text-xs font-semibold text-sky-300/80">{PROJECT.event} · {PROJECT.year}</p>
+      <TopNavbar onBack={() => { go('menu'); }} backLabel={t('common.menu')}>
+        <div className="flex flex-1 justify-center text-center">
+          <div>
+            <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">{PROJECT.title}</h1>
+            <p className="text-xs font-semibold text-sky-300/80">{PROJECT.event} · {PROJECT.year}</p>
+          </div>
         </div>
-      </header>
+      </TopNavbar>
 
       <div className="my-auto grid grid-cols-1 gap-5 py-6 md:grid-cols-12">
         {CREDITS.length > 0 ? (

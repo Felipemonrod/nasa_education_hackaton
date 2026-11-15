@@ -148,8 +148,13 @@ export const useGame = create<GameStore>()((set, get) => ({
   newMission() {
     // As telas de destino/loadout dao tempo para a DONKI responder.
     prefetchLiveWeather();
+    const showTutorial = !useAccount.getState().tutorialSeen;
     set({
-      draft: { ...FRESH_DRAFT, rerollsLeft: { ...FRESH_DRAFT.rerollsLeft } },
+      draft: {
+        ...FRESH_DRAFT,
+        tutorial: showTutorial,
+        rerollsLeft: { ...FRESH_DRAFT.rerollsLeft },
+      },
       run: null,
       outcome: null,
       rewardsGranted: null,
@@ -208,7 +213,7 @@ export const useGame = create<GameStore>()((set, get) => ({
       objective: draft.objective,
       // DONKI ao vivo se ja respondeu; senao registro historico verificado.
       spaceWeather: weatherForNewRun(seed),
-      tutorial: draft.tutorial,
+      tutorial: draft.tutorial && !useAccount.getState().tutorialSeen,
       loadout: {
         commanderId: draft.commanderId ?? 'none',
         structureId: draft.structureId ?? 'none',
@@ -224,17 +229,18 @@ export const useGame = create<GameStore>()((set, get) => ({
   },
 
   enterGame() {
-    const { run, draft } = get();
+    const { run } = get();
     if (run === null) return;
     const started = beginSlot(engine, run);
     const view = viewSlot(engine, started);
     for (const entry of view.cards) useAccount.getState().seeCard(entry.card.id);
     writeRaw(RUN_KEY, serializeRun(started));
+    const showTutorial = started.config.tutorial && !useAccount.getState().tutorialSeen;
     set({
       run: started,
       screen: 'game',
       savedRunExists: true,
-      tutorialStep: draft.tutorial ? 1 : 0,
+      tutorialStep: showTutorial ? 1 : 0,
     });
   },
 
@@ -289,7 +295,10 @@ export const useGame = create<GameStore>()((set, get) => ({
   prevTutorial() { set((s) => ({ tutorialStep: Math.max(1, s.tutorialStep - 1) })); },
   goToTutorialStep(step) { set({ tutorialStep: step }); },
   startTutorial() { set({ tutorialStep: 1 }); },
-  skipTutorial() { set({ tutorialStep: 0 }); },
+  skipTutorial() {
+    useAccount.getState().markTutorialSeen();
+    set({ tutorialStep: 0 });
+  },
 
   saveRun() {
     const { run } = get();

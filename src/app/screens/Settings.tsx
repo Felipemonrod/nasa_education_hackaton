@@ -184,7 +184,7 @@ function GameMeter({
 
 export function Settings(): JSX.Element {
   const t = useT();
-  const { go, run, prevScreen } = useGame();
+  const { go, prevScreen } = useGame();
   const locale = useI18n((s) => s.locale);
   const setLocale = useI18n((s) => s.setLocale);
   const settings = useAccount((s) => s.settings);
@@ -203,6 +203,10 @@ export function Settings(): JSX.Element {
   const isMuted = settings.speechVolume <= 0;
   const VolumeIcon = isMuted ? VolumeX : settings.speechVolume < 0.5 ? Volume1 : Volume2;
 
+  const sfxVolumePct = Math.round(settings.sfxVolume * 100);
+  const isSfxMuted = settings.sfxVolume <= 0;
+  const SfxVolumeIcon = isSfxMuted ? VolumeX : settings.sfxVolume < 0.5 ? Volume1 : Volume2;
+
   const activeIndex = TABS.findIndex((tab) => tab.id === activeTab);
   const stepTab = (delta: number): void => {
     const next = (activeIndex + delta + TABS.length) % TABS.length;
@@ -215,21 +219,25 @@ export function Settings(): JSX.Element {
     if (clamped <= 0) stop();
   };
 
+  const setSfxVolume = (next: number): void => {
+    const clamped = Math.round(Math.min(VOLUME_MAX, Math.max(VOLUME_MIN, next)) * 100) / 100;
+    setSetting('sfxVolume', clamped);
+  };
+
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[840px] flex-col justify-center px-5 py-5 sm:px-8">
       <header className="flex items-center gap-3.5">
         <button
           type="button"
           onClick={() => {
-            if (prevScreen === 'destination' || prevScreen === 'loadout') {
-              go(prevScreen);
-              return;
-            }
-            go(run !== null && run.status === 'running' ? 'game' : 'menu');
+            const target = prevScreen !== 'settings' && prevScreen !== 'cutscene' ? prevScreen : 'menu';
+            go(target);
           }}
-          className={`${ACTION_BTN} min-h-[42px] bg-space-850 px-4 py-2 text-sm text-slate-100 hover:bg-space-800`}
+          aria-label={t('common.back')}
+          title={t('common.back')}
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl glass text-slate-200 transition-colors hover:border-sky-300/40 hover:bg-white/10 hover:text-white"
         >
-          <ArrowLeft size={16} aria-hidden /> {t('common.back')}
+          <ArrowLeft size={18} aria-hidden />
         </button>
         <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">
           {t('settings.title')}
@@ -381,6 +389,32 @@ export function Settings(): JSX.Element {
                 checked={settings.autoRead}
                 onChange={(v) => { setSetting('autoRead', v); }}
               />
+            </SettingRow>
+
+            <SettingRow label={t('settings.sfxVolume')} hint={t('settings.sfxVolumeHint')}>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label={t('settings.sfxMute')}
+                  onClick={() => { setSfxVolume(isSfxMuted ? 1 : 0); }}
+                  className={`${ACTION_BTN} h-9 w-9 rounded-xl
+                    ${isSfxMuted
+                      ? 'bg-radiation/20 text-radiation hover:bg-radiation/30'
+                      : 'bg-space-900 text-sky-300 hover:bg-space-800'}`}
+                >
+                  <SfxVolumeIcon size={15} aria-hidden />
+                </button>
+                <GameMeter
+                  id="sfx-volume"
+                  value={settings.sfxVolume}
+                  min={VOLUME_MIN}
+                  max={VOLUME_MAX}
+                  step={0.1}
+                  display={isSfxMuted ? t('settings.speechMute') : t('settings.speechVolumeValue', { volume: sfxVolumePct })}
+                  ariaLabel={t('settings.sfxVolumeAria')}
+                  onChange={setSfxVolume}
+                />
+              </div>
             </SettingRow>
 
             <SettingRow label={t('settings.speechVolume')} hint={t('settings.speechVolumeHint')}>

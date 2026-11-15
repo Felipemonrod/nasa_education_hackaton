@@ -25,9 +25,14 @@ export function GearMenu({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/75 p-4 backdrop-blur-sm animate-fade-in"
       role="dialog"
+      aria-modal="true"
       aria-label={t('common.options')}
+      onClick={onClose}
     >
-      <div className="card-surface w-full max-w-xs p-4">
+      <div
+        className="card-surface w-full max-w-xs p-4"
+        onClick={(e) => { e.stopPropagation(); }}
+      >
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-base font-extrabold text-white">{t('common.options')}</h2>
           <button

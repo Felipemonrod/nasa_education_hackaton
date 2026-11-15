@@ -134,4 +134,30 @@ describe('conta (progresso duravel)', () => {
     expect(reopened.useAccount.getState().cutsceneSeen).toBe(false);
     expect(reopened.useGame.getState().screen).toBe('cutscene');
   });
+
+  it('pular ou finalizar o tutorial persiste na conta e evita reabertura em nova missao', async () => {
+    const first = await reopenBrowser();
+    const { COMMANDERS } = await import('../src/app/data/loadout.js');
+    first.useGame.getState().newMission();
+    expect(first.useGame.getState().draft.tutorial).toBe(true);
+    first.useGame.getState().pickCommander(COMMANDERS[0]!.id);
+    first.useGame.getState().rollExtras();
+    first.useGame.getState().confirmLoadout();
+    first.useGame.getState().enterGame();
+    expect(first.useGame.getState().tutorialStep).toBe(1);
+
+    first.useGame.getState().skipTutorial();
+    expect(first.useGame.getState().tutorialStep).toBe(0);
+    expect(first.useAccount.getState().tutorialSeen).toBe(true);
+
+    const reopened = await reopenBrowser();
+    expect(reopened.useAccount.getState().tutorialSeen).toBe(true);
+    reopened.useGame.getState().newMission();
+    expect(reopened.useGame.getState().draft.tutorial).toBe(false);
+    reopened.useGame.getState().pickCommander(COMMANDERS[0]!.id);
+    reopened.useGame.getState().rollExtras();
+    reopened.useGame.getState().confirmLoadout();
+    reopened.useGame.getState().enterGame();
+    expect(reopened.useGame.getState().tutorialStep).toBe(0);
+  });
 });

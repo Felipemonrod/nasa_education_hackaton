@@ -34,10 +34,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,woff2}'],
         runtimeCaching: [
           {
-            // Imagens da NASA: rede primeiro, cache como rede de seguranca.
-            // O JOGO nunca depende disso -- e so a janela "olhar espaco".
-            // (EPIC removido: nenhum codigo do app chama epic.gsfc.nasa.gov.)
-            urlPattern: /^https:\/\/(api\.nasa\.gov|apod\.nasa\.gov)\/.*/i,
+            // Imagens da NASA e satelites parceiros (APOD, EPIC/DSCOVR, GOES-19, NASA Image Library):
+            // rede primeiro, cache como rede de seguranca. O JOGO nunca depende disso -- e so a janela "olhar espaco".
+            urlPattern: /^https:\/\/(api\.nasa\.gov|apod\.nasa\.gov|epic\.gsfc\.nasa\.gov|images-api\.nasa\.gov|images-assets\.nasa\.gov|cdn\.star\.nesdis\.noaa\.gov)\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'nasa-media',
