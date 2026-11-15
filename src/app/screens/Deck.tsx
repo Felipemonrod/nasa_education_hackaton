@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { CARDS } from '../../content/cards.js';
 import type { Card, Phase, Stat, Threshold } from '../../engine/types.js';
-import { getCardFrameMeta } from '../components/CardArtwork.js';
+import { CardShell, getCardFrameMeta } from '../components/CardArtwork.js';
 import { GlossaryText } from '../components/GlossaryText.js';
 import { useContent } from '../i18n/useContent.js';
 import { useT } from '../i18n/useI18n.js';
@@ -134,171 +134,91 @@ function DeckCardPreview({ card, known }: {
       aria-label={t('deck.cardPreviewTitle')}
       className="relative flex items-center justify-center py-2 lg:sticky lg:top-5"
     >
-      <article
-        data-deck-keep-open
-        className={`relative mx-auto flex w-full max-w-[22.5rem] max-lg:w-[min(84vw,20.5rem)] max-lg:landscape:w-[min(42vw,19rem)] flex-col animate-card-in drop-shadow-[0_18px_36px_rgba(0,0,0,0.72)] ${
-          known ? '' : 'opacity-80'
-        }`}
-      >
-        {/* Leve blur direto atrás apenas do corpo da carta (sem criar caixa no topo transparente) */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute bottom-[2%] left-[7%] right-[7%] top-[10%] -z-10 rounded-2xl bg-space-950/25 backdrop-blur-md"
-        />
-
-        {/* Brilho suave, contínuo e mais lento mascarado exatamente na silhueta real da carta (sem plástico torto) */}
-        <div
-          aria-hidden
-          style={{
-            WebkitMaskImage: `url(${frame.image}), linear-gradient(#000, #000)`,
-            maskImage: `url(${frame.image}), linear-gradient(#000, #000)`,
-            WebkitMaskSize: '100% auto, 86.8% 55%',
-            maskSize: '100% auto, 86.8% 55%',
-            WebkitMaskPosition: 'top center, center 95%',
-            maskPosition: 'top center, center 95%',
-            WebkitMaskRepeat: 'no-repeat, no-repeat',
-            maskRepeat: 'no-repeat, no-repeat',
-          }}
-          className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
-        >
-          <div
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.03) 25%, rgba(186, 230, 253, 0.13) 45%, rgba(255, 255, 255, 0.22) 50%, rgba(186, 230, 253, 0.13) 55%, rgba(255, 255, 255, 0.03) 75%, transparent 100%)',
-            }}
-            className="animate-card-shine absolute -inset-y-6 left-0 w-[55%] mix-blend-screen"
-          />
-        </div>
-
-        {/* Ícone de text-to-speech mais para cima e na diagonal, longe da imagem da carta */}
-        {known ? (
-          <div className="absolute right-1 top-1 z-20 lg:-right-1.5 lg:-top-1">
+      <div data-deck-keep-open className={`w-full ${known ? '' : 'opacity-80'}`}>
+        <CardShell
+          frame={frame}
+          title={title}
+          titleLevel={3}
+          sizeClass="max-w-[22.5rem] max-lg:w-[min(84vw,20.5rem)] max-lg:landscape:w-[min(42vw,19rem)] drop-shadow-[0_18px_36px_rgba(0,0,0,0.72)]"
+          speak={known ? (
             <SpeakButton
               text={`${title}. ${text}. ${card.options.map((o) => content.optionLabel(card, o)).join('. ')}`}
               label={t('card.listenAria', { title })}
             />
-          </div>
-        ) : null}
-
-        {/* Topo da moldura HeadXimage */}
-        <header className="relative aspect-[1432/730] w-full select-none overflow-hidden">
-          <img
-            src={frame.image}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 h-[273.973%] w-full max-w-none"
-          />
-
-          <div
-            className="absolute flex items-center justify-center px-2 text-center"
-            style={{
-              top: frame.bannerTopPct,
-              height: frame.bannerHeightPct,
-              left: frame.bannerLeftPct,
-              right: frame.bannerRightPct,
-            }}
-          >
-            <h3
-              className={`line-clamp-2 w-full pt-[1px] text-center font-display text-xs font-extrabold uppercase leading-tight tracking-tight sm:text-sm ${frame.titleTextClass}`}
-            >
-              {title}
-            </h3>
-          </div>
-        </header>
-
-        {/* Corpo central da carta */}
-        <div
-          className="relative -my-px flex flex-1 flex-col px-[11.5%] py-1.5"
-          style={{
-            backgroundImage: `url(${frame.image})`,
-            backgroundSize: '100% 300%',
-            backgroundPosition: 'center 62%',
-            backgroundRepeat: 'no-repeat',
-          }}
+          ) : undefined}
         >
-          <div className="flex flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 p-3 shadow-lg">
-            {known ? (
-              <>
-                <div>
-                  {hasBadges ? (
-                    <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
-                      {card.role === 'extra' ? (
-                        <span className={`rounded-lg px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wider
-                          ${card.track === 'science' ? 'bg-science/20 text-science border border-science/30' : 'bg-life/20 text-life border border-life/30'}`}>
-                          {t(card.track === 'science' ? 'stat.science' : 'stat.lifeSupport')}
-                        </span>
-                      ) : null}
-                      {card.role === 'event' ? (
-                        <span className="inline-flex items-center gap-1 rounded-lg border border-power/30 bg-power/20 px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wider text-power">
-                          <Rocket size={11} aria-hidden /> {t('card.event')}
-                        </span>
-                      ) : null}
-                      {badge !== null ? (
-                        <span className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/10 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-slate-200">
-                          <badge.icon size={11} aria-hidden />
-                          {t(badge.key)}
-                        </span>
-                      ) : null}
-                    </div>
-                  ) : null}
+          {known ? (
+            <>
+              <div className="flex min-h-0 flex-auto flex-col">
+                {hasBadges ? (
+                  <div className="mb-[1.8cqw] flex flex-wrap items-center gap-[1.4cqw]">
+                    {card.role === 'extra' ? (
+                      <span className={`rounded-lg px-2 py-0.5 text-[clamp(0.55rem,2.7cqw,0.68rem)] font-extrabold uppercase tracking-wider
+                        ${card.track === 'science' ? 'bg-science/20 text-science border border-science/30' : 'bg-life/20 text-life border border-life/30'}`}>
+                        {t(card.track === 'science' ? 'stat.science' : 'stat.lifeSupport')}
+                      </span>
+                    ) : null}
+                    {card.role === 'event' ? (
+                      <span className="inline-flex items-center gap-1 rounded-lg border border-power/30 bg-power/20 px-2 py-0.5 text-[clamp(0.55rem,2.7cqw,0.68rem)] font-extrabold uppercase tracking-wider text-power">
+                        <Rocket size={11} aria-hidden /> {t('card.event')}
+                      </span>
+                    ) : null}
+                    {badge !== null ? (
+                      <span className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/10 px-2 py-0.5 text-[clamp(0.55rem,2.7cqw,0.68rem)] font-bold uppercase tracking-wider text-slate-200">
+                        <badge.icon size={11} aria-hidden />
+                        {t(badge.key)}
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
 
+                {/* Mesma regra do jogo: rola so quando o texto nao cabe. */}
+                <div
+                  role="region"
+                  aria-label={title}
+                  tabIndex={0}
+                  className="scroll-thin min-h-[2.6rem] flex-auto overflow-y-auto overscroll-contain rounded pb-1.5 pr-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/60"
+                >
                   <GlossaryText
                     text={text}
-                    className="block text-[0.82rem] leading-snug text-slate-200 sm:text-[0.86rem]"
+                    className="block text-[clamp(0.7rem,3.6cqw,0.9rem)] leading-snug text-slate-200"
                   />
                 </div>
-
-                <div className="mt-3 flex flex-col gap-1.5">
-                  {card.options.map((option) => (
-                    <div
-                      key={option.id}
-                      className="flex min-h-[2.35rem] w-full items-center justify-between gap-2 rounded-xl border border-white/12 bg-white/[.06] px-3 py-1.5 text-left"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <span className="block text-[0.8rem] font-bold leading-snug text-slate-100">
-                          {content.optionLabel(card, option)}
-                        </span>
-                        {option.requires !== undefined ? (
-                          <span className="mt-0.5 block text-[0.66rem] font-semibold text-slate-300">
-                            {t('card.requires', { requirement: requirementText(option.requires) })}
-                          </span>
-                        ) : null}
-                      </div>
-                      <ChevronRight size={14} className="shrink-0 text-slate-400" aria-hidden />
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-2.5 py-8 text-center">
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10">
-                  <Lock size={20} className="text-slate-400" aria-hidden />
-                </span>
-                <p className="text-[0.8rem] leading-relaxed text-slate-300">
-                  {t('deck.unknownCardBody')}
-                </p>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Rodapé hexagonal da moldura */}
-        <footer className="relative aspect-[1432/260] w-full select-none overflow-hidden">
-          <img
-            src={frame.image}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-[769.23%] w-full max-w-none"
-          />
-          <div
-            className="absolute left-[25%] right-[25%] flex items-center justify-center px-2 text-center"
-            style={{ top: frame.footerTopPct, height: frame.footerHeightPct }}
-          >
-            <span className={`w-full truncate pt-[1.5px] text-center font-display text-[0.6rem] font-extrabold uppercase leading-none tracking-wider ${frame.badgeTextClass}`}>
-              {t(frame.footerLabelKey)}
-            </span>
-          </div>
-        </footer>
-      </article>
+              <div className="mt-[2cqw] flex shrink-0 flex-col gap-[1.4cqw]">
+                {card.options.map((option) => (
+                  <div
+                    key={option.id}
+                    className="flex min-h-[max(1.8rem,7.4cqw)] w-full items-center justify-between gap-[2cqw] rounded-[2.4cqw] border border-white/12 bg-white/[.06] px-[3cqw] py-[1.1cqw] text-left"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <span className="block text-[clamp(0.7rem,3.6cqw,0.86rem)] font-bold leading-snug text-slate-100">
+                        {content.optionLabel(card, option)}
+                      </span>
+                      {option.requires !== undefined ? (
+                        <span className="mt-0.5 block text-[clamp(0.6rem,3cqw,0.7rem)] font-semibold text-slate-300">
+                          {t('card.requires', { requirement: requirementText(option.requires) })}
+                        </span>
+                      ) : null}
+                    </div>
+                    <ChevronRight size={14} className="shrink-0 text-slate-400" aria-hidden />
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-1 flex-col items-center justify-center gap-2.5 text-center">
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10">
+                <Lock size={20} className="text-slate-400" aria-hidden />
+              </span>
+              <p className="text-[0.8rem] leading-relaxed text-slate-300">
+                {t('deck.unknownCardBody')}
+              </p>
+            </div>
+          )}
+        </CardShell>
+      </div>
     </div>
   );
 }

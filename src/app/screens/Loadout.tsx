@@ -25,62 +25,64 @@ function CardFace({
   const blurb = content.loadout(card.id, 'blurb', card.blurb);
   const effect = content.loadout(card.id, 'effect', card.effectLabel);
 
-  // Coordenadas exatas medidas por pixel em 5-frame.png (Comandante), 6-frame.png (Estrutura) e ItemCard.png (Equipamento)
-  const bannerStyle =
-    card.kind === 'commander'
-      ? 'top-[8.6%] h-[9.1%] left-[26%] right-[24.4%] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]'
-      : card.kind === 'structure'
-        ? 'top-[8.4%] h-[9.2%] left-[25%] right-[25%] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]'
-        : 'top-[17.8%] h-[9.6%] left-[25%] right-[24.2%] text-slate-950';
+  // Coordenadas medidas por pixel em CommanderCard.png, StructureCard.png e
+  // ItemCard.png (1432x2000). As tres tem a faixa do titulo no mesmo lugar;
+  // nao existe mais rodape com o cargo -- ele entra no topo do painel.
+  const bannerStyle = card.kind === 'equipment'
+    ? 'top-[13.3%] h-[8%] left-[17%] right-[16%] text-slate-950'
+    : 'top-[13.1%] h-[8%] left-[17%] right-[16%] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]';
 
+  // Painel de texto dentro da caixa colorida de cada moldura, abaixo da
+  // janela da foto (Comandante: elipse ate 70.8%; Estrutura: octogono ate 54.8%).
   const bodyPanelStyle =
     card.kind === 'commander'
-      ? 'top-[69.2%] bottom-[12.2%] left-[11.5%] right-[11.5%] justify-center gap-1'
+      ? 'top-[72.4%] bottom-[3.2%] left-[10.8%] right-[10.8%] justify-center gap-1'
       : card.kind === 'structure'
-        ? 'top-[52%] bottom-[13.2%] left-[11.5%] right-[11.5%] justify-center gap-1.5'
-        : 'top-[33.5%] bottom-[14.5%] left-[11.5%] right-[11.5%] justify-center gap-2';
-
-  const footerStyle =
-    card.kind === 'commander'
-      ? 'top-[88.9%] h-[5.75%] left-[25%] right-[25%] text-slate-950'
-      : card.kind === 'structure'
-        ? 'top-[87.9%] h-[5.85%] left-[25%] right-[25%] text-white'
-        : 'top-[88.1%] h-[6.45%] left-[24%] right-[24%] text-slate-950';
+        ? 'top-[56.6%] bottom-[3.2%] left-[10.8%] right-[10.8%] justify-center gap-1.5'
+        : 'top-[37.6%] bottom-[3.2%] left-[10.8%] right-[10.8%] justify-center gap-2';
 
   const isModal = variant === 'modal';
 
   return (
     <div
-      className={`relative mx-auto aspect-[1432/2000] w-full select-none overflow-hidden drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)] ${
+      className={`relative isolate mx-auto aspect-[1432/2000] w-full select-none overflow-hidden drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)] ${
         isModal
           ? 'max-w-[min(84vw,calc(80dvh*0.716))]'
           : 'max-w-[min(74vw,calc(52dvh*0.716))] sm:max-w-[min(18.5rem,calc(58dvh*0.716))] lg:max-w-[20.5rem]'
       }`}
     >
-      {/* Somente as cartas de Capitão (5-frame.png) e de Estrutura (6-frame.png) possuem janela vazada com foto real da NASA */}
+      {/* Comandante e Estrutura tem janela de foto. Na PNG ela e BRANCA e
+          opaca, entao a foto da NASA vai por baixo e a moldura entra com
+          mix-blend-multiply (branco x foto = foto). `isolate` no container
+          faz o multiply valer so dentro da carta: fora da foto a moldura
+          aparece com as cores originais.
+          Elipse do Comandante: x 229..1224, y 476..1415.
+          Octogono da Estrutura: x 261..1170, y 418..1100 (topo sob a faixa). */}
       {card.kind === 'commander' ? (
-        <div className="absolute left-[15.0%] right-[13.5%] top-[20.1%] z-0 h-[48.4%] overflow-hidden rounded-full bg-space-950">
+        <div className="absolute left-[15.7%] right-[14.2%] top-[23.5%] bottom-[29%] z-0 overflow-hidden rounded-[50%] bg-space-950">
           <NasaCardPhoto loadoutId={card.id} className="h-full w-full object-cover" />
         </div>
       ) : null}
 
       {card.kind === 'structure' ? (
         <div
-          className="absolute left-[16.6%] right-[16.6%] top-[13.9%] z-0 h-[36.3%] overflow-hidden bg-space-950"
+          className="absolute left-[17.8%] right-[17.9%] top-[20.9%] bottom-[44.9%] z-0 overflow-hidden bg-space-950"
           style={{
-            clipPath: 'polygon(16% 0%, 84% 0%, 100% 16%, 100% 84%, 84% 100%, 16% 100%, 0% 84%, 0% 16%)',
+            clipPath: 'polygon(10% 0%, 90% 0%, 100% 15%, 100% 79%, 84% 100%, 16% 100%, 0% 79%, 0% 16%)',
           }}
         >
           <NasaCardPhoto loadoutId={card.id} className="h-full w-full object-cover" />
         </div>
       ) : null}
 
-      {/* Moldura PNG sobreposta (z-10) para que o anel azul de 5-frame.png e as engrenagens/faixa vermelha de 6-frame.png fiquem sobre a foto */}
+      {/* Moldura por cima da foto: multiply deixa a foto aparecer pela janela
+          branca e mantem anel e engrenagens desenhados sobre ela. */}
       <img
         src={frame.image}
         alt=""
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-10 h-full w-full object-contain"
+        draggable={false}
+        className="pointer-events-none absolute inset-0 z-10 h-full w-full mix-blend-multiply"
       />
 
       {/* Faixa superior do título */}
@@ -102,6 +104,16 @@ function CardFace({
           isModal ? 'p-2.5' : 'p-2.5 [@media(max-height:560px)]:gap-1 [@media(max-height:560px)]:p-1 lg:p-2.5'
         }`}
       >
+        {/* Cargo/categoria: antes ia no rodape hexagonal, que nao existe mais. */}
+        <span
+          className={`w-full truncate text-center font-display font-extrabold uppercase leading-none tracking-wider text-sky-300 ${
+            isModal
+              ? 'text-[10px]'
+              : 'text-[9px] sm:text-[10px] [@media(max-height:560px)]:text-[6.5px] lg:text-[10px]'
+          }`}
+        >
+          {role}
+        </span>
         {card.kind === 'equipment' ? (
           <span
             className={`mx-auto grid shrink-0 place-items-center bg-amber-400/20 text-amber-300 ${
@@ -114,7 +126,7 @@ function CardFace({
           </span>
         ) : null}
         <p
-          className={`line-clamp-3 w-full text-center leading-tight text-slate-200 ${
+          className={`line-clamp-4 w-full text-center leading-tight text-slate-200 ${
             isModal
               ? 'text-[11.5px]'
               : 'text-[10.5px] sm:text-[11.5px] [@media(max-height:560px)]:line-clamp-2 [@media(max-height:560px)]:text-[7.5px] lg:line-clamp-3 lg:text-[11.5px]'
@@ -133,18 +145,6 @@ function CardFace({
         </p>
       </div>
 
-      {/* Hexágono inferior com especialidade / categoria perfeitamente centralizada */}
-      <div className={`absolute z-20 flex items-center justify-center px-1.5 text-center ${footerStyle}`}>
-        <span
-          className={`w-full truncate pt-[1.5px] text-center font-display font-extrabold uppercase leading-none tracking-wider ${
-            isModal
-              ? 'text-[10px]'
-              : 'text-[9px] sm:text-[10px] [@media(max-height:560px)]:text-[6.5px] lg:text-[10px]'
-          }`}
-        >
-          {role}
-        </span>
-      </div>
     </div>
   );
 }

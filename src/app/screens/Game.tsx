@@ -339,8 +339,8 @@ export function Game(): JSX.Element {
           onClick={() => { if (modalOpen) setDecisionsModalOpen(false); }}
           className={
             modalOpen
-              ? 'fixed inset-0 z-40 flex flex-col items-center justify-center bg-space-950/85 p-3 backdrop-blur-md animate-fade-in lg:static lg:inset-auto lg:z-auto lg:col-span-8 lg:flex lg:min-h-0 lg:flex-col lg:justify-center lg:overflow-y-auto lg:scroll-thin lg:bg-transparent lg:p-0 lg:backdrop-blur-none'
-              : 'hidden lg:col-span-8 lg:flex lg:min-h-0 lg:flex-col lg:justify-center lg:overflow-y-auto lg:scroll-thin'
+              ? 'fixed inset-0 z-40 flex flex-col items-center justify-center bg-space-950/85 p-3 backdrop-blur-md animate-fade-in lg:static lg:inset-auto lg:z-auto lg:col-span-8 lg:flex lg:min-h-0 lg:flex-col lg:justify-center lg:overflow-y-auto lg:overflow-x-hidden lg:scroll-thin lg:bg-transparent lg:p-0 lg:backdrop-blur-none'
+              : 'hidden lg:col-span-8 lg:flex lg:min-h-0 lg:flex-col lg:justify-center lg:overflow-y-auto lg:overflow-x-hidden lg:scroll-thin'
           }
         >
           {!cardReady || outcome !== null ? (
@@ -364,7 +364,7 @@ export function Game(): JSX.Element {
           ) : (
             <div
               onClick={(e) => { if (modalOpen) e.stopPropagation(); }}
-              className="flex max-h-[94dvh] w-full max-w-4xl flex-col items-center gap-2 overflow-y-auto scroll-thin lg:contents"
+              className="flex max-h-[94dvh] w-full max-w-4xl flex-col items-center gap-2 overflow-y-auto overflow-x-hidden scroll-thin lg:contents"
             >
               {/* Barra superior do modal no mobile: abas para eventos de 2 cartas no retrato + botao fechar */}
               <div className="flex w-full items-center justify-between gap-2 lg:hidden">

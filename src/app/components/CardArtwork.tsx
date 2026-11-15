@@ -1,146 +1,144 @@
+import type { CSSProperties, ReactNode } from 'react';
 import type { Card, Phase } from '../../engine/types.js';
 import type { LoadoutCard } from '../data/loadout.js';
 
+/**
+ * MOLDURAS DAS CARTAS (public/cards, vindas do diretorio HeadXimage).
+ *
+ * Todas as molduras tem 1432x2000 e o MESMO desenho: faixa de titulo no
+ * topo e uma caixa de descricao grande embaixo. Por isso a carta inteira e
+ * UMA imagem com proporcao fixa e o conteudo vai por cima em posicoes
+ * percentuais -- todas as cartas ficam do mesmo tamanho e alinhadas, e
+ * nada transborda para os lados.
+ *
+ * Coordenadas medidas por pixel nas PNGs (scripts em scratchpad/frames):
+ *  - faixa do titulo:   y 251..440 (12.6%..22.0%), x ~210..1240
+ *  - caixa de texto:    y 728..1957 (36.4%..97.8%), x 139..1292 (9.7%..90.2%)
+ * Nao existe mais rodape com o tipo da carta.
+ */
 export interface CardFrameMeta {
   readonly image: string;
-  readonly bodyHex: string;
-  readonly borderHex: string;
+  /** Cor do titulo sobre a faixa da moldura (contraste com a cor da faixa). */
   readonly titleTextClass: string;
-  readonly badgeTextClass: string;
-  readonly accentHex: string;
-  readonly bannerTopPct: string;
-  readonly bannerHeightPct: string;
-  readonly bannerLeftPct: string;
-  readonly bannerRightPct: string;
-  readonly footerTopPct: string;
-  readonly footerHeightPct: string;
-  readonly footerLabelKey: string;
 }
 
-/**
- * Mapeia cada card de missao para um dos 5 modelos do diretorio HeadXimage
- * (DiaCard1, CardNoite1, CienceCard, HealCard, ItemCard).
- * Coordenadas medidas por pixel em cada PNG (1432x2000):
- * - Header exibe y = 0..730 (aspect-[1432/730])
- * - Footer exibe y = 1740..2000 (aspect-[1432/260])
- */
+export const CARD_TITLE_BOX: CSSProperties = { top: '13.2%', height: '8.2%', left: '17%', right: '16%' };
+export const CARD_BODY_BOX: CSSProperties = { top: '36.4%', bottom: '2.2%', left: '9.7%', right: '9.8%' };
+
+const LIGHT_TITLE = 'text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]';
+const DARK_TITLE = 'text-slate-950 drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]';
+
 export function getCardFrameMeta(card: Card, phase: Phase): CardFrameMeta {
   if (card.role === 'extra' && card.track === 'science') {
-    return {
-      image: '/cards/CienceCard.png',
-      bodyHex: '#bc3fde',
-      borderHex: '#49105b',
-      titleTextClass: 'text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]',
-      badgeTextClass: 'text-purple-100',
-      accentHex: '#c084fc',
-      bannerTopPct: '62.3%',
-      bannerHeightPct: '24.8%',
-      bannerLeftPct: '26.1%',
-      bannerRightPct: '25.1%',
-      footerTopPct: '13.1%',
-      footerHeightPct: '46.5%',
-      footerLabelKey: 'stat.science',
-    };
+    return { image: '/cards/CiencCard.png', titleTextClass: LIGHT_TITLE };
   }
   if (card.role === 'extra' && card.track === 'lifeSupport') {
-    return {
-      image: '/cards/HealCard.png',
-      bodyHex: '#c1ff72',
-      borderHex: '#4f7f0f',
-      titleTextClass: 'text-slate-950 drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]',
-      badgeTextClass: 'text-slate-950',
-      accentHex: '#4ade80',
-      bannerTopPct: '61.8%',
-      bannerHeightPct: '24.5%',
-      bannerLeftPct: '26.0%',
-      bannerRightPct: '25.3%',
-      footerTopPct: '10.0%',
-      footerHeightPct: '45.8%',
-      footerLabelKey: 'stat.lifeSupport',
-    };
+    return { image: '/cards/HealCard.png', titleTextClass: DARK_TITLE };
   }
   if (card.role === 'event') {
-    return {
-      image: '/cards/ItemCard.png',
-      bodyHex: '#ffde59',
-      borderHex: '#b45309',
-      titleTextClass: 'text-slate-950 drop-shadow-[0_1px_0_rgba(255,255,255,0.6)]',
-      badgeTextClass: 'text-slate-950',
-      accentHex: '#facc15',
-      bannerTopPct: '48.6%',
-      bannerHeightPct: '26.3%',
-      bannerLeftPct: '24.4%',
-      bannerRightPct: '23.7%',
-      footerTopPct: '8.1%',
-      footerHeightPct: '49.6%',
-      footerLabelKey: 'card.event',
-    };
+    return { image: '/cards/ItemCard.png', titleTextClass: DARK_TITLE };
   }
   const isNight = card.phase === 'night' || (card.phase === 'any' && phase === 'night');
   if (isNight) {
-    return {
-      image: '/cards/CardNoite1.png',
-      bodyHex: '#4a535c',
-      borderHex: '#90a3a6',
-      titleTextClass: 'text-slate-950 drop-shadow-[0_1px_0_rgba(255,255,255,0.65)]',
-      badgeTextClass: 'text-slate-950',
-      accentHex: '#7dd3fc',
-      bannerTopPct: '67.4%',
-      bannerHeightPct: '23.7%',
-      bannerLeftPct: '25.0%',
-      bannerRightPct: '25.0%',
-      footerTopPct: '24.6%',
-      footerHeightPct: '45.8%',
-      footerLabelKey: 'game.shiftNight',
-    };
+    return { image: '/cards/LuaCard2.png', titleTextClass: DARK_TITLE };
   }
-  return {
-    image: '/cards/DiaCard1.png',
-    bodyHex: '#9f522c',
-    borderHex: '#e46c40',
-    titleTextClass: 'text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]',
-    badgeTextClass: 'text-slate-950',
-    accentHex: '#fb923c',
-    bannerTopPct: '70.5%',
-    bannerHeightPct: '23.7%',
-    bannerLeftPct: '25.0%',
-    bannerRightPct: '25.8%',
-    footerTopPct: '25.4%',
-    footerHeightPct: '44.6%',
-    footerLabelKey: 'game.shiftDay',
-  };
+  return { image: '/cards/SolCard2.png', titleTextClass: LIGHT_TITLE };
+}
+
+/**
+ * Casca visual comum da carta de missao (jogo e baralho).
+ *
+ * - `aspect-[1432/2000]` + imagem unica: mesmo tamanho para todas as molduras.
+ * - `[container-type:inline-size]`: textos e espacamentos em `cqw` escalam
+ *   com a largura da carta, entao a carta pequena (celular deitado, par)
+ *   continua proporcional em vez de estourar.
+ * - `self-center`: dentro de flex/grid, `stretch` forcaria a altura e
+ *   deformaria a proporcao.
+ */
+export function CardShell({
+  frame, title, titleLevel = 2, sizeClass, speak, dataTutorial, dimmed, children,
+}: {
+  frame: CardFrameMeta;
+  title: string;
+  titleLevel?: 2 | 3;
+  sizeClass: string;
+  speak?: ReactNode;
+  dataTutorial?: string | undefined;
+  dimmed?: boolean | undefined;
+  children: ReactNode;
+}): JSX.Element {
+  const Heading = titleLevel === 2 ? 'h2' : 'h3';
+  return (
+    <article
+      data-tutorial={dataTutorial}
+      className={`relative isolate mx-auto aspect-[1432/2000] w-full shrink-0 self-center [container-type:inline-size]
+                  animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)] ${sizeClass} ${dimmed === true ? 'opacity-70' : ''}`}
+    >
+      <img
+        src={frame.image}
+        alt=""
+        aria-hidden
+        draggable={false}
+        className="pointer-events-none absolute inset-0 h-full w-full select-none"
+      />
+
+      {/* Brilho suave mascarado na silhueta da moldura. */}
+      <div
+        aria-hidden
+        style={{
+          WebkitMaskImage: `url(${frame.image})`,
+          maskImage: `url(${frame.image})`,
+          WebkitMaskSize: '100% 100%',
+          maskSize: '100% 100%',
+        }}
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.03) 25%, rgba(186, 230, 253, 0.13) 45%, rgba(255, 255, 255, 0.22) 50%, rgba(186, 230, 253, 0.13) 55%, rgba(255, 255, 255, 0.03) 75%, transparent 100%)',
+          }}
+          className="animate-card-shine absolute -inset-y-6 left-0 w-[55%] mix-blend-screen"
+        />
+      </div>
+
+      {/* Ouvir: no canto superior direito, DENTRO da carta (fora dela gerava
+          rolagem lateral na mesa de decisoes). */}
+      {speak !== undefined ? <div className="absolute right-[2%] top-[1.5%] z-20">{speak}</div> : null}
+
+      <div className="absolute z-10 flex items-center justify-center text-center" style={CARD_TITLE_BOX}>
+        <Heading
+          className={`line-clamp-2 w-full select-none text-center font-display font-extrabold uppercase leading-tight tracking-tight
+                      text-[clamp(0.62rem,4.1cqw,1.02rem)] ${frame.titleTextClass}`}
+        >
+          {title}
+        </Heading>
+      </div>
+
+      <div className="absolute z-10 flex flex-col p-[1.8cqw]" style={CARD_BODY_BOX}>
+        <div className="flex min-h-0 flex-1 flex-col rounded-[3cqw] border border-white/15 bg-space-950/90 p-[2.8cqw] shadow-lg">
+          {children}
+        </div>
+      </div>
+    </article>
+  );
 }
 
 export interface LoadoutFrameMeta {
   readonly image: string;
-  readonly bodyHex: string;
-  readonly footerLabel: string;
   readonly kind: LoadoutCard['kind'];
 }
 
+/**
+ * Cartas iniciais. Comandante e Estrutura tem janela de foto (branca e
+ * opaca na PNG): a foto real da NASA vai POR BAIXO e a moldura entra com
+ * `mix-blend-multiply` -- branco x foto = foto, e as engrenagens que
+ * invadem a janela da Estrutura continuam por cima. Equipamento usa a
+ * moldura so de texto (ItemCard).
+ */
 export function getLoadoutFrameMeta(card: LoadoutCard): LoadoutFrameMeta {
-  if (card.kind === 'commander') {
-    return {
-      image: '/cards/5-frame.png',
-      bodyHex: '#0b3d91',
-      footerLabel: 'COMANDANTE',
-      kind: 'commander',
-    };
-  }
-  if (card.kind === 'structure') {
-    return {
-      image: '/cards/6-frame.png',
-      bodyHex: '#ff3131',
-      footerLabel: 'ESTRUTURA',
-      kind: 'structure',
-    };
-  }
-  return {
-    image: '/cards/ItemCard.png',
-    bodyHex: '#ffde59',
-    footerLabel: 'EQUIPAMENTO',
-    kind: 'equipment',
-  };
+  if (card.kind === 'commander') return { image: '/cards/CommanderCard.png', kind: 'commander' };
+  if (card.kind === 'structure') return { image: '/cards/StructureCard.png', kind: 'structure' };
+  return { image: '/cards/ItemCard.png', kind: 'equipment' };
 }
 
 export interface NasaCardPhotoMeta {
@@ -155,7 +153,7 @@ export interface NasaCardPhotoMeta {
 /**
  * Imagens reais oficiais coletadas da NASA Image and Video Library
  * (`images-api.nasa.gov` / `images-assets.nasa.gov`) exclusivamente para
- * as cartas de Capitao/Comandante (5.png) e de Estrutura (6.png).
+ * as cartas de Comandante (CommanderCard) e de Estrutura (StructureCard).
  */
 export const NASA_CARD_PHOTOS: Readonly<Record<string, NasaCardPhotoMeta>> = {
   cmd_engineer: {

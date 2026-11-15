@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import type { Card, CardOption, Phase, Threshold } from '../../engine/types.js';
 import { useAccount } from '../store/useAccount.js';
-import { getCardFrameMeta } from './CardArtwork.js';
+import { CardShell, getCardFrameMeta } from './CardArtwork.js';
 import { GlossaryText } from './GlossaryText.js';
 import { joinSpoken } from '../a11y/speech.js';
 import { SpeakButton } from './SpeakButton.js';
@@ -118,219 +118,132 @@ export function CardView({
     </div>
   ) : null;
 
+  /* Largura da carta limitada tambem pela ALTURA da tela (proporcao
+     1432/2000 = 0.716): a carta inteira sempre cabe, sem rolar a mesa. */
+  const sizeClass = inModal
+    ? 'max-w-[min(100%,calc((100dvh_-_5.5rem)*0.716))]'
+    : compact === true
+      ? 'max-w-[min(25rem,calc((100dvh_-_8.5rem)*0.716))]'
+      : 'max-w-[min(26rem,calc((100dvh_-_8.5rem)*0.716))]';
+
   return (
     <>
-      <article
-        data-tutorial={isFirstCard ? 'card-header' : undefined}
-        className={`relative mx-auto flex min-h-0 w-full ${
-          inModal
-            ? 'max-w-[23.5rem] [@media(max-height:540px)]:max-w-[min(42vw,calc(44dvh*1.44))]'
-            : compact === true
-              ? 'max-w-[33.5rem]'
-              : 'max-w-[24.5rem]'
-        } flex-col animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
-                    ${dimmed === true ? 'opacity-70' : ''}`}
-      >
-        {/* Brilho suave, contínuo e mais lento mascarado exatamente na silhueta real da carta (sem plástico torto) */}
-        <div
-          aria-hidden
-          style={{
-            WebkitMaskImage: `url(${frame.image}), linear-gradient(#000, #000)`,
-            maskImage: `url(${frame.image}), linear-gradient(#000, #000)`,
-            WebkitMaskSize: '100% auto, 86.8% 55%',
-            maskSize: '100% auto, 86.8% 55%',
-            WebkitMaskPosition: 'top center, center 95%',
-            maskPosition: 'top center, center 95%',
-            WebkitMaskRepeat: 'no-repeat, no-repeat',
-            maskRepeat: 'no-repeat, no-repeat',
-          }}
-          className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
-        >
-          <div
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.03) 25%, rgba(186, 230, 253, 0.13) 45%, rgba(255, 255, 255, 0.22) 50%, rgba(186, 230, 253, 0.13) 55%, rgba(255, 255, 255, 0.03) 75%, transparent 100%)',
-            }}
-            className="animate-card-shine absolute -inset-y-6 left-0 w-[55%] mix-blend-screen"
-          />
-        </div>
-
-        {/* Ícone de áudio mais para cima e na diagonal, longe da imagem da carta */}
-        <div className="absolute right-1 top-1 z-20 lg:-right-1.5 lg:-top-1">
+      <CardShell
+        frame={frame}
+        title={title}
+        sizeClass={sizeClass}
+        dataTutorial={isFirstCard ? 'card-header' : undefined}
+        dimmed={dimmed}
+        speak={(
           <SpeakButton
             text={joinSpoken([title, text, ...options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option))])}
             label={t('card.listenAria', { title })}
           />
+        )}
+      >
+        <div className="flex min-h-0 flex-auto flex-col">
+          {hasBadges ? (
+            <div className="mb-[1.8cqw] flex flex-wrap items-center gap-[1.4cqw]">
+              {card.role === 'extra' ? (
+                <span className={`rounded-lg px-2 py-0.5 text-[clamp(0.55rem,2.7cqw,0.68rem)] font-extrabold uppercase tracking-wider
+                  ${card.track === 'science' ? 'bg-science/20 text-science border border-science/30' : 'bg-life/20 text-life border border-life/30'}`}>
+                  {t(card.track === 'science' ? 'stat.science' : 'stat.lifeSupport')}
+                </span>
+              ) : null}
+              {card.role === 'event' ? (
+                <span className="inline-flex items-center gap-1 rounded-lg border border-power/30 bg-power/20 px-2 py-0.5 text-[clamp(0.55rem,2.7cqw,0.68rem)] font-extrabold uppercase tracking-wider text-power">
+                  <Rocket size={11} aria-hidden /> {t('card.event')}
+                </span>
+              ) : null}
+              {badge !== null ? (
+                <span className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/10 px-2 py-0.5 text-[clamp(0.55rem,2.7cqw,0.68rem)] font-bold uppercase tracking-wider text-slate-200">
+                  <badge.icon size={11} aria-hidden />
+                  {stage !== undefined
+                    ? t('card.kindStage', { label: t(badge.key), stage: stage + 1 })
+                    : t(badge.key)}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+
+          {/* Descricao com rolagem propria, que SO aparece quando o texto nao
+              cabe: sem teto fixo, a regiao ocupa a altura livre da caixa da
+              moldura (flex-auto + min-h-0) e encolhe primeiro quando a carta
+              e pequena, mantendo as opcoes visiveis.
+              pb-1.5: os termos do glossario tem area de toque maior que a
+              linha (py-1.5 -my-1); sem esse respiro eles "vazavam" ~4px e o
+              navegador mostrava rolagem em texto que cabia.
+              min-h-[2.6rem]: nunca encolhe para menos de ~2-3 linhas.
+              tabIndex deixa rolar pelo teclado. */}
+          <div
+            role="region"
+            aria-label={title}
+            tabIndex={0}
+            className="scroll-thin min-h-[2.6rem] flex-auto overflow-y-auto overscroll-contain rounded pb-1.5 pr-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/60"
+          >
+            <GlossaryText
+              text={text}
+              className="block text-[clamp(0.7rem,3.6cqw,0.92rem)] leading-snug text-slate-200"
+            />
+          </div>
         </div>
 
-        {/* Topo da moldura HeadXimage (emblema superior + faixa do título, y=0..730) */}
-        <header className="relative aspect-[1432/730] w-full select-none overflow-hidden">
-          <img
-            src={frame.image}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 h-[273.973%] w-full max-w-none"
-          />
-
-          <div
-            className="absolute flex items-center justify-center px-2 text-center"
-            style={{
-              top: frame.bannerTopPct,
-              height: frame.bannerHeightPct,
-              left: frame.bannerLeftPct,
-              right: frame.bannerRightPct,
-            }}
-          >
-            <h2
-              className={`line-clamp-2 w-full pt-[1px] text-center font-display font-extrabold uppercase leading-tight tracking-tight ${frame.titleTextClass}
-                          ${compact === true ? 'text-[0.69rem] sm:text-xs' : 'text-xs sm:text-sm'}`}
-            >
-              {title}
-            </h2>
-          </div>
-        </header>
-
-        {/* Corpo central da moldura (expansível conforme texto e opções) */}
         <div
-          className="relative -my-px flex min-h-0 flex-1 flex-col px-[11.5%] py-0.5"
-          style={{
-            backgroundImage: `url(${frame.image})`,
-            backgroundSize: '100% 300%',
-            backgroundPosition: 'center 62%',
-            backgroundRepeat: 'no-repeat',
-          }}
+          data-tutorial={isFirstCard ? 'card-options' : undefined}
+          className="mt-[2cqw] flex shrink-0 flex-col gap-[1.4cqw]"
         >
-          <div className={`flex min-h-0 flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 px-2.5 py-2 shadow-lg ${inModal ? '[@media(max-height:540px)]:p-2' : ''}`}>
-            <div className="flex min-h-0 flex-auto flex-col">
-              {hasBadges ? (
-                <div className={`mb-1.5 flex flex-wrap items-center gap-1.5 ${inModal ? '[@media(max-height:540px)]:mb-1' : ''}`}>
-                  {card.role === 'extra' ? (
-                    <span className={`rounded-lg px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wider
-                      ${card.track === 'science' ? 'bg-science/20 text-science border border-science/30' : 'bg-life/20 text-life border border-life/30'}`}>
-                      {t(card.track === 'science' ? 'stat.science' : 'stat.lifeSupport')}
-                    </span>
-                  ) : null}
-                  {card.role === 'event' ? (
-                    <span className="inline-flex items-center gap-1 rounded-lg border border-power/30 bg-power/20 px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wider text-power">
-                      <Rocket size={11} aria-hidden /> {t('card.event')}
-                    </span>
-                  ) : null}
-                  {badge !== null ? (
-                    <span className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/10 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-slate-200">
-                      <badge.icon size={11} aria-hidden />
-                      {stage !== undefined
-                        ? t('card.kindStage', { label: t(badge.key), stage: stage + 1 })
-                        : t(badge.key)}
+          {options.map(({ option, selectable }) => {
+            const label = content.optionLabel(card, option);
+            const openBrief = briefId === option.id;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                aria-disabled={!selectable}
+                aria-expanded={confirmDecisions ? openBrief : undefined}
+                onMouseEnter={() => { if (selectable) onHoverOption?.(option); }}
+                onMouseLeave={() => { onHoverOption?.(null); }}
+                onFocus={() => { if (selectable) onHoverOption?.(option); }}
+                onBlur={() => { onHoverOption?.(null); }}
+                onClick={() => {
+                  if (!selectable) return;
+                  onHoverOption?.(null);
+                  if (confirmDecisions) setBriefId(openBrief ? null : option.id);
+                  else onChoose(option.id);
+                }}
+                className={`group flex min-h-[max(1.8rem,7.4cqw)] w-full items-center justify-between gap-[2cqw] rounded-[2.4cqw] border
+                  px-[3cqw] py-[1.1cqw] text-left transition-all duration-150
+                  ${openBrief
+                    ? 'border-sky-400/70 bg-sky-400/15 shadow-[0_0_20px_-6px_rgba(56,189,248,0.4)]'
+                    : selectable
+                      ? 'border-white/12 bg-white/[.06] hover:border-sky-300/40 hover:bg-white/[.12] active:scale-[.99]'
+                      : 'cursor-not-allowed border-white/5 bg-white/[.02] opacity-60'}`}
+              >
+                <div className="min-w-0 flex-1">
+                  <span className={`flex items-center gap-2 text-[clamp(0.68rem,3.4cqw,0.88rem)] font-bold leading-snug
+                    ${selectable ? 'text-slate-100' : 'text-slate-400'}`}>
+                    {!selectable ? <Lock size={13} className="shrink-0 text-slate-400" aria-hidden /> : null}
+                    {label}
+                  </span>
+                  {!selectable && option.requires !== undefined ? (
+                    <span className="mt-0.5 block text-[clamp(0.6rem,3cqw,0.72rem)] font-semibold text-slate-300">
+                      {t('card.requires', { requirement: requirementText(option.requires) })}
                     </span>
                   ) : null}
                 </div>
-              ) : null}
-
-              {/* Descricao com rolagem propria, que SO aparece quando a carta
-                  nao tem mais espaco: sem teto fixo, a regiao ocupa a altura
-                  livre da carta (flex-auto + min-h-0) e encolhe primeiro
-                  quando a tela aperta, mantendo as opcoes visiveis.
-                  pb-1.5: os termos do glossario tem area de toque maior que
-                  a linha (py-1.5 -my-1); sem esse respiro, eles "vazavam"
-                  ~4px e o navegador mostrava rolagem em texto que cabia.
-                  min-h-[3.25rem]: em telas muito baixas (celular deitado) a
-                  descricao nunca encolhe para menos de ~3 linhas legiveis.
-                  tabIndex deixa rolar pelo teclado. */}
-              <div
-                role="region"
-                aria-label={title}
-                tabIndex={0}
-                className="scroll-thin min-h-[3.25rem] flex-auto overflow-y-auto overscroll-contain rounded pb-1.5 pr-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/60"
-              >
-                <GlossaryText
-                  text={text}
-                  className={`block leading-snug text-slate-200
-                              ${compact === true ? 'text-[0.78rem] sm:text-[0.82rem]' : 'text-[0.82rem] sm:text-[0.88rem]'}
-                              ${inModal ? '[@media(max-height:540px)]:text-[0.72rem] [@media(max-height:540px)]:leading-tight' : ''}`}
-                />
-              </div>
-            </div>
-
-            <div
-              data-tutorial={isFirstCard ? 'card-options' : undefined}
-              className={`flex flex-col ${compact === true ? 'mt-2 gap-1.5' : 'mt-2.5 gap-1.5'} ${inModal ? '[@media(max-height:540px)]:mt-1.5 [@media(max-height:540px)]:gap-1' : ''}`}
-            >
-              {options.map(({ option, selectable }) => {
-                const label = content.optionLabel(card, option);
-                const openBrief = briefId === option.id;
-                return (
-                  <div key={option.id} className="flex flex-col">
-                    <button
-                      type="button"
-                      aria-disabled={!selectable}
-                      aria-expanded={confirmDecisions ? openBrief : undefined}
-                      onMouseEnter={() => { if (selectable) onHoverOption?.(option); }}
-                      onMouseLeave={() => { onHoverOption?.(null); }}
-                      onFocus={() => { if (selectable) onHoverOption?.(option); }}
-                      onBlur={() => { onHoverOption?.(null); }}
-                      onClick={() => {
-                        if (!selectable) return;
-                        onHoverOption?.(null);
-                        if (confirmDecisions) setBriefId(openBrief ? null : option.id);
-                        else onChoose(option.id);
-                      }}
-                      className={`group flex min-h-[2.25rem] w-full items-center justify-between gap-2.5 rounded-xl border
-                        text-left transition-all duration-150
-                        ${compact === true ? 'px-3 py-1.5' : 'px-3.5 py-2'}
-                        ${inModal ? '[@media(max-height:540px)]:min-h-[1.8rem] [@media(max-height:540px)]:px-2.5 [@media(max-height:540px)]:py-1' : ''}
-                        ${openBrief
-                          ? 'border-sky-400/70 bg-sky-400/15 shadow-[0_0_20px_-6px_rgba(56,189,248,0.4)]'
-                          : selectable
-                            ? 'border-white/12 bg-white/[.06] hover:border-sky-300/40 hover:bg-white/[.12] active:scale-[.99]'
-                            : 'cursor-not-allowed border-white/5 bg-white/[.02] opacity-60'}`}
-                    >
-                      <div className="min-w-0 flex-1">
-                        <span className={`flex items-center gap-2 font-bold leading-snug
-                          ${compact === true ? 'text-[0.78rem]' : 'text-[0.82rem] sm:text-[0.86rem]'}
-                          ${inModal ? '[@media(max-height:540px)]:text-[0.72rem]' : ''}
-                          ${selectable ? 'text-slate-100' : 'text-slate-400'}`}>
-                          {!selectable ? <Lock size={13} className="shrink-0 text-slate-400" aria-hidden /> : null}
-                          {label}
-                        </span>
-                        {!selectable && option.requires !== undefined ? (
-                          <span className="mt-0.5 block text-[0.68rem] font-semibold text-slate-300">
-                            {t('card.requires', { requirement: requirementText(option.requires) })}
-                          </span>
-                        ) : null}
-                      </div>
-                      {selectable ? (
-                        <ChevronRight
-                          size={15}
-                          className={`shrink-0 transition-transform duration-150
-                            ${openBrief ? 'rotate-90 text-sky-300' : 'text-slate-400 group-hover:translate-x-0.5 group-hover:text-sky-300'}`}
-                          aria-hidden
-                        />
-                      ) : null}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                {selectable ? (
+                  <ChevronRight
+                    size={15}
+                    className={`shrink-0 transition-transform duration-150
+                      ${openBrief ? 'rotate-90 text-sky-300' : 'text-slate-400 group-hover:translate-x-0.5 group-hover:text-sky-300'}`}
+                    aria-hidden
+                  />
+                ) : null}
+              </button>
+            );
+          })}
         </div>
-
-        {/* Base da moldura HeadXimage (hexágono inferior com a categoria do card, y=1740..2000) */}
-        <footer className="relative aspect-[1432/260] w-full select-none overflow-hidden">
-          <img
-            src={frame.image}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-[769.23%] w-full max-w-none"
-          />
-          <div
-            className="absolute left-[25%] right-[25%] flex items-center justify-center px-2 text-center"
-            style={{ top: frame.footerTopPct, height: frame.footerHeightPct }}
-          >
-            <span className={`w-full truncate pt-[1.5px] text-center font-display text-[0.6rem] font-extrabold uppercase leading-none tracking-wider ${frame.badgeTextClass}`}>
-              {t(frame.footerLabelKey)}
-            </span>
-          </div>
-        </footer>
-      </article>
+      </CardShell>
 
       {confirmModal !== null && typeof document !== 'undefined'
         ? createPortal(confirmModal, document.body)

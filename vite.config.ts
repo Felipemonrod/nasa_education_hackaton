@@ -90,11 +90,12 @@ export default defineConfig({
             // nenhuma imagem de /cards/ ia para o cache e, offline, as cartas
             // apareciam sem moldura. Nao vao para o precache porque somam ~7 MB
             // (algumas molduras passam de 1 MB); CacheFirst guarda cada uma na
-            // primeira vez que aparece.
+            // primeira vez que aparece. v2: molduras novas reaproveitam nomes
+            // (HealCard, ItemCard); cache novo evita servir a moldura antiga.
             urlPattern: /\/cards\/.+\.(png|jpe?g|webp)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'card-art',
+              cacheName: 'card-art-v2',
               expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 30 },
               cacheableResponse: { statuses: [0, 200] },
             },
