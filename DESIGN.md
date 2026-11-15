@@ -36,9 +36,9 @@ Consequências implementadas:
 - consertar a blindagem tem propósito mecânico: reduz a dose futura, não "reabastece um tanque"
 - há 4 condições de derrota, como no spec original — `blindagem = 0` deu lugar a `dose = 100`
 
-**Pendência de UI que isso cria:** `100` passa a significar *vitória* (trilho)
-e *morte* (dose) na mesma tela. A barra de dose precisa de leitura invertida
-explícita (ex.: "Dose 34/100 — limite letal"), não a mesma barra dos outros.
+`100` significa *vitória* (trilho) e *morte* (dose) na mesma tela. Resolvido na
+UI: a linha de dose do HUD é invertida (`inverted` em `ResourceHUD.tsx`), alerta
+a partir de 75 em vez de 25, e o resultado diz "a dose chegou ao limite".
 
 ### Trilho não declarado não é conteúdo morto
 
@@ -193,9 +193,11 @@ inesperado **não** vira dia calmo. Motivos da arquitetura:
 - PWA tem que funcionar offline por definição
 - teste determinístico é impossível se o sorteio depende da rede
 
-**Pendência de segurança:** sem backend, qualquer chave no bundle é pública —
-`VITE_` não protege nada. Ou fica em `DEMO_KEY` para sempre, ou entra um proxy
-serverless (escopo novo).
+**Chave da NASA:** nenhuma é necessária. A DONKI é chamada direto na CCMC (sem
+chave) e a APOD vem primeiro do endpoint WordPress do `science.nasa.gov` (sem
+chave). Só a API antiga da APOD, último recurso, usa `VITE_NASA_API_KEY` ou
+`DEMO_KEY`. Sem backend, qualquer chave no bundle é pública: não pôr chave em
+variável `VITE_*` de produção.
 
 ---
 
@@ -204,7 +206,7 @@ serverless (escopo novo).
 - `schemaVersion` desde o primeiro commit (hoje 3). Versão conhecida mais
   antiga é **migrada** (v2→v3 em `save.ts`); versão desconhecida é **rejeitada
   com motivo**, nunca carregada parcialmente
-- `localStorage`, não cookie nem servidor: o maior save medido tem 7586 bytes
+- `localStorage`, não cookie nem servidor: o maior save medido tem 9956 bytes
   (teste em `tests/save.test.ts`), acima dos 4096 garantidos por cookie, e não
   há backend. Gravação a cada mutação (inclusive ao confirmar o loadout), pedido
   de `navigator.storage.persist()` no boot, porta fixa no Vite (outra porta =
@@ -268,27 +270,33 @@ inicial (comandante, estrutura, equipamento de jogador novo) sorteados pela seed
 (`setupForSeed` em `sim/montecarlo.ts`, mesma conta do app em
 `app/data/setup.ts`):
 
+Medido de novo no código final (com o recorte de cards por local, §2):
+
 | Política | Ciência | Habitat |
 |---|---|---|
-| `random` (baseline) | 2,0% | 1,5% |
-| `survival` (só sobreviver) | 91,0% | 90,9% |
-| `objective` (só o trilho, ignora a base) | 87,0% *(86,2% por objetivo)* | 90,1% *(toda por objetivo)* |
-| `adaptive` (jogador competente) | 88,6% *(0,5% por objetivo)* | 87,0% *(9,5% por objetivo)* |
+| `random` (baseline) | 1,6% | 1,2% |
+| `survival` (só sobreviver) | 90,0% | 91,1% |
+| `objective` (só o trilho, ignora a base) | 50,9% *(45,3% por objetivo)* | 90,8% *(toda por objetivo)* |
+| `adaptive` (jogador competente) | 88,8% *(0,0% por objetivo)* | 86,5% *(9,9% por objetivo)* |
 
-Rebalanceamento de 2026-11-15 (`docs/balanceamento-analise.md` §7). Antes:
+Rebalanceamento de 2026-11-15 (`docs/balanceamento-analise.md` §7). Antes dele:
 random 0,2/0,3, survival 84,3/86,0, objective 73,1/33,8, adaptive 51,0/55,5.
+Logo depois dele, antes do recorte por local: objective 87,0/90,1.
 
 Meta de dificuldade (decidida pelo time): o jogador adaptativo que **erra 20%**
-das decisões, proxy de uma criança atenta, vence **60–70%**. Medido: 66,3% em
-ciência e 60,7% em habitat. A política `random` fica em ~2% de propósito:
-subi-la a 5–15% exigiria sobrevivência acima de 99%.
+das decisões, proxy de uma criança atenta, vence **60–70%**. Medido em
+`docs/balanceamento-analise.md` (66,3% em ciência e 60,7% em habitat), **antes**
+do recorte por local; essa política não está no `npm run sim`. A política
+`random` fica em ~1–2% de propósito: subi-la a 5–15% exigiria sobrevivência
+acima de 99%.
 
 Até 2026-11-14 a simulação jogava **sem** local e loadout, coisa que o app não
 permite. Os números daquela configuração (adaptive 14,0% / 28,4%, survival
 68,6% / 71,8%) mediam um jogo inexistente e foram substituídos.
 
 Como ler: `random` alto = decisões não importam. `adaptive` em 0% ou 100% =
-não há jogo. Fallback médio ≈ 0,7–1,2 de 40 slots.
+não há jogo. Fallback por partida: ~0,3 (random), ~1,7–2,2 (survival e
+adaptive), 0–0,6 (objective), de 40 slots.
 
 ---
 
@@ -296,11 +304,15 @@ não há jogo. Fallback médio ≈ 0,7–1,2 de 40 slots.
 
 1. **Alvo de dificuldade.** Decidido: criança que erra 20% vence 60–70%
    (§8). Falta validar com crianças reais; os jogadores simulados não planejam.
-2. **Assimetria entre trilhos.** Equalizada: 86,2% × 90,1% por objetivo.
-   Pendentes: dia classe X ~24 p.p. mais difícil que dia calmo, e dosímetros
+2. **Assimetria entre trilhos.** Voltou a existir com o recorte por local:
+   45,3% (ciência) × 90,8% (habitat) por objetivo na política `objective`.
+   Correção natural: um card extra diurno de ciência por local (§2). Pendentes
+   também: dia classe X ~24 p.p. mais difícil que dia calmo, e dosímetros
    fracos contra o rover (`docs/balanceamento-analise.md` §8).
-3. **Texto enxuto × aprendizado.** Os dados já suportam as três saídas
-   (`outcome.line` / `outcome.why` / `outcome.mistake`). Falta decidir a UI.
+3. **Texto enxuto × aprendizado.** Decidido: o painel de desfecho mostra a
+   linha, o "por quê" e o "erro comum" (`outcome.line` / `why` / `mistake`);
+   a configuração `showWhyByDefault` (ligada por padrão) controla se o "por
+   quê" já vem aberto.
 4. **Quantos cards no MVP.** 43 hoje, sendo 39 jogáveis e 4 de fallback
    (`npm run validate`).
    O fallback caiu para ~1,1 de 40 slots, mas o pool diurno básico continua

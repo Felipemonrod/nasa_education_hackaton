@@ -60,7 +60,7 @@ Os números de linha referem-se ao código depois das correções.
 
 | Onde | Evento | Evidência | Status |
 |---|---|---|---|
-| Por que não cookie | Tamanho | O maior save medido tem **7586 bytes** (`tests/save.test.ts`). A RFC 6265 garante 4096 bytes por cookie, e o cookie viaja em toda requisição | **verificado** |
+| Por que não cookie | Tamanho | O maior save medido tem **9956 bytes** (`tests/save.test.ts`, medido de novo em 15/11/2026). A RFC 6265 garante 4096 bytes por cookie, e o cookie viaja em toda requisição | **verificado** |
 | Por que não servidor | Arquitetura | Não existe backend nem login, e o PWA precisa funcionar offline | **verificado** |
 | `useGame.ts:222` | `confirmLoadout` grava | Antes, fechar a aba durante a viagem ou o loading perdia o loadout | **corrigido** (teste) |
 | `useGame.ts:232` | `enterGame` grava | Primeiro slot | **verificado** |
@@ -119,7 +119,7 @@ Os números de linha referem-se ao código depois das correções.
 | `glossary.utc`, `Game.tsx` "UTC" | A base segue o UTC | A ISS opera em GMT/UTC; aqui é convenção da ficção. O plano previa trocar o rótulo, mas ficou porque é coerente com o glossário e com a prática real | **ficção declarada** |
 | `site.tranquillitatis.blurb` | Planície de basalto do Apollo 11 | Fato histórico | **verificado** |
 | `loadout.*.blurb` (ex.: "11 meses na estação", "alface por 400 dias") | Biografias de personagens fictícios | | **ficção declarada** |
-| `travel.difficultyLine` | "Dificuldade **calculada**" | Nada era calculado; agora diz "Dificuldade: Iniciante" | **corrigido** |
+| `travel.difficultyLine` | "Dificuldade **calculada**" | Nada era calculado; agora diz "Dificuldade: Iniciante". *(15/11: a tela de viagem foi removida e a chave apagada.)* | **corrigido** |
 | `menu.disclaimer` | "Dados ... NASA" | Agora: "NASA DONKI e NOAA/SWPC; imagens NASA APOD", o que de fato é consultado | **corrigido** |
 | `credits.ts` | NASA EPIC listada como fonte | Nenhum código chamava a EPIC. Removida dos créditos e do cache do service worker | **corrigido** (ver nota abaixo) |
 
@@ -146,7 +146,7 @@ Medições feitas com o próprio engine, 1.500–3.000 partidas por caso.
 | 1 | `sim/montecarlo.ts` | A simulação jogava **sem** local de pouso e loadout, que o app sempre exige. adaptive 14,0% → **51,0%** (ciência) e 28,4% → **55,5%** (habitat) quando se inclui o que o app inclui | `setupForSeed` sorteia local e loadout de jogador novo pela seed, usando a mesma função do app (`app/data/setup.ts`, também usada por `useGame.confirmLoadout`). DESIGN §8 refeito com `npm run sim 3000` | **corrigido** |
 | 2 | `loadout.ts` + locales | "Perdas/ganhos reduzidos em 1" valia só para os efeitos da opção escolhida, não para o dreno, a tempestade em curso nem a dose diária (cerca de 55 de 75 pontos de dose média vêm da dose diária) | Rótulos agora dizem "nas decisões" / "from decisions". Regra e balanceamento intactos. Alcance documentado em `types.ts` | **corrigido** |
 | 3 | `OutcomePanel.tsx` | Os números do desfecho somavam escolha + dreno + modificadores + tempestade + (no fim do dia) dose diária, desgaste da blindagem e alívio dos marcos, tudo como se fosse efeito da escolha | O engine devolve `statsAfterChoice`; o painel mostra duas linhas: "Sua escolha" e "O próprio turno" | **corrigido** |
-| 4 | `Result.tsx` | A narração da vitória lia "{detail}" em voz alta | Passa `detail`; a derrota usa a chave `result.narrationLost` com os valores | **corrigido** |
+| 4 | `Result.tsx` | A narração da vitória lia "{detail}" em voz alta | Passa `detail`; a derrota usa a chave `result.narrationLost` com os valores. *(15/11: a narração passou a ler exatamente o texto da tela; as chaves `result.narration*` foram apagadas.)* | **corrigido** |
 | 5 | `ui.ts` | Emblema "Completou a missão de 10 dias" dado em qualquer vitória, inclusive por objetivo antes do dia 10 | Texto: "Venceu uma missão" | **corrigido** |
 | 6 | `ui.ts` | A dica dizia que temas só liberam vencendo; Aurora libera com ciência ou suporte de vida em 50, mesmo perdendo | Dica descreve as duas regras | **corrigido** |
 | 7 | `Result.tsx` | "O recurso que acabou foi dose": a dose não acaba, enche | Frase própria: "Dose de radiação chegou ao limite de 100" | **corrigido** |
@@ -178,7 +178,25 @@ Verificado em navegador (Playwright) e com `typecheck`, `vitest` (90 testes) e `
 | 3 | `useAccount.ts` | `THEME_LABEL` e `BADGE_LABEL`: textos fixos em português, sem nenhum uso, duplicando `settings.theme.*` e `result.badge.*`. Quem os usasse mostraria português para quem joga em inglês | Removidos | **corrigido** |
 | 4 | `public/cards/5.png`, `6.png` | Cópias byte a byte de `5-frame.png` e `6-frame.png` (mesmo md5), sem nenhuma referência no código | Removidas (428 KB) | **corrigido** |
 | 5 | `public/logo.ico` | Logo da missão HEAD X | Agora é o favicon e a origem dos ícones PWA (`icon-192/512/maskable.png`); `icon.svg` removido | **corrigido** |
-| 6 | Molduras em `public/cards/` | `DiaCard1.png` 1,9 MB, `CardNoite1.png` 1,3 MB, outras 0,8–0,9 MB. É o maior custo de carregamento do jogo | Converter para WebP reduziria a uma fração, e aí caberia no precache | **pendente** |
-| 7 | Balanceamento com setup real | ciência: survival 84,1%, objective **72,9%**; habitat: survival 86,0%, objective **33,8%**. Sobreviver ficou acima da meta de ~65–75%, e o caminho de ciência vence por objetivo o dobro do de habitat. Fontes de ciência no setup inicial (Lindqvist +8, perfuratriz +6, Shackleton +6) não têm equivalente forte em suporte de vida para jogador novo | Decisão de design | **pendente do dono** |
-| 8 | Código exportado e nunca usado | `storageAvailable`, `hasContentKey`, `contentDict`, `validateGlossary`, `dailyDrain`, `clampStats`, `nextFloat`, `TRACK_STATS`, `TRACK_FOR_OBJECTIVE`. Funções pequenas e corretas, sem risco de uso errado | Mantidos: remover só gera diff | informativo |
+| 6 | Molduras em `public/cards/` | As molduras novas (`SolCard2.png` 1,9 MB, `LuaCard2.png` 1,3 MB, outras 0,4–0,8 MB) continuam sendo um dos maiores custos de carregamento | Converter para WebP reduziria a uma fração, e aí caberia no precache | **pendente** |
+| 7 | Balanceamento com setup real | ciência: survival 84,1%, objective **72,9%**; habitat: survival 86,0%, objective **33,8%**. Sobreviver ficou acima da meta de ~65–75%, e o caminho de ciência vence por objetivo o dobro do de habitat. Fontes de ciência no setup inicial (Lindqvist +8, perfuratriz +6, Shackleton +6) não têm equivalente forte em suporte de vida para jogador novo | Decisão de design | **tratado** no rebalanceamento de 15/11 (`DESIGN.md` §8) |
+| 8 | Código exportado e nunca usado | `storageAvailable`, `hasContentKey`, `contentDict`, `validateGlossary`, `dailyDrain`, `clampStats`, `nextFloat`, `TRACK_STATS`, `TRACK_FOR_OBJECTIVE`. Funções pequenas e corretas, sem risco de uso errado | Removidos em 15/11 (seção 12), menos `hasContentKey`, que voltou a ser usado | **corrigido** |
 | 9 | `sim/` importa `app/data/` | O simulador depende de dados da camada de app (loadout, locais, setup). Hoje compila porque esses arquivos não usam DOM, mas qualquer import de navegador neles quebraria `npm run sim` | Nenhuma ação; vale mover esses dados para `src/content/` se crescerem | informativo |
+
+## 12. Rodada final (15/11/2026, branch `feat/auditoria-nasa-p0`)
+
+Verificado com `typecheck`, `vitest` (17 arquivos, 193 testes), `validate`, `build` e partidas
+completas no navegador (Edge headless, celular 390×844 e desktop 1366×768).
+
+| # | Onde | Mudança | Status |
+|---|---|---|---|
+| 1 | Cartas de comandante | As 4 fotos de astronautas **reais** da NASA (usadas como arte de personagens fictícios) foram trocadas por imagens geradas por IA de pessoas fictícias. Arquivos com manifesto C2PA do Google e SynthID; aviso visível "Imagem gerada por IA · personagem fictício" | **corrigido** |
+| 2 | Base 3D | Cada volta ao menu recriava o renderer e baixava/decodificava modelos e texturas de novo (18 s de carregamento medido). Agora há cache em memória (`sceneCache.ts`) e pré-carga real durante a cutscene (`sceneWarmup.ts`) | **corrigido** |
+| 3 | Telas de carregamento | Mostravam o nome antigo "Lunar Outpost". Agora "HEAD X" (`BrandName.tsx`) | **corrigido** |
+| 4 | Texturas 3D | Reduzidas ao tamanho que ocupam na tela (10,1 MB → 2,2 MB), céu e modelos intactos, metadados (inclusive C2PA) preservados. Cache do service worker `base-3d-v4` | **corrigido** |
+| 5 | Código morto | 9 exports sem uso (seção 11, item 8) e 33 chaves de tradução sem uso removidos. 4 cópias do "fechar com Esc" viraram `useEscapeKey` | **corrigido** |
+| 6 | `tests/scene.test.ts` | Falhava em máquina em português (o Node expõe `navigator.language`). O teste fixa o inglês | **corrigido** |
+| 7 | Celular | Só na vertical (aviso "Gire o celular" com o aparelho deitado; manifest `portrait`) e sem zoom de pinça na página | **novo** |
+| 8 | Janelas modais | As 14 conferidas: todas fecham com Esc e com clique fora, menos o tutorial guiado (clique fora passa para o jogo de propósito) | **verificado** |
+| 9 | Legenda de IA no oval do comandante | O balão era cortado pela janela oval; agora quebra linha dentro dela | **corrigido** |
+| 10 | Documentação | README, CREDITS, DESIGN, ASSETS e este arquivo conferidos contra o código (números do `npm run sim`, tamanho do save, versões e licenças do `package-lock.json`) | **corrigido** |

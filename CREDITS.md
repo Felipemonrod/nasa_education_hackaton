@@ -69,8 +69,8 @@ Google's Workbox 7.4.1 (MIT).
 postcss 8.4.49, autoprefixer 10.4.20, vitest 2.1.9, jsdom 25.0.1, tsx 4.23.15, @types/node,
 @types/react, @types/react-dom (all MIT); typescript 5.9.3 (Apache-2.0).
 
-**Transitive:** `package-lock.json` has 613 packages, all under free licenses: MIT (556), ISC (23),
-Apache-2.0 (10), BSD-2-Clause (6), BSD-3-Clause (6), BlueOak-1.0.0 (9), MIT-0 (1), MIT OR CC0-1.0 (1) and
+**Transitive:** `package-lock.json` has 621 packages, all under free licenses: MIT (563), ISC (23),
+Apache-2.0 (10), BSD-2-Clause (6), BSD-3-Clause (7), BlueOak-1.0.0 (9), MIT-0 (1), MIT OR CC0-1.0 (1) and
 CC-BY-4.0 (1: caniuse-lite, browser data from "Can I use" by Alexis Deveria, used only at build time).
 
 ## 4. Tools and AI
@@ -80,7 +80,9 @@ CC-BY-4.0 (1: caniuse-lite, browser data from "Can I use" by Alexis Deveria, use
   as author or co-author in the git history. Full declaration in the README ("Use of AI").
 - **Blender** — the 3D models of the lunar base (`public/models/*.glb`).
 - **Docker** — optional development container (`Dockerfile`, `docker-compose.yml`).
-- AI-generated media: background music and app icon (tools: `TODO(team)`) and two 3D textures (door and
-  solar panel; Google C2PA metadata), marked as described in `docs/ASSETS.md`.
+- **Google generative AI** (C2PA metadata "Created by Google Generative AI", SynthID): the four commander
+  portraits (fictional people) and two 3D textures (door and solar panel).
+- AI-generated media, all marked as described in `docs/ASSETS.md`: background music (tool: `TODO(team)`),
+  commander portraits and the two 3D textures. Whether the HEAD X logo used AI: `TODO(team)`.
 - Textures from third parties (NASA Blue Marble; probably Solar System Scope / ESO, CC BY 4.0) are listed
   with their credit in `docs/ASSETS.md` §1.5.

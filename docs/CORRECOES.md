@@ -10,6 +10,11 @@ da sessão (`scratchpad/games`, `games5`, `games5surv`, `bughunt`, `balance`, `r
 | 3 | `caio-main` | 10 partidas totalmente aleatórias + 20 mil partidas de fuzz + caça a bugs (app, engine, conteúdo) | 1.4, 4 |
 | 4 | `teste-erro` (cópia de `feat/tutorial-guiado`) | 10 partidas totalmente aleatórias + 20 mil de fuzz no engine + 3 mil pelo store real + testes no navegador (Edge headless) | 1.5, 5 |
 
+> **Nota de 15/11/2026 (noite).** Este documento registra o estado das rodadas de teste. Depois
+> dele vieram mais correções (áudio × texto, layout do celular, recorte de cards por local, base 3D,
+> limpeza de código; ver `AUDIT.md` §12 e `docs/CONTINUAR.md`). Os itens abaixo **não** foram
+> reconferidos um a um depois disso: antes de corrigir algum, confira se ele ainda acontece.
+
 > **Status do balanceamento (2026-11-15, branch `feat/balanceamento-marcos-pressao`).**
 > Aplicados: A1, A3, B1 (decidido: a tempestade atinge a base mesmo recusada), C2, C3, C4, C7 e C11.
 > Aplicados em parte:

@@ -11,6 +11,8 @@ solar flares recorded by NASA and NOAA**, and it changes how likely solar storms
 
 - **Live demo:** `TODO(team)`, not published yet (see [Deploy](#deploy)).
 - **Languages:** English (default) and Portuguese. Read-aloud for every card. Works offline as a PWA.
+- **Devices:** desktop, tablet and phone. On phones the game is played upright (portrait); turning the
+  phone sideways shows a "turn your phone" notice.
 
 
 | The mission's real space weather (NOAA/NASA data) | Every outcome explains why, with a real-world fact and its source |
@@ -23,13 +25,16 @@ solar flares recorded by NASA and NOAA**, and it changes how likely solar storms
    (Mare Tranquillitatis, the Shackleton crater rim, the Marius Hills) and the goal NASA sent you for:
    **science** or a **stable life-support system**. Choose a commander; a structure and a piece of
    equipment are drawn at random (one reroll each). Each has a concrete effect on the run.
+   **Quick play** skips the planning: it draws the site, goal and the three cards and shows them before
+   the mission starts.
 2. **Survive 10 cycles.** Each cycle has 2 day shifts (operations) and 2 night shifts (maintenance and
    watch). Shifts follow the base's UTC clock, not the Sun: at "night" the crew closes the hatches to
    sleep even if the Sun is shining outside. Twice a day two calls arrive at once and you can answer
    only one; on day 5 a supply capsule waits in orbit and you choose what lands first.
 3. **Watch your resources (0–100).** The mission is lost if **oxygen**, **power** or **food** reaches 0,
    or if the crew's **radiation dose** reaches 100. Dose never goes down; **shielding** (regolith and
-   water walls) does not get used up, it only *reduces* how much dose enters each day.
+   water walls) never ends the mission, it only *reduces* how much dose enters each day. It wears down
+   by 3 points a day (dust and micrometeoroids), so repairing it matters.
 4. **Win** by surviving all 10 cycles, or earlier by bringing your declared goal (science or life
    support) to 100.
 
@@ -68,13 +73,16 @@ The NASA Space Apps guide asks teams to declare AI ("SI") use. What we can state
 - **AI-generated media:**
   - the **background music**: declared here, on the Credits screen, and in the MP3 metadata
     (`COMM` and `TXXX:AI_GENERATED=true`);
-  - the **app icon**: declared here and in `docs/ASSETS.md`.
+  - the **four commander portraits** (fictional people, no real astronauts): each file carries Google
+    C2PA metadata ("Created by Google Generative AI") and a SynthID watermark, and the game shows
+    "AI-generated image · fictional character" on the card and in the commander list.
   - two **3D textures** (door and solar panel of the 3D base): their files carry Google C2PA metadata
     marking them as AI-generated; every 3D scene has a small ✦ icon in the corner that shows
     "Some textures made with AI" when tapped, so the note stays visible without covering the scene.
-  - The generation tool for the music: `TODO(team)`.
+  - The generation tool for the music: `TODO(team)`. Whether the HEAD X logo (app icon) was made with
+    AI: `TODO(team)`.
 - **Not AI-generated** (per the team): the card frames (designed in Canva), the robot mascot, and the
-  NASA photos (including the opening cutscene).
+  NASA photos (structure cards, landing sites, opening cutscene).
 
 The same summary appears on the in-game Credits screen. File-by-file details: [`docs/ASSETS.md`](docs/ASSETS.md).
 
@@ -106,9 +114,10 @@ committed) raises the rate limit of the legacy APOD API.
 - **React + TypeScript + Vite + Tailwind**, state in **Zustand**, installable **PWA** (vite-plugin-pwa).
 - The lunar base is a **3D scene in three.js** (Blender models, loaded on demand in a separate chunk), with
   an "Explore the base" screen to orbit and zoom. Devices without WebGL, or with high contrast or reduced
-  motion turned on, get the drawn SVG base instead. The 3D files start downloading during the opening
-  cutscene and are cached after the first visit; until they are ready a full-screen "Loading 3D models…"
-  screen is shown. If the 3D scene fails or takes longer than 30 seconds, the SVG base takes its place.
+  motion turned on, get the drawn SVG base instead. The 3D scene is prepared while the opening cutscene
+  plays (models parsed and textures sent to the GPU) and then kept in memory, so the menu does not
+  reload it when you come back; a full-screen "Loading 3D models…" screen appears only if it is not
+  ready yet. If the 3D scene fails or takes longer than 30 seconds, the SVG base takes its place.
 - The game rules live in a **pure, deterministic engine** (`src/engine`): no React, no network, no clock,
   no `Math.random()`. The same seed always gives the same mission, so saves can't be "re-rolled" and bugs
   are reproducible. Space weather enters the engine as an input chosen when the mission starts.
@@ -137,6 +146,9 @@ manifest. Do not put an API key in any `VITE_*` production variable (it would be
 - Limiting the polar-ice and lava-tube cards to their real sites left each site with one fewer science
   card, so reaching science 100 early is harder at some sites (winning by surviving is unchanged).
 - Not yet play-tested with children.
+- On phones the game only runs upright, and pinch-zoom is turned off (the 3D "Explore the base" screen
+  keeps its own camera zoom). People who rely on zooming the page will need the device's own
+  magnifier.
 
 ## License
 
@@ -150,7 +162,7 @@ product and is not endorsed by NASA.
 ## References
 
 - Data and science sources: see the tables above and [`CREDITS.md`](CREDITS.md).
-- Libraries: react, react-dom, zustand, zod, lucide-react (runtime); vite, @vitejs/plugin-react,
+- Libraries: react, react-dom, zustand, zod, lucide-react, three (runtime); vite, @vitejs/plugin-react,
   vite-plugin-pwa (Workbox), tailwindcss, postcss, autoprefixer, typescript, vitest, jsdom, tsx (build
   and test). Versions and licenses in `CREDITS.md`.
 - Fonts: Baloo 2 and Nunito (Google Fonts, SIL OFL 1.1). Icons: Lucide (ISC).

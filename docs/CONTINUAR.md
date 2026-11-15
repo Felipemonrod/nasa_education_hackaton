@@ -1,15 +1,16 @@
 # Como continuar daqui
 
-Passagem de bastão de 15/11/2026. Leia isto antes de mexer no código.
+Estado final de 15/11/2026, depois da rodada de auditoria. Leia isto antes de mexer no código.
 
 ## 1. Onde o projeto está
 
 | Item | Estado |
 |---|---|
-| Branch de trabalho | `guilherme-main`, igual à `caio-main` (`e9b0f76`) + o commit que adicionou esta pasta `docs/` |
-| Enviada ao GitHub? | **Não.** O commit dos docs está só no computador do Guilherme |
-| Branch `feat/nasa-data` | Existe só localmente e está **fora do escopo** (seção 4) |
-| Identidade git | Já configurada neste repositório (`git config user.name/email`) |
+| Branch principal de trabalho | `feat/auditoria-nasa-p0` (no GitHub). Já inclui `caio-main`, `joao-main` e o rebalanceamento |
+| `guilherme-main` | Local igual à `feat/auditoria-nasa-p0`; a cópia do GitHub está atrasada |
+| Branch `feat/nasa-data` | Só local, **fora do escopo** (seção 5) |
+| Formulário do Space Apps | Respostas prontas em [`SUBMISSAO.md`](SUBMISSAO.md) |
+| Demo publicada | **Ainda não.** Ver "Deploy" no README |
 
 ## 2. Primeiros comandos
 
@@ -18,7 +19,7 @@ Passagem de bastão de 15/11/2026. Leia isto antes de mexer no código.
 #    Ele trava o binário do Rollup e o `npm ci` falha com EPERM.
 npm ci
 
-# 2. Linha de base (rode e anote o resultado antes de mudar algo)
+# 2. Linha de base (rode e compare com a seção 3 antes de mudar algo)
 npm test
 npm run typecheck
 npm run validate
@@ -29,47 +30,63 @@ npm run sim -- 3000
 npm run dev -- --host
 ```
 
-> **Linha de base verificada em 15/11/2026** (logo após atualizar a `guilherme-main` para a `caio-main`): 12 arquivos e 100 testes passando, `typecheck` limpo, `validate` OK (43 cards, 39 jogáveis, 24 verbetes) e `build` OK.
+## 3. Linha de base verificada (15/11/2026, `feat/auditoria-nasa-p0`)
 
-## 3. Documentos (em `docs/`)
+- `npm test`: 17 arquivos, **193 testes passando**.
+- `npm run typecheck`: limpo. `npm run build`: OK.
+- `npm run validate`: 43 cards (39 jogáveis), 47 verbetes no glossário.
+- `npm run sim -- 3000`: `random` 1,6% / 1,2%, `survival` 90,0% / 91,1%, `adaptive` 88,8% / 86,5%
+  (ciência / habitat). Tabela completa em `DESIGN.md` §8.
+- Partidas completas no navegador (celular 390×844 e desktop 1366×768): sem erros no console, áudio
+  igual ao texto da tela.
+
+## 4. Documentos
 
 | Arquivo | Para quê |
 |---|---|
-| `prompt.md` | Especificação original do jogo (regras, fluxo, telas, stack). É a fonte do "o que o jogo deve ser". |
-| `RECURSOS_NASA.md` | Todas as APIs e dados da NASA testados ao vivo: o que funciona no navegador, CORS, limites, valores reais de radiação, regiões de pouso e regras do Space Apps. Comece pelo bloco "Leia isto primeiro". |
-| `CORRECOES.md` | Lista de bugs e de balanceamento achados em 4 rodadas de teste, com evidência e correção sugerida. **A §6 dá a ordem recomendada de trabalho.** |
-| `../DESIGN.md` | Modelo formal do engine (recursos, slots, ordem de resolução, determinismo). |
-| `../AUDIT.md` | Auditoria anterior do código. |
+| `../README.md` | Visão geral, como jogar, dados da NASA, uso de IA, como rodar (em inglês, para os jurados) |
+| `../CREDITS.md` | Todas as fontes, APIs, bibliotecas e licenças |
+| `ASSETS.md` | Cada imagem, som e fonte: origem, licença e uso de IA. A §5 lista o que **só a equipe** pode responder |
+| `SUBMISSAO.md` | Texto pronto para o formulário de submissão do Space Apps |
+| `../DESIGN.md` | Modelo formal do engine (recursos, slots, ordem de resolução, determinismo, balanceamento) |
+| `../AUDIT.md` | Auditoria de dados, decisões e código; a §12 é a rodada final |
+| `prompt.md` | Especificação original do jogo |
+| `RECURSOS_NASA.md` | APIs e dados da NASA testados ao vivo (CORS, limites, endpoints) |
+| `base-3d-estado.md` | O que a cena 3D lê do estado do jogo |
+| `CORRECOES.md`, `balanceamento-analise.md` | Registros das rodadas de teste e do rebalanceamento (com data) |
 
-## 4. Branch `feat/nasa-data` (fora do escopo)
+## 5. Branch `feat/nasa-data` (fora do escopo)
 
-**Decisão do Guilherme (15/11/2026): não portar.** O commit `b40c49f` (branch local `feat/nasa-data`) fica só como referência; o trabalho segue pela `caio-main`. A tabela abaixo é apenas um registro do que ele continha, caso alguém precise de uma ideia dali no futuro (`git show b40c49f -- <arquivo>`).
+Decisão do Guilherme (15/11/2026): **não portar**. O commit `b40c49f` fica só como referência
+(`git show b40c49f -- <arquivo>`). Tinha: escopo de cards por destino (pré-requisito para Marte),
+janela do espaço com GIBS, uma cutscene com Framer Motion e um teste de traduções.
 
-| Item | Valor | Arquivos em `b40c49f` | Situação na `caio-main` |
-|---|---|---|---|
-| **Escopo de cards por destino.** Card com `destinations: ['moon']` nunca aparece em outro mundo; sem o campo, o card é universal. Também cobre o sorteio em todas as camadas de fallback, a cápsula, a validação (filho de sequência precisa existir no destino do pai) e o save. | **Alto** (pré-requisito para Marte) | `src/engine/{types,deck,schedule,run,save}.ts`, `src/content/{schema,cards}.ts`, `src/app/data/sites.ts`, `tests/destination.test.ts` (16 testes) | Ausente |
-| **Janela "olhar o espaço" com GIBS:** de dia mostra a Terra real (EPIC → GIBS cor real); à noite, a foto do dia (APOD) ou a Terra à noite (Black Marble), com link "Ver na NASA". | Médio | `src/app/services/nasa.ts`, `src/app/components/SpaceWindow.tsx` | Tem `nasa.ts` + `donki.ts` próprios: compare antes |
-| **Cutscene com Framer Motion:** 5 cenas, carregamento sob demanda, pulável, respeita "reduzir movimento". | Baixo | `src/app/screens/Cutscene.tsx`, `src/app/i18n/ui.ts`, `tests/cutscene.test.ts` | Já existe outra cutscene (com fotos reais da NASA). Escolha uma. |
-| **Teste de traduções:** chaves derivadas dos dados, preservação das marcações `[[id]]`, glossário com no máximo 10 palavras. | Médio | `tests/locales.test.ts` | Existe `tests/i18n.test.ts`: confira se cobre o mesmo |
-| Telas lendo texto pelo dicionário do idioma (não direto do `cards.ts`). | — | vários `src/app/screens/*` | Corrigido de outra forma; o `CORRECOES.md` D1 aponta o que ainda falta |
+## 6. O que falta (só a equipe resolve)
 
-## 5. Próximos passos sugeridos
+- **Publicar a demo** (Netlify, Vercel ou Cloudflare Pages, na raiz do domínio) e pôr o link no README
+  e no formulário.
+- **Responder as perguntas de `ASSETS.md` §5**: ferramenta de IA da música e dos retratos dos
+  comandantes, origem do logo HEAD X, autoria dos modelos 3D e do mascote, plano do Canva, IDs NASA
+  das fotos de destino e da cutscene.
+- **Vídeo ou slides de demonstração** para o formulário.
+- **Testar com crianças** (a meta de dificuldade foi definida com jogadores simulados).
 
-1. Rodar a linha de base (seção 2) e conferir que bate com a registrada.
-2. Seguir o `CORRECOES.md` §6, na ordem:
-   1. bugs que quebram ou enganam a criança (A1, A2, D1, D2, D3, E4, E5, E6);
-   2. layout do celular (E1, E2, E3);
-   3. energia e objetivos (C1 + C2 + C3): **feito** na `feat/balanceamento-marcos-pressao` (ver `balanceamento-analise.md` §8); falta jogar com crianças reais;
-   4. o resto da lista.
+## 7. Melhorias conhecidas, se houver tempo
 
-## 6. Pedidos em aberto do Guilherme
+- Molduras das cartas em WebP (as maiores têm 1,3–1,9 MB) — `AUDIT.md` §11, item 6.
+- Um card extra diurno de ciência por local de pouso, para equilibrar o objetivo ciência —
+  `DESIGN.md` §9, item 2.
+- A cutscene de abertura toca em toda abertura do app.
 
-- **Auditar as chamadas assíncronas da NASA e o código contra o `prompt.md`.** Parcialmente coberto: o `CORRECOES.md` audita app, engine e conteúdo, e o `RECURSOS_NASA.md` §3 e §18 dizem o que cada API exige. Falta um checklist item a item do `prompt.md` contra a `caio-main`.
-- **Instância local para teste manual:** `npm run dev -- --host` (seção 2).
+## 8. Regras do projeto que não podem ser quebradas
 
-## 7. Regras do projeto que não podem ser quebradas
-
-- O engine (`src/engine`, `src/content`) é TypeScript puro: sem React, `fetch`, `Date.now()` nem `Math.random()`. O `npm run typecheck` acusa se alguém quebrar isso.
-- Todo texto visível vai para `en.ts` **e** `pt.ts` (inglês é o idioma padrão).
-- A chave da NASA fica em `.env.local` (`VITE_NASA_API_KEY`), que **não** vai para o git. O jogo precisa funcionar sem ela.
-- O Space Apps exige **citar todas as fontes** (inclusive bibliotecas) e declarar licença open source. Ver `RECURSOS_NASA.md` §17.1.
+- O engine (`src/engine`, `src/content`) é TypeScript puro: sem React, `fetch`, `Date.now()` nem
+  `Math.random()`. O `npm run typecheck` acusa se alguém quebrar isso.
+- Todo texto visível vai para os dois idiomas (`src/app/i18n/ui.ts` para a interface,
+  `src/content/locales/{en,pt}.ts` para o conteúdo). Inglês é o padrão. O teste `tests/ui-keys.test.ts`
+  confere as chaves.
+- Nenhuma chave de API é necessária. Se usar uma, ela fica em `.env.local` (`VITE_NASA_API_KEY`), que
+  **não** vai para o git, e nunca numa variável `VITE_*` de produção.
+- Toda imagem, som ou dado novo entra em `CREDITS.md` e `docs/ASSETS.md`. Mídia gerada por IA precisa
+  de aviso visível no jogo (o Space Apps exige).
+- Nada de fotos ou nomes de pessoas reais como personagens.

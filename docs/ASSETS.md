@@ -79,7 +79,7 @@ I/O v4.5.47" in each file).
 | `public/textures/solarPanel.jpg` | Solar panel texture | Same Google C2PA manifest (`trainedAlgorithmicMedia`, SynthID) | Same | **Yes** (proven by metadata). Same icon |
 | `public/textures/world.topo.200401.3x5400x2700.jpg` | Earth texture (resized to 2048×1024; the file name keeps NASA's original name) | File name matches NASA's **Blue Marble Next Generation** (January 2004, with topography), NASA Earth Observatory / Visible Earth. `TODO(team)`: confirm download page | NASA, public domain | No |
 | `public/textures/2k_moon.jpg` | Moon surface texture | Name and size (2048×1024) match the **Solar System Scope** texture set, which is based on NASA data. `TODO(team)`: confirm | Solar System Scope textures are CC BY 4.0 (credit required) | No |
-| `public/textures/stars_milky_way_4k.jpg` | Star field / Milky Way sky | Probably Solar System Scope ("stars_milky_way") or ESO's Milky Way panorama (eso0932a, ESO/S. Brunier). `TODO(team)`: confirm which | Both are CC BY 4.0 (credit required) | No |
+| `public/textures/stars_milky_way_4k.jpg`, `stars_milky_way_8k.jpg` | Star field / Milky Way sky (8K where the GPU supports it, else 4K) | Probably Solar System Scope ("stars_milky_way") or ESO's Milky Way panorama (eso0932a, ESO/S. Brunier). `TODO(team)`: confirm which | Both are CC BY 4.0 (credit required) | No |
 | `public/textures/white_metal.jpg` | Metal texture (original 1000×1000; now 512×512) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
 | `public/textures/black-road-texture.jpg` | Rover tire texture (original 5616×3744, 13.6 MB; now 1024 px, 0.4 MB) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
 
@@ -138,8 +138,12 @@ The "look at space" window loads live images; each shows its own credit on scree
 1. Which AI tool generated the music? (Add it to section 2.)
 2. NASA IDs or page links for the destination and cutscene photos in section 1.2.
 3. Canva license tier used for the card frames.
-4. Mascot author (name to credit) and whether `public/logo.ico` (now the app icon) was AI-generated.
-5. Keep the AI-generated app icon, or replace it?
+4. Mascot author (name to credit) and whether `public/logo.ico` (the HEAD X logo, now the app icon) was
+   AI-generated.
+5. Commander portraits (section 1.3): which Google tool made them, and were the four NASA photos listed
+   there the visual reference?
 6. 3D models (section 1.5): who made them, and was AI used? Source and license of `2k_moon.jpg`, the
    star-field textures, `white_metal.jpg` and `black-road-texture.jpg`; which Google tool made the two
    AI textures.
+7. The MP3 metadata still says "Declared by the Lunar Outpost team" (the game's old name). The
+   declaration is still valid; rewrite the tag only if the team wants the new name in it.

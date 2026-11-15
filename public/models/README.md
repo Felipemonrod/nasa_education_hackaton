@@ -17,13 +17,17 @@ Tudo em `public/` é servido pela raiz do site, então um arquivo
 
 ## Orçamento (este app roda em Chromebook de escola, offline)
 
-- **Tamanho**: mire em **≤ 1–2 MB por modelo** já comprimido. Rode os `.glb`
-  pelo [gltf-transform](https://gltf-transform.dev/) (`gltf-transform optimize`)
-  ou pelo [gltfpack/meshopt](https://meshoptimizer.org/gltf/) antes de commitar.
+- **Tamanho**: mire em **≤ 1–2 MB por modelo**. Os `.glb` atuais são os
+  **originais** do Blender (base 1,2 MB, rover 0,24 MB, painel 0,04 MB): uma versão
+  comprimida com meshopt foi testada e perdia qualidade, então a equipe voltou
+  aos originais. O decodificador meshopt continua registrado, caso se queira
+  comprimir no futuro.
 - **Polígonos**: a cena é um painel pequeno; alguns milhares de triângulos por
   objeto é o suficiente. Nada de malha de milhões de vértices.
-- **Texturas**: no máximo 1K (1024²), em `.webp`/`.jpg`. Sem textura de 4K —
-  a GPU alvo é fraca.
+- **Texturas**: do tamanho que ocupam na tela. Objetos pequenos (porta, painel,
+  rover) usam 512–1024 px; o chão usa 2048×1024. Exceção de propósito: o **céu**
+  (`stars_milky_way_8k.jpg` onde a GPU aceita 8K, senão o de 4K), que precisa
+  ficar nítido. Detalhes em `docs/ASSETS.md` §1.5.
 - **Offline-first**: NÃO busque modelos de CDN/rede em runtime. Todo asset tem
   que estar nesta pasta e ser servido localmente (o service worker faz o cache).
 
@@ -62,11 +66,14 @@ Nomes em `kebab-case`, descritivos, em inglês (como os ids do engine).
   horizontal, apoia a base no chão (`y = 0`) e reescala pela maior dimensão
   horizontal até `MODEL_TARGET_SPAN` (≈ 4,6 unidades). Então **a escala com que
   você exporta não importa** — ajuste `MODEL_TARGET_SPAN` se quiser maior/menor.
-- **Fallback de primeira classe**: a base procedural (grupo `built`) fica visível
-  até o `.glb` carregar; se o arquivo sumir ou o glTF for inválido, ela
-  permanece. Mesmo princípio do SVG que cobre o WebGL.
-- **Disposal**: ao carregar, o código percorre o modelo e registra cada
-  `geometry`/`material` para liberação no `dispose()` — contexto WebGL é raro.
+- **Fallback de primeira classe**: a base procedural (grupo `built`) fica
+  escondida e só aparece se o `.glb` falhar (arquivo ausente ou glTF inválido),
+  para não piscar antes do modelo. Mesmo princípio do SVG que cobre o WebGL.
+- **Cache entre telas**: modelos e texturas são carregados uma vez
+  (`sceneCache.ts`); cada cena usa um clone do modelo e o renderer é
+  compartilhado, então voltar ao menu não recarrega nada. A cena descarta só o
+  que cria para si (geometria procedural, material clonado da porta). A
+  cutscene de abertura já prepara tudo (`sceneWarmup.ts`).
 
 Para **trocar o modelo**, é só sobrescrever `public/models/base.glb` (mantendo as
 convenções de eixos/escala/pivô acima) e recarregar. Chão lunar, Terra, céu e
