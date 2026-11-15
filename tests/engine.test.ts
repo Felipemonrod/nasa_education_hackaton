@@ -7,7 +7,7 @@ import { randomAt } from '../src/engine/rng.js';
 import { applyDecision, beginSlot, createEngine, createRun, viewSlot } from '../src/engine/run.js';
 import { slotsPerPhase } from '../src/engine/schedule.js';
 import { MVP_DAY_PLAN } from '../src/engine/types.js';
-import type { Stats } from '../src/engine/types.js';
+import type { RunState, Stats } from '../src/engine/types.js';
 
 const engine = createEngine(CARDS);
 
@@ -275,5 +275,72 @@ describe('ordem de resolucao', () => {
     const result = applyDecision(engine, state, { cardId: entry.card.id, optionId: pick.option.id }).state;
     expect(result.status).toBe('lost');
     expect(result.result?.reason).toBe('oxygen');
+  });
+});
+
+describe('regras do balanceamento (docs/balanceamento-analise.md §7)', () => {
+  const base = (over: Partial<RunState>): RunState => ({
+    ...createRun(engine, { spaceWeather: TEST_QUIET_WEATHER, seed: 7, objective: 'science' }),
+    ...over,
+  });
+  const stats = (over: Partial<Stats>): Stats => baseStats({ oxygen: 60, power: 60, food: 60, ...over });
+
+  it('modificador novo da opcao so comeca a agir no slot seguinte (A3)', () => {
+    const state = base({ slot: 0, stats: stats({}), current: { shape: 'single', cardId: 'hatch_leak' } });
+    const after = applyDecision(engine, state, { cardId: 'hatch_leak', optionId: 'depressurize' }).state;
+    const option = CARDS.find((c) => c.id === 'hatch_leak')!.options.find((o) => o.id === 'depressurize')!;
+    const immediate = option.effects.find((e) => e.stat === 'oxygen')!.delta;
+    // efeito imediato + dreno diurno; o modificador (-1/slot) ainda nao tickou
+    expect(after.stats.oxygen).toBe(60 + immediate - DEFAULT_BALANCE.drainPerSlot.day.oxygen);
+    expect(after.modifiers.find((m) => m.stat === 'oxygen')?.slotsLeft).toBe(4);
+  });
+
+  it('tempestade ativa recusada no par atinge a base e avanca (B1), sem voltar ao pool', () => {
+    const state = base({
+      slot: 1,
+      stats: stats({}),
+      activeTemporal: { cardId: 'flare_strong', slotsLeft: 2, stage: 1 },
+      deck: { ...base({}).deck, available: base({}).deck.available.filter((id) => id !== 'flare_strong') },
+      current: { shape: 'pair', basicCardId: 'flare_strong', extraCardId: 'crater_12km' },
+    });
+    const after = applyDecision(engine, state, { cardId: 'crater_12km', optionId: 'orbital' }).state;
+    expect(after.stats.shielding).toBe(state.stats.shielding - 1);
+    expect(after.activeTemporal).toEqual({ cardId: 'flare_strong', slotsLeft: 1, stage: 2 });
+    expect(after.deck.available).not.toContain('flare_strong');
+  });
+
+  it('consequencia recusada volta para a fila de sequenciais, nao para o baralho (A1)', () => {
+    const state = base({
+      slot: 1,
+      stats: stats({}),
+      current: { shape: 'pair', basicCardId: 'rover_battery_fix', extraCardId: 'crater_12km' },
+    });
+    const after = applyDecision(engine, state, { cardId: 'crater_12km', optionId: 'orbital' }).state;
+    expect(after.deck.available).not.toContain('rover_battery_fix');
+    expect(after.pendingSequential.map((p) => p.cardId)).toContain('rover_battery_fix');
+  });
+
+  it('a partir do ciclo da pressao final, cada turno drena energia a mais', () => {
+    const { fromDay, powerPerSlot } = DEFAULT_BALANCE.latePressure;
+    const play = (day: number): number => applyDecision(
+      engine,
+      base({ day, slot: 0, stats: stats({}), current: { shape: 'single', cardId: 'comm_failure' } }),
+      { cardId: 'comm_failure', optionId: 'realign' },
+    ).state.stats.power;
+    expect(play(fromDay - 1) - play(fromDay)).toBe(powerPerSlot);
+  });
+
+  it('mitigacao de dose (medica) tambem corta a dose diaria', () => {
+    const play = (mitigation: RunState['mitigation']): number => applyDecision(
+      engine,
+      base({
+        slot: 3,
+        stats: stats({ dose: 10, shielding: 80 }),
+        mitigation,
+        current: { shape: 'pair', basicCardId: 'ration_inventory', extraCardId: 'spectrometer' },
+      }),
+      { cardId: 'ration_inventory', optionId: 'recount' },
+    ).state.stats.dose;
+    expect(play({}) - play({ dose: 1 })).toBe(DEFAULT_BALANCE.dailyDosePerMitigation);
   });
 });

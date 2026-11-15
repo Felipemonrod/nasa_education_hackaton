@@ -253,10 +253,12 @@ function settle(state: RunState, cardId: string, optionId: string): RunState {
  * ORDEM DE RESOLUCAO (fixa, testada, nao reordenar sem atualizar os testes):
  *   1. efeitos da opcao escolhida
  *   2. efeitos por-slot do card temporal, se ele ocupava o slot
- *   3. modificadores passivos ativos
- *   4. dreno passivo do slot (por fase)
+ *      (escolhido OU recusado no par: a tempestade atinge a base igual)
+ *   3. modificadores passivos ativos; os novos da opcao entram depois do tick
+ *   4. dreno passivo do slot (por fase), + `latePressure` no fim da missao
  *   5. derrota ANTES de vitoria (base morta nao publica artigo)
- *   6. rollover de dia: dose absorvida -> degradacao da blindagem -> alivio de marcos
+ *   6. rollover de dia: dose absorvida (menos a mitigacao de dose) ->
+ *      degradacao da blindagem -> alivio de marcos
  */
 export function applyDecision(
   engine: Engine,
@@ -298,19 +300,6 @@ export function applyDecision(
   // a tempestade, os modificadores ou a dose diaria.
   const statsAfterChoice = state.stats;
 
-  // modificadores novos entram para os proximos slots
-  if (option.modifiers !== undefined && option.modifiers.length > 0) {
-    state = {
-      ...state,
-      modifiers: [
-        ...state.modifiers,
-        ...option.modifiers.map((m) => ({
-          stat: m.stat, perSlot: m.perSlot, slotsLeft: m.slots, label: m.label,
-        })),
-      ],
-    };
-  }
-
   // 2. temporal ocupando o slot
   const temporal = state.activeTemporal;
   if (temporal !== null && temporal.cardId === card.id) {
@@ -334,22 +323,56 @@ export function applyDecision(
     };
   }
 
+  // 2b. tempestade ativa recusada no par: ela atinge a base mesmo assim.
+  // Recusar o card nao faz a tempestade solar ir embora.
+  if (declined !== null && temporal !== null && temporal.cardId === declined.id && declined.temporal !== undefined) {
+    state = { ...state, stats: applyEffects(state.stats, declined.temporal.perSlot) };
+    const slotsLeft = temporal.slotsLeft - 1;
+    state = {
+      ...state,
+      activeTemporal: slotsLeft > 0
+        ? { cardId: temporal.cardId, slotsLeft, stage: temporal.stage + 1 }
+        : null,
+    };
+  }
+
   // 3. modificadores passivos
   const ticked = tickModifiers(state.stats, state.modifiers);
   state = { ...state, stats: ticked.stats, modifiers: ticked.modifiers };
 
-  // 4. dreno passivo do slot
+  // modificadores novos da opcao entram DEPOIS do tick: comecam no proximo slot
+  if (option.modifiers !== undefined && option.modifiers.length > 0) {
+    state = {
+      ...state,
+      modifiers: [
+        ...state.modifiers,
+        ...option.modifiers.map((m) => ({
+          stat: m.stat, perSlot: m.perSlot, slotsLeft: m.slots, label: m.label,
+        })),
+      ],
+    };
+  }
+
+  // 4. dreno passivo do slot (+ pressao de fim de missao)
   const drain = balance.drainPerSlot[spec.phase];
+  const latePower = state.day >= balance.latePressure.fromDay ? balance.latePressure.powerPerSlot : 0;
   let stats = state.stats;
   stats = adjust(stats, 'oxygen', -drain.oxygen);
-  stats = adjust(stats, 'power', -drain.power);
+  stats = adjust(stats, 'power', -drain.power - latePower);
   stats = adjust(stats, 'food', -drain.food);
   state = { ...state, stats };
 
   // deck: consome o escolhido, devolve o recusado
   let deck = consumeCard(state.deck, card, state.day);
-  if (declined !== null) deck = returnCard(deck, declined);
-  state = { ...state, deck };
+  // Consequencia recusada nao vira card comum: volta para a fila de
+  // sequenciais. Tempestade ativa recusada tambem nao volta ao pool.
+  let pendingSequential = state.pendingSequential;
+  if (declined !== null && declined.sequentialOnly === true) {
+    pendingSequential = [...pendingSequential, { cardId: declined.id, phase: declined.phase, queuedDay: state.day }];
+  } else if (declined !== null && !(temporal !== null && temporal.cardId === declined.id)) {
+    deck = returnCard(deck, declined);
+  }
+  state = { ...state, deck, pendingSequential };
 
   // card sequencial disparado
   if (option.chains !== undefined) {
@@ -394,7 +417,10 @@ export function applyDecision(
   }
 
   // 6. rollover de dia
-  state = { ...state, stats: adjust(state.stats, 'dose', dailyDose(balance, state.stats.shielding)) };
+  // Mitigacao de dose (medica) tambem corta a dose diaria, nao so a das decisoes.
+  const doseRelief = (state.mitigation.dose ?? 0) * balance.dailyDosePerMitigation;
+  const dose = Math.max(0, dailyDose(balance, state.stats.shielding) - doseRelief);
+  state = { ...state, stats: adjust(state.stats, 'dose', dose) };
   state = { ...state, stats: adjust(state.stats, 'shielding', -balance.shieldingDecayPerDay) };
   state = { ...state, stats: milestoneRelief(state, balance) };
   state = {

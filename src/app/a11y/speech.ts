@@ -41,6 +41,19 @@ export function speechSupported(): boolean {
     && typeof window.SpeechSynthesisUtterance === 'function';
 }
 
+/**
+ * Junta trechos em frases para falar: pula vazios e so poe ponto onde o
+ * trecho ainda nao termina em pontuacao (evita o ".." que soava como pausa
+ * dupla e aparecia em `lastText`).
+ */
+export function joinSpoken(parts: readonly (string | undefined | null)[]): string {
+  return parts
+    .map((part) => (part ?? '').trim())
+    .filter((part) => part.length > 0)
+    .map((part) => (/[.!?…:;]$/.test(part) ? part : `${part}.`))
+    .join(' ');
+}
+
 /** Remove marcacao e normaliza para leitura em voz alta. */
 export function plainText(input: string, labelOf?: (id: string) => string): string {
   return input

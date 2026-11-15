@@ -3,6 +3,7 @@ import { ArrowRight, CheckCircle2, ChevronDown, CircleAlert, Info, MinusCircle }
 import { ALL_STATS } from '../../engine/types.js';
 import type { Stat, Stats, Verdict } from '../../engine/types.js';
 import { GlossaryText } from './GlossaryText.js';
+import { joinSpoken } from '../a11y/speech.js';
 import { SpeakButton } from './SpeakButton.js';
 import { useContent } from '../i18n/useContent.js';
 import { useT } from '../i18n/useI18n.js';
@@ -140,7 +141,7 @@ export function OutcomePanel({
               {line}
             </p>
           </div>
-          <SpeakButton text={`${line}. ${why}`} label={t('outcome.listenAria')} />
+          <SpeakButton text={joinSpoken([line, why, mistake])} label={t('outcome.listenAria')} />
         </div>
 
         <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">

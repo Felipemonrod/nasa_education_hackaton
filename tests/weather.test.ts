@@ -73,9 +73,9 @@ describe('clima espacial no engine', () => {
   const weak = CARDS.find((c) => c.id === 'flare_weak')!;
 
   it('peso por classe segue a regra declarada', () => {
-    expect(flareWeightFor(weak, 'none', DEFAULT_BALANCE)).toBe(1);
+    expect(flareWeightFor(weak, 'none', DEFAULT_BALANCE)).toBe(0); // dia calmo: sem tempestade
     expect(flareWeightFor(weak, 'C', DEFAULT_BALANCE)).toBe(DEFAULT_BALANCE.flareWeight.C);
-    expect(flareWeightFor(strong, 'M', DEFAULT_BALANCE)).toBe(1); // card diz "classe X"
+    expect(flareWeightFor(strong, 'M', DEFAULT_BALANCE)).toBe(0); // card diz "classe X"
     expect(flareWeightFor(strong, 'X', DEFAULT_BALANCE)).toBe(DEFAULT_BALANCE.flareWeight.X);
   });
 
@@ -129,5 +129,14 @@ describe('DONKI ao vivo (conversao pura)', () => {
   it('lista vazia vira "nenhum flare", sem inventar classe', () => {
     const w = weatherFromDonki([], '2019-07-01', '2019-07-07');
     expect(w).toMatchObject({ flareClass: 'none', classType: null, date: '2019-07-01/2019-07-07' });
+  });
+});
+
+describe('endpoint da DONKI', () => {
+  it('usa o endpoint direto da CCMC, sem chave (o gateway api.nasa.gov/DONKI/FLR responde 404)', async () => {
+    const { donkiFlrUrl } = await import('../src/app/services/donki.js');
+    const url = donkiFlrUrl('2026-11-09', '2026-11-15');
+    expect(url).toBe('https://ccmc.gsfc.nasa.gov/DONKI-API/get/FLR?startDate=2026-11-09&endDate=2026-11-15');
+    expect(url).not.toContain('api_key');
   });
 });

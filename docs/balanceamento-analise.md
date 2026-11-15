@@ -276,3 +276,102 @@ Ressalvas:
 - **Não** subi `doseBaseDaily`; precisa de um teste próprio. Sem isso, a folga de dose continua e a blindagem segue fraca. Esse é o próximo experimento que eu faria.
 
 Os scripts dos experimentos não foram versionados. São scripts temporários de análise e podem ser movidos para `src/sim/` se o time quiser repetir as medições.
+
+## 7. Projeção do plano em 5 passos (medido em cópia, **não aplicado**)
+
+Data: 2026-11-15, branch `feat/balanceamento-marcos-pressao`. N = 3000 por célula.
+
+**Estratégias medidas:**
+- "erra X%": o jogador adaptativo que escolhe ao acaso em X% das decisões. É a proxy de uma criança atenta que erra às vezes.
+- "aleatório": escolhe tudo ao acaso.
+- "cuidadoso": prioriza sobreviver.
+- "objetivo": persegue só o trilho declarado.
+- "adaptativo": persegue o objetivo enquanto há folga e recua para sobreviver quando aperta.
+
+Cada célula mostra ciência / habitat.
+
+**Passos, cumulativos:**
+1. Bugs de regra: C7 (tempestade X só em dia X e tempestade fraca fora dos dias calmos), A1, A3, B1.
+2. Radiação: as 3 opções pagas só em dose passam a dar +1 de ciência; as 6 extras de ciência "completas" custam 2 a menos de energia.
+3. Comandantes e energia:
+   - engenheira: +1 de energia por turno nos 12 primeiros turnos, em vez de reduzir toda perda;
+   - médica: −2 de dose por ciclo;
+   - opções básicas que custam 4 ou mais de energia passam 1 ponto do custo para O₂.
+4. Dificuldade (A + E): ciclos 7–10 drenam +1 de energia por turno; marcos devolvem energia (ciência 2/2/2, habitat 2/1/1); energia inicial +10; cápsula `basics` sem custo de energia.
+5. Simetria dos trilhos: ciência em 4 opções básicas de manutenção (`eva_clean` +1, `patch_now` +2, `waste_heat` +2, `sleeping_only` +1).
+
+| passo | aleatório | erra 40% | erra 20% | cuidadoso | objetivo | adaptativo | média sem o aleatório |
+|---|---|---|---|---|---|---|---|
+| hoje | 0 / 0 | 12 / 9 | 28 / 23 | 84 / 86 | 73 / 34 | 51 / 55 | 46 |
+| 1 | 0 / 0 | 15 / 14 | 32 / 32 | 89 / 90 | 46 / 44 | 58 / 64 | 48 |
+| 2 | 1 / 1 | 17 / 14 | 37 / 33 | 89 / 90 | 43 / 44 | 64 / 65 | 50 |
+| 3 | 0 / 0 | 16 / 13 | 34 / 31 | 89 / 88 | 46 / 51 | 60 / 65 | 49 |
+| 4 | 2 / 1 | 39 / 36 | 64 / 62 | 92 / 93 | 70 / 90 | 88 / 89 | 72 |
+| 5 | 2 / 2 | 42 / 37 | **67 / 62** | **92 / 93** | **87 / 90** | **89 / 89** | **75** |
+
+Indicadores de equilíbrio. Colunas:
+- **dif. ciência × habitat**: média, entre as 5 estratégias, da diferença entre os dois objetivos;
+- **dispersão entre estratégias**: maior menos menor taxa entre cuidadoso, objetivo e adaptativo;
+- **derrotas por energia** e **calmo × X**: medidos no jogador "erra 20%";
+- **dispersão do loadout**: maior menos menor taxa do "erra 20%" dentro de cada categoria (comandante / estrutura / equipamento / local).
+
+| passo | dif. ciência × habitat | dispersão entre estratégias | derrotas por energia | calmo × X | dispersão do loadout |
+|---|---|---|---|---|---|
+| hoje | 11 | 33 / 52 | 63% / 88% | 28 × 24 | 31 / 7 / 10 / 8 |
+| 3 | 4 | 43 / 37 | 54% / 81% | 41 × 23 | 16 / 16 / 23 / 11 |
+| 5 | 3 | **5 / 4** | 51% / 66% | 77 × 50 | 12 / 13 / 21 / 4 |
+
+**Pendências no passo 5:**
+- **Dia classe X ficou 27 p.p. mais difícil.** A meta era 5–10 p.p., e 40% das partidas usam um dia X.
+- **Rover (77%) contra dosímetros (56%).** Os dosímetros continuam fracos.
+- **Derrotas por energia no habitat em 66%.** A meta é ≤ 60%.
+
+## 8. Aplicado (2026-11-15, branch `feat/balanceamento-marcos-pressao`)
+
+O plano da §7 foi implementado, com dois desvios, os dois medidos.
+
+**Desvio 1 — cápsula `basics` custa −2 de energia, não 0.**
+- Com custo 0 a opção ficava só com ganhos, e o invariante de conteúdo ("toda opção tem um custo") falhava.
+- O próprio texto da carta diz que a descida custa energia para guiar e frear.
+- Efeito: cerca de −2 p.p. no jogador que erra 20%.
+
+**Desvio 2 — a tempestade que termina recusada não volta ao pool.**
+- Na cópia medida na §7 ela voltava e podia ser sorteada de novo.
+- A diferença ficou abaixo de 1 p.p.
+
+Resultado final no código real (N = 3000, ciência / habitat):
+
+| | aleatório | erra 40% | erra 20% | cuidadoso | objetivo | adaptativo | média sem o aleatório |
+|---|---|---|---|---|---|---|---|
+| antes | 0,2 / 0,3 | 12 / 9 | 28 / 23 | 84,3 / 86,0 | 73,1 / 33,8 | 51,0 / 55,5 | 46 |
+| **agora** | 2,0 / 1,5 | 40,7 / 34,4 | **66,3 / 60,7** | 91,0 / 90,9 | 87,0 / 90,1 | 88,6 / 87,0 | **74** |
+
+- Vitória pelo objetivo: ciência 86,2% e habitat 90,1% (antes 73,1% e 33,8%).
+- O adaptativo vence **pelo objetivo** em 9,5% das partidas de habitat (antes 0,3%). Jogar equilibrado já consegue cumprir o objetivo.
+- Derrotas do jogador que erra 20% causadas por energia: 53% em ciência e 66% em habitat (antes 63% e 88%).
+
+Taxa de vitória do jogador que erra 20%, por item:
+
+| Categoria | Taxa por item |
+|---|---|
+| comandante | engenheira 72 · médica 58 · geóloga 62 |
+| estrutura | cofre 55 · estufa 68 · parede d'água 64 · campo solar 67 |
+| equipamento | rover 76 · dosímetros 53 · sobressalentes 59 · broca 66 |
+| local | Tranquillitatis 67 · Shackleton 62 · Marius 62 |
+| clima | calmo 75 · C 70 · M 69 · **X 51** |
+
+O que mudou para o jogador:
+
+| Onde | Mudança |
+|---|---|
+| Engenheira | antes "−1 em toda perda de energia"; agora **+1 de energia por turno nos 3 primeiros ciclos** |
+| Médica | **−1 de dose nas decisões e −2 de dose por ciclo** |
+| Tutorial, passo 5 | explica a pressão a partir do ciclo 7 |
+| Tutorial, passo 6 | explica que cada 25 pontos no objetivo economiza energia |
+| 4 opções básicas que agora dão ciência | o "por quê" explica de onde vem a ciência |
+
+**Pendências:**
+1. Dia classe X 24 p.p. mais difícil que dia calmo (meta: 5–10). Seis dos 15 registros históricos são X.
+2. Dosímetros (53) e cofre (55) seguem os itens mais fracos (C5).
+3. A pressão do ciclo 7 só é explicada no tutorial. Um aviso na tela quando o ciclo 7 começa seria trabalho de frontend.
+4. Jogar com crianças reais: os jogadores simulados não planejam nem leem.

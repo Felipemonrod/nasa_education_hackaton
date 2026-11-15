@@ -7,6 +7,7 @@ import type { Card, CardOption, Phase, Threshold } from '../../engine/types.js';
 import { useAccount } from '../store/useAccount.js';
 import { getCardFrameMeta } from './CardArtwork.js';
 import { GlossaryText } from './GlossaryText.js';
+import { joinSpoken } from '../a11y/speech.js';
 import { SpeakButton } from './SpeakButton.js';
 import { useContent } from '../i18n/useContent.js';
 import { useT } from '../i18n/useI18n.js';
@@ -156,7 +157,7 @@ export function CardView({
         {/* Ícone de áudio mais para cima e na diagonal, longe da imagem da carta */}
         <div className="absolute right-1 top-1 z-20 lg:-right-1.5 lg:-top-1">
           <SpeakButton
-            text={`${title}. ${text}. ${options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option)).join('. ')}`}
+            text={joinSpoken([title, text, ...options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option))])}
             label={t('card.listenAria', { title })}
           />
         </div>

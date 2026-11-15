@@ -75,3 +75,13 @@ describe('quebra do texto em pedacos', () => {
     expect(plainText('O [[oxygen]] caiu', (id) => (id === 'oxygen' ? 'oxigenio' : id))).toBe('O oxigenio caiu');
   });
 });
+
+describe('joinSpoken', () => {
+  it('junta trechos sem pontuacao dobrada e pula vazios', async () => {
+    const { joinSpoken } = await import('../src/app/a11y/speech.js');
+    expect(joinSpoken(['Painéis limpos.', 'Cada ciclo joga ar fora', undefined, '', null, 'Fim!']))
+      .toBe('Painéis limpos. Cada ciclo joga ar fora. Fim!');
+    expect(joinSpoken([])).toBe('');
+    expect(joinSpoken(['Atenção:', 'oxigênio'])).toBe('Atenção: oxigênio.');
+  });
+});

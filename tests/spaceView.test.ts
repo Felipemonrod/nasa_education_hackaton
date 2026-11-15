@@ -212,3 +212,35 @@ describe('loadSpaceView (auditoria e fallbacks)', () => {
     expect(view.kind).toBe('offline');
   });
 });
+
+describe('APOD novo (WordPress, sem chave)', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    vi.restoreAllMocks();
+  });
+
+  it('usa o endpoint novo primeiro, limpa o HTML e nao chama a API antiga', async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes('wp-json/wp/v2/apod-basic')) {
+        return new Response(JSON.stringify([{
+          title: 'Apollo 12 and Surveyor 3',
+          explanation: '<strong>Explanation:</strong> Put on your <a href="#">red/blue glasses</a> and gaze.',
+          hdurl: 'https://assets.science.nasa.gov/apod/apollo12.jpg',
+          media_type: 'image',
+          date: '2026-11-14',
+        }]), { status: 200 });
+      }
+      return new Response('', { status: 404 });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const view = await loadSpaceView();
+    expect(view.kind).toBe('photo');
+    if (view.kind === 'photo') {
+      expect(view.imageUrl).toBe('https://assets.science.nasa.gov/apod/apollo12.jpg');
+      expect(view.caption).not.toMatch(/<|Explanation:/);
+      expect(view.caption).toContain('red/blue glasses');
+    }
+    expect(fetchMock.mock.calls.some(([u]) => String(u).includes('planetary/apod'))).toBe(false);
+  });
+});

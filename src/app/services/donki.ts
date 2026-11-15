@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { flareClassOf, historicalForSeed } from '../../content/spaceWeather.js';
 import type { SpaceWeather } from '../../engine/types.js';
 import { pruneKeys } from '../store/persistence.js';
-import { NASA_API_KEY, fetchJson, todayKey } from './nasa.js';
+import { fetchJson, todayKey } from './nasa.js';
 
 /**
  * Clima espacial AO VIVO da NASA DONKI (catalogo de flares, endpoint FLR).
@@ -53,10 +53,20 @@ export function flareStrength(classType: string | null | undefined): number {
   return base * Number(match[2]) * 10;
 }
 
+/**
+ * Endpoint DIRETO da CCMC: sem chave e com CORS liberado (testado no
+ * navegador; docs/RECURSOS_NASA.md secao 5.2). O gateway
+ * api.nasa.gov/DONKI/FLR responde 404 desde a migracao do DONKI
+ * (setembro/2026), e com DEMO_KEY ainda estoura o limite (429).
+ */
+export function donkiFlrUrl(start: string, end: string): string {
+  return `https://ccmc.gsfc.nasa.gov/DONKI-API/get/FLR?startDate=${start}&endDate=${end}`;
+}
+
 /** Converte a resposta da DONKI no registro que o engine aceita. Pura. */
 export function weatherFromDonki(flares: z.infer<typeof responseSchema>, start: string, end: string): SpaceWeather {
-  // URL publica para conferencia; usa DEMO_KEY para nao exibir chave propria.
-  const sourceUrl = `https://api.nasa.gov/DONKI/FLR?startDate=${start}&endDate=${end}&api_key=DEMO_KEY`;
+  // URL publica para conferencia: o endpoint direto da CCMC, sem chave.
+  const sourceUrl = donkiFlrUrl(start, end);
   const strongest = [...flares].sort((a, b) => flareStrength(b.classType) - flareStrength(a.classType))[0];
   if (strongest === undefined || flareStrength(strongest.classType) < 0) {
     return {
@@ -113,7 +123,7 @@ export function prefetchLiveWeather(): void {
 
   const end = key;
   const start = isoDaysAgo(WINDOW_DAYS - 1);
-  void fetchJson(`https://api.nasa.gov/DONKI/FLR?startDate=${start}&endDate=${end}&api_key=${NASA_API_KEY}`)
+  void fetchJson(donkiFlrUrl(start, end))
     .then((data) => {
       const parsed = responseSchema.safeParse(data);
       // Formato inesperado (ex.: objeto de erro da API) NAO vira "dia calmo".
