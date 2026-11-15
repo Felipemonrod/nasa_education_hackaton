@@ -1,25 +1,16 @@
-import { maxTextureSize, prefersReducedMotion, supportsWebGL } from '../webgl.js';
+import { prefersReducedMotion, supportsWebGL } from '../webgl.js';
 
 /**
- * Pre-carrega a base 3D enquanto a cutscene de abertura passa: o chunk do
- * three.js e os arquivos da cena entram no cache (HTTP e service worker), e a
- * tela "Carregando modelos 3D" do Menu dura o minimo. Sem WebGL ou com
- * movimento reduzido nao baixa nada (o Menu usa o SVG).
+ * Prepara a base 3D enquanto a cutscene de abertura passa, para a tela
+ * "Carregando modelos 3D" do Menu durar o minimo (ou nem aparecer).
  *
- * Mesma lista de arquivos de baseScene.ts: ao trocar um arquivo la, trocar aqui.
+ * Nao basta baixar os arquivos: o caro e interpretar os modelos, decodificar as
+ * imagens e envia-las para a GPU. Por isso o aquecimento (sceneWarmup.ts) monta
+ * a cena de verdade, fora da tela, no renderer compartilhado que o Menu vai usar.
+ * Ele vem por import dinamico: o three.js continua fora do bundle inicial.
+ *
+ * Sem WebGL ou com movimento reduzido nao faz nada (o Menu usa o SVG).
  */
-const SCENE_FILES = [
-  '/models/base.glb',
-  '/models/rover.glb',
-  '/models/solar.glb',
-  '/textures/2k_moon.jpg',
-  '/textures/world.topo.200401.3x5400x2700.jpg',
-  '/textures/black-road-texture.jpg',
-  '/textures/white_metal.jpg',
-  '/textures/solarPanel.jpg',
-  '/textures/DoorTexture.jpg',
-];
-
 let started = false;
 
 export function preloadBaseScene(): void {
@@ -28,8 +19,7 @@ export function preloadBaseScene(): void {
   try {
     if (!supportsWebGL() || prefersReducedMotion()) return;
     void import('./MoonSceneGL.js').catch(() => undefined);
-    const sky = maxTextureSize() >= 8192 ? '/textures/stars_milky_way_8k.jpg' : '/textures/stars_milky_way_4k.jpg';
-    for (const url of [...SCENE_FILES, sky]) void fetch(url).catch(() => undefined);
+    void import('./sceneWarmup.js').then((m) => { m.warmBaseScene(); }).catch(() => undefined);
   } catch {
     // Pre-carga e so otimizacao: qualquer falha aqui e ignorada.
   }

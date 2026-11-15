@@ -1,4 +1,5 @@
 import { useT } from '../i18n/useI18n.js';
+import { BrandName } from './BrandName.js';
 
 /**
  * Tela de espera enquanto o three.js e os modelos da base carregam, para o
@@ -36,8 +37,8 @@ export function SceneLoading({
         aria-live="polite"
         aria-hidden={hidden}
       >
-        <p className="font-display text-4xl font-extrabold leading-none tracking-tight text-white sm:text-5xl">
-          Lunar<span className="text-power"> Outpost</span>
+        <p>
+          <BrandName className="text-4xl text-white sm:text-5xl" />
         </p>
         {indicator}
       </div>

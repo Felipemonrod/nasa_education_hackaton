@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BrandName } from '../components/BrandName.js';
 import { useI18n } from '../i18n/useI18n.js';
 
 const STEP_KEYS = [
@@ -185,7 +186,8 @@ export function Loading({ onDone }: { readonly onDone: () => void }): JSX.Elemen
 
       {/* Card de telemetria de carregamento */}
       <div className="card-surface relative z-20 flex w-full max-w-md flex-col items-center gap-4 border border-slate-700/70 bg-space-900/85 p-6 text-center backdrop-blur-md">
-        <h1 className="font-display text-xl font-extrabold text-white">{t('loading.title')}</h1>
+        <BrandName className="text-sm uppercase tracking-[0.3em] text-slate-300" />
+        <h1 className="-mt-2 font-display text-xl font-extrabold text-white">{t('loading.title')}</h1>
 
         <p role="status" aria-live="polite" className="min-h-[1.5rem] text-sm font-semibold text-sky-300">
           {t(STEP_KEYS[step] ?? 'loading.step1')}

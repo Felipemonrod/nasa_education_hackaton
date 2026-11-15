@@ -12,12 +12,14 @@ export type SceneStatus = 'loading' | 'ready' | 'failed';
  * Tempo limite: numa rede lenta de escola, ficar no SVG e melhor que esperar
  * indefinidamente por um 3D que talvez nunca chegue.
  */
-export function useSceneStatus(enabled: boolean, timeoutMs = 30000): {
+export function useSceneStatus(enabled: boolean, timeoutMs = 30000, startReady = false): {
   status: SceneStatus;
   onReady: () => void;
   onError: () => void;
 } {
-  const [status, setStatus] = useState<SceneStatus>(enabled ? 'loading' : 'failed');
+  // startReady: a cena ja ficou pronta antes nesta sessao (cache em memoria),
+  // entao reaparece na hora -- sem a tela de carregamento.
+  const [status, setStatus] = useState<SceneStatus>(enabled ? (startReady ? 'ready' : 'loading') : 'failed');
   const onReady = useCallback(() => { setStatus((s) => (s === 'loading' ? 'ready' : s)); }, []);
   const onError = useCallback(() => { setStatus('failed'); }, []);
 

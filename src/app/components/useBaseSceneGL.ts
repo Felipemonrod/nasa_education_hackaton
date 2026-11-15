@@ -2,6 +2,9 @@ import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import { buildBaseScene } from './baseScene.js';
+import { acquireRenderer } from './sceneCache.js';
+import type { RendererLease } from './sceneCache.js';
+import { markSceneWarm } from './sceneWarm.js';
 import type { BaseScene } from './baseScene.js';
 
 /**
@@ -70,30 +73,36 @@ export function useBaseSceneGL(
     const host = hostRef.current;
     if (host === null) return undefined;
 
-    let renderer: WebGLRenderer;
+    // Renderer COMPARTILHADO entre as telas (sceneCache): texturas, modelos e
+    // shaders continuam na GPU quando o menu sai e volta -- sem recarregar.
+    let lease: RendererLease;
     try {
-      // preserveDrawingBuffer: o quadro fica no buffer depois de exibido, para o
-      // print do celular (e capturas do navegador) nao sairem pretos/vazios.
-      renderer = new WebGLRenderer({
-        antialias: true, alpha: false, powerPreference: 'low-power', preserveDrawingBuffer: true,
-      });
+      lease = acquireRenderer();
     } catch {
       // Sem contexto WebGL (driver bloqueado, GPU sem memoria): o componente cai no SVG.
       eventsRef.current.onError?.();
       return undefined;
     }
+    const renderer: WebGLRenderer = lease.renderer;
     const canvas = renderer.domElement;
     canvas.style.display = 'block';
     canvas.style.width = '100%';
     canvas.style.height = '100%';
+    // O explorador liga touchAction 'none' no mesmo canvas; o painel nao.
+    canvas.style.touchAction = '';
     host.appendChild(canvas);
+    let contextLost = false;
 
     const scene = new Scene();
     let alive = true;
     const base = buildBaseScene(scene, {
       // Espera um quadro para o modelo ja estar desenhado antes do fade-in.
       onModelReady: () => {
-        window.requestAnimationFrame(() => { if (alive) eventsRef.current.onReady?.(); });
+        window.requestAnimationFrame(() => {
+          if (!alive) return;
+          markSceneWarm(); // proximas visitas ao menu nao mostram o carregamento
+          eventsRef.current.onReady?.();
+        });
       },
       onModelError: () => { if (alive) eventsRef.current.onError?.(); },
     });
@@ -160,6 +169,7 @@ export function useBaseSceneGL(
     const onContextLost = (e: Event): void => {
       e.preventDefault();
       stop();
+      contextLost = true; // este renderer nao volta para o cache
       eventsRef.current.onError?.(); // o componente troca para o SVG
     };
     const onContextRestored = (): void => { resize(); sync(); };
@@ -213,9 +223,10 @@ export function useBaseSceneGL(
       dprQuery?.removeEventListener('change', onDprChange);
       baseRef.current = null;
       handle.dispose?.();
-      base.dispose();
-      renderer.dispose();
+      base.dispose(); // so o que a cena criou; modelos/texturas ficam no cache
       if (canvas.parentNode !== null) canvas.parentNode.removeChild(canvas);
+      if (contextLost) lease.discard();
+      else lease.release();
     };
     // Monta uma vez; a parte especifica vem de setupRef, a fase do efeito abaixo.
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -24,12 +24,10 @@ import {
   Scene,
   SphereGeometry,
   Texture,
-  TextureLoader,
   TorusGeometry,
   Vector3,
 } from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { sharedGltf, sharedTexture, textureLoaded } from './sceneCache.js';
 import { maxTextureSize } from '../webgl.js';
 
 /**
@@ -42,9 +40,10 @@ import { maxTextureSize } from '../webgl.js';
  * paineis solares, antena girando, rover, a Terra no ceu (sempre no mesmo
  * ponto, porque a Lua mostra sempre a mesma face) e campo estelar.
  *
- * Sem texturas de proposito: tudo e procedural, entao funciona offline e
- * pesa pouco em GPU de escola. TODO geometry/material entra em `disposables`
- * e e descartado por `dispose()` -- contexto WebGL e recurso raro.
+ * Modelos (.glb) e texturas vem do cache compartilhado (sceneCache.ts) e NAO
+ * sao descartados aqui: ficam prontos para a proxima montagem. So o que a cena
+ * cria para si (geometria/material procedural, material clonado da porta) entra
+ * em `disposables` e e descartado por `dispose()`.
  */
 
 interface Palette {
@@ -139,6 +138,19 @@ const MODEL_SOLAR_POS: readonly { x: number; z: number }[] = [
 const MODEL_OLD_SOLAR_POSTS: ReadonlySet<string> = new Set([
   'Cylinder001', 'Cylinder002', 'Cylinder003', 'Cylinder004',
 ]);
+const MOON_URL = '/textures/2k_moon.jpg';
+const EARTH_URL = '/textures/world.topo.200401.3x5400x2700.jpg';
+
+/** Ceu 8K onde a GPU aguenta, 4K onde nao (evita "textura grande demais -> ceu preto"). */
+function skyTextureUrl(): string {
+  return maxTextureSize() >= 8192 ? '/textures/stars_milky_way_8k.jpg' : '/textures/stars_milky_way_4k.jpg';
+}
+
+/** Tudo o que a cena carrega da rede (a pre-carga espera estes arquivos). */
+export const BASE_SCENE_MODELS: readonly string[] = [MODEL_URL, MODEL_ROVER_URL, MODEL_SOLAR_URL];
+export function baseSceneTextures(): readonly string[] {
+  return [MOON_URL, EARTH_URL, RUBBER_URL, ALUMINUM_URL, SOLAR_TEX_URL, DOOR_URL, skyTextureUrl()];
+}
 
 export interface BaseScene {
   /** Aplica day/night (luzes, fundo, brilhos) sem reconstruir a cena. */
@@ -171,6 +183,9 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
     return seed / 0xffffffff;
   };
 
+  // `disposed` protege contra a cena ser descartada antes de um modelo ou
+  // textura chegar: o callback atrasado nao mexe mais nela.
+  let disposed = false;
   const disposables: { dispose(): void }[] = [];
   const track = <T extends { dispose(): void }>(x: T): T => {
     disposables.push(x);
@@ -217,13 +232,13 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
   // Textura real da Lua (equiretangular, cinza com crateras). Repeticao baixa:
   // e o mapa da Lua inteira, tiling alto viraria "estampa"; 3x mantem as
   // crateras grandes e some com o tom de deserto.
-  const loader = new TextureLoader();
-  const moonTex = track(loader.load('/textures/2k_moon.jpg'));
-  moonTex.wrapS = RepeatWrapping;
-  moonTex.wrapT = RepeatWrapping;
-  moonTex.repeat.set(3, 3);
-  moonTex.colorSpace = SRGBColorSpace;
-  moonTex.anisotropy = 16; // nitidez do chao em angulo raso (a GPU faz o clamp)
+  const moonTex = sharedTexture(MOON_URL, (tex) => {
+    tex.wrapS = RepeatWrapping;
+    tex.wrapT = RepeatWrapping;
+    tex.repeat.set(3, 3);
+    tex.colorSpace = SRGBColorSpace;
+    tex.anisotropy = 16; // nitidez do chao em angulo raso (a GPU faz o clamp)
+  });
   // Relevo reaproveitando o proprio mapa da Lua como bumpMap: a luminancia das
   // crateras/maria vira altura. Evita depender de um arquivo de altura a parte.
   const groundMat = track(new MeshStandardMaterial({
@@ -374,30 +389,34 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
 
   // Borracha dos pneus: textura compartilhada pelo rover procedural (fallback)
   // e pelo rover glTF (material 'Rover_Roda', aplicada ao carregar).
-  const rubberTex = track(loader.load(RUBBER_URL));
-  rubberTex.wrapS = RepeatWrapping;
-  rubberTex.wrapT = RepeatWrapping;
-  rubberTex.repeat.set(RUBBER_REPEAT, RUBBER_REPEAT);
-  rubberTex.colorSpace = SRGBColorSpace;
-  rubberTex.anisotropy = 16;
+  const rubberTex = sharedTexture(RUBBER_URL, (tex) => {
+    tex.wrapS = RepeatWrapping;
+    tex.wrapT = RepeatWrapping;
+    tex.repeat.set(RUBBER_REPEAT, RUBBER_REPEAT);
+    tex.colorSpace = SRGBColorSpace;
+    tex.anisotropy = 16;
+  });
 
   // Alumineo branco pintado (seamless) na caixa do rover.
-  const aluminumTex = track(loader.load(ALUMINUM_URL));
-  aluminumTex.wrapS = RepeatWrapping;
-  aluminumTex.wrapT = RepeatWrapping;
-  aluminumTex.repeat.set(ALUMINUM_REPEAT, ALUMINUM_REPEAT);
-  aluminumTex.colorSpace = SRGBColorSpace;
-  aluminumTex.anisotropy = 16;
+  const aluminumTex = sharedTexture(ALUMINUM_URL, (tex) => {
+    tex.wrapS = RepeatWrapping;
+    tex.wrapT = RepeatWrapping;
+    tex.repeat.set(ALUMINUM_REPEAT, ALUMINUM_REPEAT);
+    tex.colorSpace = SRGBColorSpace;
+    tex.anisotropy = 16;
+  });
 
   // Foto de painel solar no topo das placas (mapeada 1:1 pela UV do glb).
-  const solarTex = track(loader.load(SOLAR_TEX_URL));
-  solarTex.colorSpace = SRGBColorSpace;
-  solarTex.anisotropy = 16;
+  const solarTex = sharedTexture(SOLAR_TEX_URL, (tex) => {
+    tex.colorSpace = SRGBColorSpace;
+    tex.anisotropy = 16;
+  });
 
   // Textura da porta da eclusa (mapeada pela UV do glb).
-  const doorTex = track(loader.load(DOOR_URL));
-  doorTex.colorSpace = SRGBColorSpace;
-  doorTex.anisotropy = 16;
+  const doorTex = sharedTexture(DOOR_URL, (tex) => {
+    tex.colorSpace = SRGBColorSpace;
+    tex.anisotropy = 16;
+  });
 
   // --- Rover ---
   const rover = new Group();
@@ -430,9 +449,10 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
 
   // --- Terra no ceu (ponto fixo; leve rotacao propria) ---
   const earthGeo = track(new SphereGeometry(1, 48, 32));
-  const earthTex = track(loader.load('/textures/world.topo.200401.3x5400x2700.jpg'));
-  earthTex.colorSpace = SRGBColorSpace;
-  earthTex.anisotropy = 16;
+  const earthTex = sharedTexture(EARTH_URL, (tex) => {
+    tex.colorSpace = SRGBColorSpace;
+    tex.anisotropy = 16;
+  });
   // map = cara iluminada pela luz; emissiveMap com o mesmo mapa deixa a Terra
   // sempre legivel no ceu escuro (brilho controlado por applyPhase: discreto
   // de dia, forte a noite).
@@ -468,21 +488,21 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
   // 8K onde a GPU aguenta, 4K onde nao (evita "textura grande demais -> ceu
   // preto"). Fallback escuro ate a imagem carregar (ou se falhar).
   // Arquivos ORIGINAIS (sem recompressao: a versao reduzida perdia estrelas).
-  const skyUrl = maxTextureSize() >= 8192
-    ? '/textures/stars_milky_way_8k.jpg'
-    : '/textures/stars_milky_way_4k.jpg';
+  const skyUrl = skyTextureUrl();
   scene.background = new Color(0x05070c);
-  const sky = loader.load(skyUrl, (tex) => {
+  sharedTexture(skyUrl, (tex) => {
     tex.mapping = EquirectangularReflectionMapping;
     tex.colorSpace = SRGBColorSpace;
     // Fundo visto quase de frente: sem mipmap fica mais nitido e usa menos
     // memoria (importa com textura grande de ceu).
     tex.generateMipmaps = false;
     tex.minFilter = LinearFilter;
+  });
+  void textureLoaded(skyUrl).then((tex) => {
+    if (disposed || tex.image === undefined || tex.image === null) return;
     scene.background = tex;
     scene.environment = tex; // metal da base reflete o ceu (em vez de ficar preto)
   });
-  track(sky);
 
   // Estrelas nitidas POR CIMA da panoramica: pontos renderizados ficam cravados
   // em qualquer resolucao, compensando a suavidade do JPG de fundo. Raio grande
@@ -507,37 +527,16 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
   scene.add(stars);
 
   // --- Modelos 3D (assincronos, com fallback procedural) ---
-  // `disposed` protege contra a cena ser descartada antes do .glb chegar: se
-  // isso acontecer, o modelo recem-carregado e liberado na hora.
-  let disposed = false;
-  const gltfLoader = new GLTFLoader();
-  // Os .glb atuais sao os ORIGINAIS (a versao meshopt+quantizada perdia
-  // qualidade). O decodificador fica registrado para aceitar modelos
-  // comprimidos com meshopt no futuro; vem no pacote three, sem rede.
-  gltfLoader.setMeshoptDecoder(MeshoptDecoder);
-  // Carrega um glTF, deixa `place` posiciona-lo, registra seus recursos para o
-  // dispose() e o adiciona a cena. Em falha, fica so o que ja esta na tela.
+  // Cada cena usa um CLONE do modelo em cache: geometria e material sao
+  // compartilhados (e nao descartados aqui), so a arvore de nos e propria.
   const loadModel = (url: string, place: (model: Group) => void, onError?: () => void): void => {
-    gltfLoader.load(
-      url,
+    sharedGltf(url).then(
       (gltf) => {
-        const model = gltf.scene;
-        if (disposed) {
-          disposeObject(model);
-          return;
-        }
+        if (disposed) return;
+        const model = gltf.scene.clone();
         place(model);
-        model.traverse((obj) => {
-          if (obj instanceof Mesh) {
-            track(obj.geometry);
-            const mat = obj.material;
-            if (Array.isArray(mat)) for (const mm of mat) track(mm);
-            else track(mat);
-          }
-        });
         scene.add(model);
       },
-      undefined,
       () => {
         // Falha: revela o fallback procedural (escondido por padrao para nao piscar
         // antes do glb carregar no caminho normal).
@@ -576,14 +575,12 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
         oldSolar.push(obj);
       }
     });
-    for (const obj of oldSolar) {
-      obj.removeFromParent();
-      disposeObject(obj);
-    }
+    // So sai do clone: a geometria e compartilhada com o modelo em cache.
+    for (const obj of oldSolar) obj.removeFromParent();
     // Textura na porta da eclusa. Casa pelo NOME DO NODE (single-primitive, entao o
     // nome e confiavel) e CLONA o material 'Moldura_Metal' so para a porta -- ele e
-    // compartilhado pela base toda, nao da pra mexer no original. O clone entra em
-    // disposables via loadModel (rastreia obj.material apos este callback).
+    // compartilhado pela base toda, nao da pra mexer no original. O clone e desta
+    // cena, entao entra em disposables.
     model.traverse((obj) => {
       if (!(obj instanceof Mesh) || obj.name !== DOOR_NODE) return;
       // A UV de cilindro do glb enrola a imagem (porta descentralizada). Troca por
@@ -592,7 +589,7 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
       addFacePlanarUV(obj.geometry);
       const mat = obj.material;
       if (mat instanceof MeshStandardMaterial) {
-        const c = mat.clone();
+        const c = track(mat.clone());
         c.map = doorTex;
         c.color.setHex(0xffffff);
         // O material herdado e metalico (reflete o ceu escuro -> porta preta).
@@ -631,33 +628,19 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
     applyTextureByMaterial(model, ROVER_BODY_MAT, aluminumTex);
   }, () => { proceduralRover.visible = true; }); // rover.glb falhou -> rover procedural
 
-  // Placas solares: carrega o modelo uma vez e clona nos pontos da fileira. Os
-  // clones compartilham geometria/material do prototipo (track so uma vez; o
-  // dispose do prototipo libera os recursos de todas as copias).
-  gltfLoader.load(
-    MODEL_SOLAR_URL,
+  // Placas solares: um clone do modelo em cache como prototipo, copiado nos
+  // pontos da fileira (todas as copias dividem geometria/material).
+  sharedGltf(MODEL_SOLAR_URL).then(
     (gltf) => {
-      const proto = gltf.scene;
-      if (disposed) {
-        disposeObject(proto);
-        return;
-      }
+      if (disposed) return;
+      const proto = gltf.scene.clone();
       const box = new Box3().setFromObject(proto);
       const size = new Vector3();
       const center = new Vector3();
       box.getSize(size);
       box.getCenter(center);
       const s = MODEL_SOLAR_TARGET / (Math.max(size.x, size.z) || 1);
-      proto.traverse((obj) => {
-        if (obj instanceof Mesh) {
-          track(obj.geometry);
-          const mat = obj.material;
-          if (Array.isArray(mat)) for (const mm of mat) track(mm);
-          else track(mat);
-        }
-      });
-      // Topo do painel: foto no material 'PlacaSolar_Celulas'. No proto ANTES de
-      // clonar -> os 4 clones compartilham o material (three clona por referencia).
+      // Topo do painel: foto no material 'PlacaSolar_Celulas'.
       applyTextureByMaterial(proto, SOLAR_CELL_MAT, solarTex);
       // Assenta cada placa na altura real do solo (que tem relevo): raycast de
       // cima para baixo contra o chao. Evita placas flutuando ou enterradas.
@@ -677,7 +660,6 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
         scene.add(inst);
       }
     },
-    undefined,
     () => {
       // solar.glb falhou -> revela os paineis procedurais como fallback (estavam
       // escondidos por padrao para nao piscar antes do glb carregar).
@@ -701,6 +683,7 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
     earth.rotation.y = elapsed * 0.05;
   };
 
+  // Descarta so o que esta cena criou; modelos e texturas do cache ficam.
   const dispose = (): void => {
     disposed = true;
     for (const d of disposables) d.dispose();
@@ -717,6 +700,9 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
  * cilindro. Em espaco local, entao independe da rotacao do no.
  */
 function addFacePlanarUV(geo: BufferGeometry): void {
+  // A geometria e compartilhada pelos clones do modelo em cache: calcula uma vez.
+  if (geo.userData['faceUV'] === true) return;
+  geo.userData['faceUV'] = true;
   const pos = geo.attributes['position'];
   if (pos === undefined) return;
   geo.computeBoundingBox();
@@ -754,22 +740,6 @@ function applyTextureByMaterial(root: Object3D, matName: string, tex: Texture): 
         m.color.setHex(0xffffff);
         m.needsUpdate = true;
       }
-    }
-  });
-}
-
-/**
- * Libera geometrias e materiais de uma subarvore carregada -- usado quando a
- * cena e descartada antes de o modelo 3D terminar de carregar (nesse caso os
- * recursos nao chegaram a entrar em `disposables`).
- */
-function disposeObject(root: Object3D): void {
-  root.traverse((obj) => {
-    if (obj instanceof Mesh) {
-      obj.geometry.dispose();
-      const mat = obj.material;
-      if (Array.isArray(mat)) for (const mm of mat) mm.dispose();
-      else mat.dispose();
     }
   });
 }

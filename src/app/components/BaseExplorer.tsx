@@ -8,6 +8,7 @@ import { MoonSceneSVG } from './MoonSceneSVG.js';
 import { SceneErrorBoundary } from './SceneErrorBoundary.js';
 import { SceneLoading } from './SceneLoading.js';
 import { useFadeOut, useSceneStatus } from './useSceneStatus.js';
+import { isSceneWarm } from './sceneWarm.js';
 
 // Carregamento tardio: o three.js + OrbitControls so baixam quando o usuario
 // abre a tela e o dispositivo e capaz. Entra no chunk ja code-split.
@@ -35,7 +36,8 @@ export function BaseExplorer(): JSX.Element {
   const autoRotate = !reducedMotion && !prefersReducedMotion();
   // Mesmo fallback da MoonScene: "Carregando modelos 3D" na hora, 3D com fade
   // quando o modelo entra, e o SVG so se o 3D falhar ou demorar demais.
-  const { status, onReady, onError } = useSceneStatus(wantsGL);
+  // Cena ja carregada antes (menu ou cutscene): abre direto, sem carregamento.
+  const { status, onReady, onError } = useSceneStatus(wantsGL, undefined, isSceneWarm());
   const useGL = wantsGL && status !== 'failed';
   const ready = status === 'ready';
   // Carregamento em TELA CHEIA (por cima do botao Voltar e da dica) ate o 3D

@@ -6,6 +6,7 @@ import { MoonSceneSVG } from './MoonSceneSVG.js';
 import { SceneErrorBoundary } from './SceneErrorBoundary.js';
 import { SceneLoading } from './SceneLoading.js';
 import { useSceneStatus } from './useSceneStatus.js';
+import { isSceneWarm } from './sceneWarm.js';
 import type { SceneStatus } from './useSceneStatus.js';
 
 export interface MoonSceneProps {
@@ -48,7 +49,7 @@ export function MoonScene({ phase, framing = 'panel', onStatus }: MoonSceneProps
   // Capacidade do dispositivo nao muda em runtime: decide uma vez.
   const [capable] = useState(() => supportsWebGL() && !prefersReducedMotion());
   const wantsGL = capable && !highContrast && !reducedMotion;
-  const { status, onReady, onError } = useSceneStatus(wantsGL);
+  const { status, onReady, onError } = useSceneStatus(wantsGL, undefined, isSceneWarm());
   const effective: SceneStatus = wantsGL ? status : 'failed';
   // LayoutEffect: o pai sabe antes da pintura (sem GL, a tela de carregamento
   // do Menu nem chega a aparecer).

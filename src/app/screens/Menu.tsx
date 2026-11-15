@@ -7,6 +7,8 @@ import { MoonScene } from '../components/MoonScene.js';
 import { SceneLoading } from '../components/SceneLoading.js';
 import { useFadeOut } from '../components/useSceneStatus.js';
 import type { SceneStatus } from '../components/useSceneStatus.js';
+import { isSceneWarm } from '../components/sceneWarm.js';
+import { BrandName } from '../components/BrandName.js';
 
 export function Menu(): JSX.Element {
   const { go, newMission, quickPlay, savedRunExists, resumeRun, abandonSavedRun } = useGame();
@@ -21,7 +23,9 @@ export function Menu(): JSX.Element {
   const [resumeFailed, setResumeFailed] = useState(false);
   // Tela de carregamento em TELA CHEIA ate a base 3D ficar pronta (ou falhar e
   // cair no SVG); so entao o menu aparece, com fade.
-  const [sceneStatus, setSceneStatus] = useState<SceneStatus>('loading');
+  // Se a base 3D ja ficou pronta nesta sessao (cutscene ou visita anterior),
+  // o menu volta sem a tela de carregamento: a cena sai do cache na hora.
+  const [sceneStatus, setSceneStatus] = useState<SceneStatus>(() => (isSceneWarm() ? 'ready' : 'loading'));
   const loader = useFadeOut(sceneStatus === 'loading');
   const stayRef = useRef<HTMLButtonElement>(null);
 
@@ -56,8 +60,8 @@ export function Menu(): JSX.Element {
         {/* Lado esquerdo: Identidade visual do jogo + Panorama da Base Lunar */}
         <div className="flex flex-col gap-5 md:col-span-7">
           <div>
-            <h1 className="font-display text-4xl font-extrabold leading-none tracking-tight text-white drop-shadow-[0_2px_18px_rgba(5,10,20,0.9)] sm:text-5xl lg:text-7xl">
-              HEAD<span className="text-power"> X</span>
+            <h1 className="drop-shadow-[0_2px_18px_rgba(5,10,20,0.9)]">
+              <BrandName className="text-4xl text-white sm:text-5xl lg:text-7xl" />
             </h1>
             <p className="mt-2.5 max-w-xl text-base font-semibold text-slate-200 drop-shadow-[0_1px_10px_rgba(5,10,20,0.95)] sm:text-lg">
               {t('menu.tagline')}
