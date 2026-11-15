@@ -70,13 +70,6 @@ export function CardView({
           className="pointer-events-none absolute inset-x-0 top-0 h-[273.973%] w-full max-w-none"
         />
 
-        <div className="absolute right-[8%] top-[8%] z-10">
-          <SpeakButton
-            text={`${title}. ${text}. ${options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option)).join('. ')}`}
-            label={t('card.listenAria', { title })}
-          />
-        </div>
-
         <div
           className="absolute flex items-center justify-center px-2 text-center"
           style={{
@@ -238,6 +231,12 @@ export function CardView({
           <span className={`w-full truncate pt-[1.5px] text-center font-display text-[9.5px] font-extrabold uppercase leading-none tracking-wider ${frame.badgeTextClass}`}>
             {t(frame.footerLabelKey)}
           </span>
+        </div>
+        <div className="absolute right-[7.5%] top-1/2 z-10 -translate-y-1/2">
+          <SpeakButton
+            text={`${title}. ${text}. ${options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option)).join('. ')}`}
+            label={t('card.listenAria', { title })}
+          />
         </div>
       </footer>
     </article>
