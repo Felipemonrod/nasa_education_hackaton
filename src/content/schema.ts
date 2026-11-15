@@ -43,7 +43,10 @@ export const cardSchema = z.object({
   role: z.enum(['basic', 'extra', 'event']),
   phase: z.enum(['day', 'night', 'any']),
   title: z.string().min(1).max(40),
-  text: z.string().min(10).max(160),
+  // 300 (era 160): a descricao ficou mais completa e o corpo da carta agora
+  // rola (CardView). O teto continua existindo para a carta nao virar texto
+  // corrido; conta a marcacao [[id]] do fallback em cards.ts.
+  text: z.string().min(10).max(300),
   track: z.enum(['science', 'lifeSupport']).optional(),
   cooldownDays: z.number().int().min(1).optional(),
   requires: z.array(thresholdSchema).optional(),

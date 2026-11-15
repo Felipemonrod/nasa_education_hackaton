@@ -122,7 +122,7 @@ export function CardView({
     <>
       <article
         data-tutorial={isFirstCard ? 'card-header' : undefined}
-        className={`relative mx-auto flex w-full ${
+        className={`relative mx-auto flex min-h-0 w-full ${
           inModal
             ? 'max-w-[23.5rem] [@media(max-height:540px)]:max-w-[min(42vw,calc(44dvh*1.44))]'
             : compact === true
@@ -191,7 +191,7 @@ export function CardView({
 
         {/* Corpo central da moldura (expansível conforme texto e opções) */}
         <div
-          className="relative -my-px flex flex-1 flex-col px-[11.5%] py-0.5"
+          className="relative -my-px flex min-h-0 flex-1 flex-col px-[11.5%] py-0.5"
           style={{
             backgroundImage: `url(${frame.image})`,
             backgroundSize: '100% 300%',
@@ -199,8 +199,8 @@ export function CardView({
             backgroundRepeat: 'no-repeat',
           }}
         >
-          <div className={`flex flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 px-2.5 py-2 shadow-lg ${inModal ? '[@media(max-height:540px)]:p-2' : ''}`}>
-            <div>
+          <div className={`flex min-h-0 flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 px-2.5 py-2 shadow-lg ${inModal ? '[@media(max-height:540px)]:p-2' : ''}`}>
+            <div className="flex min-h-0 flex-auto flex-col">
               {hasBadges ? (
                 <div className={`mb-1.5 flex flex-wrap items-center gap-1.5 ${inModal ? '[@media(max-height:540px)]:mb-1' : ''}`}>
                   {card.role === 'extra' ? (
@@ -225,12 +225,29 @@ export function CardView({
                 </div>
               ) : null}
 
-              <GlossaryText
-                text={text}
-                className={`block leading-snug text-slate-200
-                            ${compact === true ? 'text-[0.78rem] sm:text-[0.82rem]' : 'text-[0.82rem] sm:text-[0.88rem]'}
-                            ${inModal ? '[@media(max-height:540px)]:text-[0.72rem] [@media(max-height:540px)]:leading-tight' : ''}`}
-              />
+              {/* Descricao com rolagem propria, que SO aparece quando a carta
+                  nao tem mais espaco: sem teto fixo, a regiao ocupa a altura
+                  livre da carta (flex-auto + min-h-0) e encolhe primeiro
+                  quando a tela aperta, mantendo as opcoes visiveis.
+                  pb-1.5: os termos do glossario tem area de toque maior que
+                  a linha (py-1.5 -my-1); sem esse respiro, eles "vazavam"
+                  ~4px e o navegador mostrava rolagem em texto que cabia.
+                  min-h-[3.25rem]: em telas muito baixas (celular deitado) a
+                  descricao nunca encolhe para menos de ~3 linhas legiveis.
+                  tabIndex deixa rolar pelo teclado. */}
+              <div
+                role="region"
+                aria-label={title}
+                tabIndex={0}
+                className="scroll-thin min-h-[3.25rem] flex-auto overflow-y-auto overscroll-contain rounded pb-1.5 pr-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/60"
+              >
+                <GlossaryText
+                  text={text}
+                  className={`block leading-snug text-slate-200
+                              ${compact === true ? 'text-[0.78rem] sm:text-[0.82rem]' : 'text-[0.82rem] sm:text-[0.88rem]'}
+                              ${inModal ? '[@media(max-height:540px)]:text-[0.72rem] [@media(max-height:540px)]:leading-tight' : ''}`}
+                />
+              </div>
             </div>
 
             <div

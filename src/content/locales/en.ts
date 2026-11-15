@@ -15,7 +15,7 @@ import type { Dict } from '../../i18n/core.js';
 export const CONTENT_EN: Dict = {
   // ===== card: dust_panels =================================================
   'card.dust_panels.title': 'Dust on the panels',
-  'card.dust_panels.text': 'The [[regolith]] has coated the [[solar_panel]] array. [[power]] generation has dropped.',
+  'card.dust_panels.text': 'Grains of [[regolith]] carry [[electrostatic]], so they cling to the [[solar_panel]] like a coat of talc. With no wind or rain on the Moon, nothing cleans itself, and [[power]] output has already dropped a lot.',
   'opt.dust_panels.eva_clean.label': 'Suit up and clean them',
   'opt.dust_panels.eva_clean.line': 'Panels clean. Generation is back to normal.',
   'opt.dust_panels.eva_clean.why': 'Every [[airlock]] cycle dumps air overboard, and out there the base [[shielding]] is gone: the [[dose]] climbs. Cleaning works, but you pay for it in air and in radiation. As a bonus, the dust you scraped off became a sample for analysis.',
@@ -29,7 +29,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: comm_failure ================================================
   'card.comm_failure.title': 'Link lost',
-  'card.comm_failure.text': 'The [[antenna]] lost its pointing. No data is reaching Earth.',
+  'card.comm_failure.text': 'The main [[antenna]] has drifted off its aim at Earth, maybe from a tremor or from metal expanding in the heat. Without the radio link, no [[telemetry]] and no [[science]] data reach mission control.',
   'opt.comm_failure.realign.label': 'Realign the dish by hand',
   'opt.comm_failure.realign.line': 'Link restored. The data went up.',
   'opt.comm_failure.realign.why': 'Data that never reaches Earth is data lost: the base has no room to store it all. The [[eva]] cost air and [[dose]], but it saved the week of [[science]].',
@@ -42,7 +42,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: hatch_leak ==================================================
   'card.hatch_leak.title': 'Micro-leak',
-  'card.hatch_leak.text': 'A sensor reports a slow pressure loss in the [[airlock]].',
+  'card.hatch_leak.text': 'A sensor caught the [[pressure]] slowly falling in the [[airlock]], the double door between the base and the [[vacuum]]. The hole is tiny, but air keeps escaping until someone seals it.',
   'opt.hatch_leak.seal_now.label': 'Seal it now',
   'opt.hatch_leak.seal_now.line': 'Leak closed within the same shift.',
   'opt.hatch_leak.seal_now.why': 'A leak never stops by itself: air keeps escaping until someone seals it. Sealing early cost 2 [[oxygen]]; waiting would have cost far more.',
@@ -56,7 +56,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: water_recycle ===============================================
   'card.water_recycle.title': 'Recycler filters',
-  'card.water_recycle.text': 'The water filters are saturated. [[electrolysis]] yields less.',
+  'card.water_recycle.text': 'The water recycler filters are clogged with salts and grime. With less pure water, the [[electrolysis]] unit, which splits water into hydrogen and [[oxygen]], makes less breathable air.',
   'opt.water_recycle.full.label': 'Full maintenance',
   'opt.water_recycle.full.line': 'Recycler back at full efficiency.',
   'opt.water_recycle.full.why': 'Almost all of the base [[oxygen]] comes out of water by [[electrolysis]]. Clean filter = more usable water = more air. Water and air are the same problem here.',
@@ -70,7 +70,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: flare_weak ==================================================
   'card.flare_weak.title': 'Weak solar storm',
-  'card.flare_weak.text': 'The monitor reports a low-class [[solar_storm]] on the way.',
+  'card.flare_weak.text': 'The space weather monitor spotted a low [[flare_class]] [[solar_storm]] heading for the Moon. Its charged particles arrive within minutes or hours and raise the [[radiation]] outside.',
   'opt.flare_weak.shelter.label': 'Pull back to the central shelter',
   'opt.flare_weak.shelter.line': 'Crew protected, operations halted.',
   'opt.flare_weak.shelter.why': 'The [[central_shelter]] has more mass around it, and mass is what stops [[radiation]]. The price was one shift with no field work.',
@@ -83,7 +83,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: flare_strong ================================================
   'card.flare_strong.title': 'X-class solar storm',
-  'card.flare_strong.text': 'A strong event. The particles keep arriving for several shifts.',
+  'card.flare_strong.text': 'A [[flare_class]] X explosion, the strongest on the scale, has hit the Moon. Particles keep arriving for several shifts: while it lasts, the [[dose]] climbs and the [[shielding]] wears down a little each shift.',
   'opt.flare_strong.shelter.label': 'Central shelter, everything stops',
   'opt.flare_strong.shelter.line': 'Shift lost, almost all the radiation dose blocked.',
   'opt.flare_strong.shelter.why': 'No shielding stops 100% of the particles: a little always gets through. But the difference between being inside the [[central_shelter]] and outside it is enormous.',
@@ -97,7 +97,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: shield_regolith =============================================
   'card.shield_regolith.title': 'Shielding reinforcement',
-  'card.shield_regolith.text': 'Bags of [[regolith]] can thicken the base [[shielding]].',
+  'card.shield_regolith.text': 'Bagged [[regolith]] stacked over the modules becomes a thick wall that boosts the [[shielding]] against [[radiation]]. But filling and hauling the bags takes an [[eva]]: hours outside, without the protection of the base.',
   'opt.shield_regolith.full_crew.label': 'All-hands EVA',
   'opt.shield_regolith.full_crew.line': 'Shielding much thicker now.',
   'opt.shield_regolith.full_crew.why': 'You paid [[dose]] today to pay far less every day from now on. Shielding is not consumed: it attenuates. The more mass there is, the less [[radiation]] gets in.',
@@ -110,7 +110,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: greenhouse_photoperiod ======================================
   'card.greenhouse_photoperiod.title': 'Greenhouse photoperiod',
-  'card.greenhouse_photoperiod.text': 'The [[greenhouse]] yields more with longer light hours, and light costs [[power]].',
+  'card.greenhouse_photoperiod.text': 'The [[greenhouse]] plants grow faster with a longer [[photoperiod]], meaning more hours of light per day. But the LED lamps burn [[power]], and the base has little to spare.',
   'opt.greenhouse_photoperiod.more_light.label': 'Extend the light hours',
   'opt.greenhouse_photoperiod.more_light.line': 'Harvest came in early.',
   'opt.greenhouse_photoperiod.more_light.why': 'On the base, [[food]] is [[power]] turned into plant. Every calorie on the plate came out of a [[solar_panel]] first.',
@@ -123,7 +123,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: rover_battery ===============================================
   'card.rover_battery.title': 'Rover battery',
-  'card.rover_battery.text': 'The [[rover]] lost capacity after the cold night.',
+  'card.rover_battery.text': 'During the lunar night the temperature drops to about minus 170 °C, and cold damages batteries. The [[rover]] came back at sunrise with less usable charge, and nobody knows yet which [[battery_cell]] was hit.',
   'opt.rover_battery.diagnose.label': 'Run a full diagnostic',
   'opt.rover_battery.diagnose.line': 'Diagnostic running. Result coming up.',
   'opt.rover_battery.diagnose.why': 'Fixing before measuring is guessing. A diagnostic costs [[power]] and one shift, and it keeps you from replacing the wrong part.',
@@ -136,7 +136,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: rover_battery_fix ===========================================
   'card.rover_battery_fix.title': 'Diagnostic: shorted cell',
-  'card.rover_battery_fix.text': 'One cell in the pack is shorted and is dragging the others down.',
+  'card.rover_battery_fix.text': 'The diagnostic found the culprit: one [[battery_cell]] in the [[rover]] pack has a [[short_circuit]]. Wired to the others, it drains its neighbors and heats up the whole pack.',
   'opt.rover_battery_fix.isolate.label': 'Isolate the bad cell',
   'opt.rover_battery_fix.isolate.line': 'Pack stable on 7 of 8 cells.',
   'opt.rover_battery_fix.isolate.why': 'Isolating the fault is cheaper than replacing the whole assembly. You lost an eighth of the capacity and kept the spare for a real emergency.',
@@ -146,7 +146,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: eva_suit_check ==============================================
   'card.eva_suit_check.title': 'Suit check',
-  'card.eva_suit_check.text': 'The [[eva]] suits need a pressure test.',
+  'card.eva_suit_check.text': 'Before any [[eva]], every suit has to pass a [[pressure]] test. A small leak out there in the [[vacuum]] turns into an emergency within minutes.',
   'opt.eva_suit_check.full_check.label': 'Full check',
   'opt.eva_suit_check.full_check.line': 'Every suit passed.',
   'opt.eva_suit_check.full_check.why': 'A suit is your smallest spacecraft. Pressure testing wastes a little air on purpose: it is far cheaper to find the hole in here.',
@@ -156,7 +156,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: pressure_alarm ==============================================
   'card.pressure_alarm.title': 'Alarm at 03:00 UTC',
-  'card.pressure_alarm.text': 'A pressure alarm during the night watch. It could be a bad sensor.',
+  'card.pressure_alarm.text': 'At 03:00 [[utc]] the [[pressure]] alarm went off during the night watch. The [[telemetry]] shows a drop, but it might just be a faulty sensor, and waking everyone up has a cost too.',
   'opt.pressure_alarm.wake_crew.label': 'Wake the crew and inspect',
   'opt.pressure_alarm.wake_crew.line': 'False positive confirmed in 40 minutes.',
   'opt.pressure_alarm.wake_crew.why': 'A pressure alarm is treated as real until proven otherwise. It cost one night of sleep; the alternative would cost the base.',
@@ -170,7 +170,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: co2_scrubber ================================================
   'card.co2_scrubber.title': 'Scrubber cartridge',
-  'card.co2_scrubber.text': 'The CO2 [[scrubber]] is at the end of its cartridge.',
+  'card.co2_scrubber.text': 'The [[scrubber]] pulls out of the air the [[co2]] the crew exhales with every breath. The cartridge that soaks up that gas is almost full, and without a swap the air turns stale and causes headaches.',
   'opt.co2_scrubber.swap.label': 'Swap the cartridge now',
   'opt.co2_scrubber.swap.line': 'Clean air again.',
   'opt.co2_scrubber.swap.why': 'The danger in a sealed cabin is not only running out of [[oxygen]]: it is carbon dioxide piling up. The [[scrubber]] is what keeps the air from turning toxic.',
@@ -184,7 +184,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: micrometeorite ==============================================
   'card.micrometeorite.title': 'Impact on the dome',
-  'card.micrometeorite.text': 'A [[micrometeoroid]] punched through the outer layer of the [[shielding]].',
+  'card.micrometeorite.text': 'A [[micrometeoroid]] smaller than a grain of rice, traveling at over 20 km/s, punched through the outer layer of the dome [[shielding]]. The inner layer held, but the hole needs repair.',
   'opt.micrometeorite.patch_now.label': 'Patch it immediately',
   'opt.micrometeorite.patch_now.line': 'Hole closed the same night.',
   'opt.micrometeorite.patch_now.why': 'The Moon has no atmosphere to burn small rocks up: they arrive whole at 20 km/s or more. Patching in the dark costs [[dose]], but it limits the damage to the [[shielding]]. And the hole became data: the size and angle of the impact show how many rocks arrive here.',
@@ -197,7 +197,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: thermal_night ===============================================
   'card.thermal_night.title': 'Thermal night',
-  'card.thermal_night.text': 'The hatches are shut and the base needs heating.',
+  'card.thermal_night.text': 'The lunar night lasts about 14 Earth days with no Sun at all. The hatches are shut, and the heat of the base leaks into the cold outside: keeping the modules warm burns a lot of [[power]].',
   'opt.thermal_night.heat_all.label': 'Heat every module',
   'opt.thermal_night.heat_all.line': 'The whole base at a safe temperature.',
   'opt.thermal_night.heat_all.why': 'Shifts follow the base [[utc]] clock, not the Sun: the crew closes the hatches to sleep even with the Sun still up outside. But the real cold comes from idle equipment and from shadow.',
@@ -210,7 +210,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: ration_inventory ============================================
   'card.ration_inventory.title': 'Ration inventory',
-  'card.ration_inventory.text': 'The [[food]] count in the system does not match the shelf.',
+  'card.ration_inventory.text': 'The [[food]] count in the computer does not match what is on the shelves. It could be a logging error or spoiled rations. Planning a mission on wrong numbers is dangerous.',
   'opt.ration_inventory.recount.label': 'Full recount',
   'opt.ration_inventory.recount.line': 'One batch was missing from the system.',
   'opt.ration_inventory.recount.why': 'A manual count is the only check that does not depend on the software. You found food the system believed did not exist.',
@@ -224,7 +224,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: dust_airlock ================================================
   'card.dust_airlock.title': 'Airlock cleaning',
-  'card.dust_airlock.text': '[[regolith]] has built up in the [[airlock]] seals.',
+  'card.dust_airlock.text': 'Grains of [[regolith]], sharp as broken glass, have built up in the rubber seals of the [[airlock]]. Every time the door shuts they scratch the seal and let a little air escape.',
   'opt.dust_airlock.deep_clean.label': 'Deep clean the seals',
   'opt.dust_airlock.deep_clean.line': 'Seals cleaned and inspected.',
   'opt.dust_airlock.deep_clean.why': 'Lunar dust has never been rounded off by water or wind: every grain has an edge. It cuts seal rubber like fine sandpaper.',
@@ -237,7 +237,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: crew_fatigue ================================================
   'card.crew_fatigue.title': 'Crew medical review',
-  'card.crew_fatigue.text': 'The cumulative [[dose]] of the crew has passed the planned limit.',
+  'card.crew_fatigue.text': 'The [[dosimeter]] of each crew member shows the accumulated [[dose]] has passed the limit planned for this stage. The doctor has to decide whether the team slows down or sticks to the schedule.',
   'opt.crew_fatigue.reduce_eva.label': 'Cut outings for two shifts',
   'opt.crew_fatigue.reduce_eva.line': 'Exposure contained. Science schedule slips.',
   'opt.crew_fatigue.reduce_eva.why': 'The [[dose]] never comes down: all you can do is stop adding to it. Less [[eva]] is the only brake available, and science on the Moon depends on going outside.',
@@ -250,7 +250,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: crater_12km =================================================
   'card.crater_12km.title': 'Crater 12 km out',
-  'card.crater_12km.text': 'A magnetic anomaly on the floor of a [[crater]] 12 km from the base.',
+  'card.crater_12km.text': 'Probes in [[orbit]] detected a [[magnetic_anomaly]] on the floor of a [[crater]] 12 km from the base. The Moon has almost no magnetic field today, so that rock holds clues about the past.',
   'opt.crater_12km.rover_trip.label': 'Drive out with the rover',
   'opt.crater_12km.rover_trip.line': 'Measurements on site. Anomaly confirmed.',
   'opt.crater_12km.rover_trip.why': 'Measuring on site is the only way to tell a real signal from an artifact. Twelve kilometers out and back are hours of [[eva]] and a lot of battery.',
@@ -263,7 +263,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: meteorite_observed ==========================================
   'card.meteorite_observed.title': 'Fresh impact',
-  'card.meteorite_observed.text': 'A larger [[micrometeoroid]] opened a new scar 4 km out.',
+  'card.meteorite_observed.text': 'The cameras saw a flash: a space rock bigger than a typical [[micrometeoroid]] dug a fresh [[crater]] 4 km away. The freshly dug-up material has barely been weathered by the Sun and [[radiation]].',
   'opt.meteorite_observed.collect.label': 'Collect a sample now',
   'opt.meteorite_observed.collect.line': 'Freshly exposed impact material, collected.',
   'opt.meteorite_observed.collect.why': 'Freshly exposed rock has not been altered by the solar wind yet. Every day that passes degrades the chemical signature: here, fast is worth more than safe.',
@@ -273,7 +273,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: ice_sample ==================================================
   'card.ice_sample.title': 'Ice in permanent shadow',
-  'card.ice_sample.text': 'There is frozen water at the bottom of a [[permanent_shadow]].',
+  'card.ice_sample.text': 'A probe detected water ice at the bottom of a [[permanent_shadow]], where it stays colder than minus 200 °C. That ice may hold [[volatiles]] billions of years old and could become water and [[oxygen]] for the base.',
   'opt.ice_sample.descend.label': 'Descend to the ice',
   'opt.ice_sample.descend.line': 'Ice core collected at -180 C.',
   'opt.ice_sample.descend.why': 'This ice has never seen the Sun: it holds a record billions of years old. It is also water, which means future [[oxygen]] and fuel.',
@@ -283,7 +283,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: seismometer_net =============================================
   'card.seismometer_net.title': 'Seismometer network',
-  'card.seismometer_net.text': 'Measuring moonquakes takes sensors spread far apart.',
+  'card.seismometer_net.text': 'A single [[seismometer]] feels a quake but cannot tell where it came from. With several spread far apart, the team can locate moonquakes and peek inside the Moon.',
   'opt.seismometer_net.full_net.label': 'Install four stations',
   'opt.seismometer_net.full_net.line': 'Network complete, triangulation possible.',
   'opt.seismometer_net.full_net.why': 'One sensor tells you it shook. Four tell you where and how deep. A network is what turns a measurement into a map.',
@@ -293,7 +293,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: spectrometer ================================================
   'card.spectrometer.title': 'Regolith analysis',
-  'card.spectrometer.text': 'The spectrometer can read the composition of the [[regolith]] collected.',
+  'card.spectrometer.text': 'The base [[spectrometer]] can read the makeup of the collected [[regolith]] and reveal which minerals and metals it holds. A longer run sees more detail but keeps the device on for hours.',
   'opt.spectrometer.long_run.label': 'Run the long analysis',
   'opt.spectrometer.long_run.line': 'Clean spectrum, rare elements identified.',
   'opt.spectrometer.long_run.why': 'A long integration time cuts noise: the signal grows faster than the error does. That is why night, with the equipment idle, is the best moment.',
@@ -303,7 +303,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: grow_module =================================================
   'card.grow_module.title': 'Expand the crops',
-  'card.grow_module.text': 'More [[greenhouse]] area means steadier [[life_support]].',
+  'card.grow_module.text': 'Expanding the [[greenhouse]] means more plants growing food, making [[oxygen]] and recycling water. With more growing area, the [[life_support]] of the base gets steadier and less dependent on Earth.',
   'opt.grow_module.full_expand.label': 'Expand now',
   'opt.grow_module.full_expand.line': 'Growing area doubled.',
   'opt.grow_module.full_expand.why': 'Plants give back [[oxygen]] and [[food]] at the same time: they close two loops. The investment comes out of the seed stock and a lot of [[power]].',
@@ -316,7 +316,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: water_loop ==================================================
   'card.water_loop.title': 'Close the water loop',
-  'card.water_loop.text': 'Recycle all of the base water, the dirty water included.',
+  'card.water_loop.text': 'Right now some of the dirty water of the base gets thrown away. A [[closed_loop]] recycles everything, even urine and sweat, and the International Space Station already recovers almost all its water this way. Every liter reused is one less shipped from Earth.',
   'opt.water_loop.closed_loop.label': 'Install the closed loop',
   'opt.water_loop.closed_loop.line': 'Over 90% of the water reused.',
   'opt.water_loop.closed_loop.why': 'On the Space Station the crew drinks its own recycled water for exactly this reason: every liter hauled up from Earth costs a fortune. A closed loop is what makes a base independent.',
@@ -326,7 +326,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: generator_redundancy ========================================
   'card.generator_redundancy.title': 'Generator redundancy',
-  'card.generator_redundancy.text': 'The base depends on a single source of [[power]].',
+  'card.generator_redundancy.text': 'All of the [[power]] of the base comes from a single source. If it fails, air, heating and communication stop together. The fix is [[redundancy]]: a second generator ready to take over.',
   'opt.generator_redundancy.second_unit.label': 'Set up the second generator',
   'opt.generator_redundancy.second_unit.line': 'Two independent sources online.',
   'opt.generator_redundancy.second_unit.why': 'A single point of failure is the biggest risk any base has: if the source goes down, [[oxygen]], heat and water go down with it. Redundancy is expensive and it pays off once.',
@@ -336,7 +336,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: central_shelter =============================================
   'card.central_shelter.title': 'Enlarge the central shelter',
-  'card.central_shelter.text': 'The [[central_shelter]] is too small for the whole crew.',
+  'card.central_shelter.text': 'The [[central_shelter]] is the best-protected room in the base, where the crew hides during a [[solar_storm]]. Right now it is too small for everyone to stay together for many hours.',
   'opt.central_shelter.regolith_expand.label': 'Enlarge it with regolith',
   'opt.central_shelter.regolith_expand.line': 'A bigger, better protected shelter.',
   'opt.central_shelter.regolith_expand.why': 'One job solves two problems: room for everyone and more mass against [[radiation]]. Decisions that hit two resources at once are the best moves in the game.',
@@ -346,7 +346,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: supply_capsule ==============================================
   'card.supply_capsule.title': 'Supply capsule',
-  'card.supply_capsule.text': 'The cargo parked in orbit is waiting for the descent command.',
+  'card.supply_capsule.text': 'A cargo capsule from Earth is parked in [[orbit]], waiting for the descent command. The lander can only carry so much at a time, so the team must pick what comes down first.',
   'opt.supply_capsule.basics.label': 'Prioritize basic supplies',
   'opt.supply_capsule.basics.line': 'Tanks and pantry restocked.',
   'opt.supply_capsule.basics.why': 'The descent costs [[power]] to guide and brake the capsule. You bought survival margin and gave up this window as a chance for equipment.',
@@ -359,7 +359,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: lava_tube ===================================================
   'card.lava_tube.title': 'Lava tube',
-  'card.lava_tube.text': 'A collapsed lava tube opens an entrance 3 km from the base.',
+  'card.lava_tube.text': 'Just 3 km from the base, the roof of a [[lava_tube]] collapsed and opened an entrance. Inside, rock blocks the [[radiation]] and the temperature barely changes: a great spot for future bases.',
   'opt.lava_tube.descend.label': 'Go down and map the inside',
   'opt.lava_tube.descend.line': '200 m of gallery mapped.',
   'opt.lava_tube.descend.why': 'A lava tube is the most coveted natural shelter on the Moon: meters of rock overhead stop [[radiation]] and [[micrometeoroid]] strikes for free. Mapping it from inside is dangerous and worth a great deal.',
@@ -369,7 +369,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: farside_radio ===============================================
   'card.farside_radio.title': 'Radio silence',
-  'card.farside_radio.text': 'The base is inside the radio-quiet window, away from the noise of Earth.',
+  'card.farside_radio.text': 'With almost every device in the base switched off for the night watch, the [[radio_telescope]] can listen for very faint radio waves from the distant Universe. Radio noise from Earth gets in the way, so every quiet minute at the base is precious.',
   'opt.farside_radio.long_obs.label': 'Long observation',
   'opt.farside_radio.long_obs.line': 'Very faint radio signals recorded.',
   'opt.farside_radio.long_obs.why': 'The Moon is the only place near Earth where the radio sky goes quiet: our own civilization drowns these signals out. The window is short and it does not come back tomorrow.',
@@ -379,7 +379,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: oxygen_plant ================================================
   'card.oxygen_plant.title': 'Oxygen from regolith',
-  'card.oxygen_plant.text': 'The furnace can pull [[oxygen]] out of the lunar [[regolith]] itself.',
+  'card.oxygen_plant.text': 'Almost half the weight of [[regolith]] is [[oxygen]] locked inside minerals. A furnace above 900 °C can free that gas, which goes into the reserve tanks of the [[life_support]] instead of straight into the air you breathe now.',
   'opt.oxygen_plant.full_batch.label': 'Run a full furnace batch',
   'opt.oxygen_plant.full_batch.line': 'Oxygen extracted straight from the soil.',
   'opt.oxygen_plant.full_batch.why': 'Almost half the weight of [[regolith]] is oxygen locked up in oxides. But the regolith that goes into the furnace is the same regolith that was on the wall: here [[life_support]] and [[shielding]] compete for the same material.',
@@ -389,7 +389,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: medical_bay =================================================
   'card.medical_bay.title': 'Medical bay',
-  'card.medical_bay.text': 'Set up the medical bay with a per-crew [[dose]] monitor.',
+  'card.medical_bay.text': 'Setting up a medical bay with a [[dosimeter]] for each crew member lets the team track the [[dose]] of every person and treat injuries without heading back to Earth.',
   'opt.medical_bay.full_bay.label': 'Full medical bay',
   'opt.medical_bay.full_bay.line': 'Medical bay operational with dosimetry.',
   'opt.medical_bay.full_bay.why': 'Measuring the [[dose]] of each person changes operations: you can rotate who goes outside and spread the exposure around. Without measuring, everyone pays the same.',
@@ -399,7 +399,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: solar_tracking ==============================================
   'card.solar_tracking.title': 'Panel tracking',
-  'card.solar_tracking.text': 'The [[solar_panel]] array drifted off the best angle to the Sun.',
+  'card.solar_tracking.text': 'The [[sun_tracker]] has drifted out of calibration, and the [[solar_panel]] no longer faces the Sun head-on. The more tilted the angle, the less light hits it and the less [[power]] it makes.',
   'opt.solar_tracking.recalibrate.label': 'Recalibrate the tracking',
   'opt.solar_tracking.recalibrate.line': 'Panels back at the best angle.',
   'opt.solar_tracking.recalibrate.why': 'Near the lunar equator the Sun strikes the panels almost side-on: a few degrees of error cost a fifth of the [[power]]. Pointing well is the cheapest improvement there is.',
@@ -409,7 +409,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: battery_cycling =============================================
   'card.battery_cycling.title': 'Balance the batteries',
-  'card.battery_cycling.text': 'The cells drifted out of balance and usable charge dropped.',
+  'card.battery_cycling.text': 'Over time, each [[battery_cell]] in the battery bank ends up with a different charge, and the weakest ones hold back all the rest. A round of [[cell_balancing]] brings them back in step and recovers usable charge.',
   'opt.battery_cycling.full_cycle.label': 'Full balancing cycle',
   'opt.battery_cycling.full_cycle.line': 'Battery bank balanced.',
   'opt.battery_cycling.full_cycle.why': 'In a bank, the weakest cell limits all the others. Balancing creates no [[power]]: it gives back the capacity the imbalance was hiding.',
@@ -422,7 +422,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: water_thaw ==================================================
   'card.water_thaw.title': 'Thawing the samples',
-  'card.water_thaw.text': 'The collected ice has to melt without losing the trapped gases.',
+  'card.water_thaw.text': 'Blocks of ice brought into the base have to become water. Warm them too fast and the [[volatiles]] trapped inside escape before they can be measured and used.',
   'opt.water_thaw.controlled.label': 'Slow, controlled thaw',
   'opt.water_thaw.controlled.line': 'Water recovered and gases captured.',
   'opt.water_thaw.controlled.why': 'Melting slowly lets you capture the volatile gases before they escape. That water becomes [[oxygen]] later, through [[electrolysis]].',
@@ -432,7 +432,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: sample_curation =============================================
   'card.sample_curation.title': 'Sample curation',
-  'card.sample_curation.text': 'A sample with no catalog and no context loses its scientific value.',
+  'card.sample_curation.text': 'A lunar sample with no label, no photo and no exact collection spot loses almost all its value to [[science]]. Good [[curation]] records all of that before anyone forgets.',
   'opt.sample_curation.catalog_all.label': 'Catalog everything tonight',
   'opt.sample_curation.catalog_all.line': 'The whole batch cataloged and sealed.',
   'opt.sample_curation.catalog_all.why': 'A rock without a note saying where it came from is just a rock. The context is worth as much as the sample, and it is lost within hours.',
@@ -442,7 +442,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: waste_processing ============================================
   'card.waste_processing.title': 'Process the waste',
-  'card.waste_processing.text': 'Nothing can be trash on a base: every bit of waste goes back into some cycle.',
+  'card.waste_processing.text': 'On a lunar base nothing can become trash: food scraps, plants and even packaging go back into some cycle. Through [[compost]], organic scraps become fertilizer for the [[greenhouse]].',
   'opt.waste_processing.full_compost.label': 'Full composting',
   'opt.waste_processing.full_compost.line': 'Organic waste became greenhouse substrate.',
   'opt.waste_processing.full_compost.why': 'In a closed system there is no trash, only feedstock in the wrong place. Closing the waste loop is what lets a base grow without cargo from Earth.',
@@ -452,7 +452,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: greenhouse_tending ==========================================
   'card.greenhouse_tending.title': 'Tend the greenhouse',
-  'card.greenhouse_tending.text': 'The [[greenhouse]] needs pruning, watering and a nutrient check.',
+  'card.greenhouse_tending.text': 'The [[greenhouse]] plants need pruning, watering and a nutrient check, just like a garden on Earth. Neglected plants make less food and get sick.',
   'opt.greenhouse_tending.full_tending.label': 'Full tending',
   'opt.greenhouse_tending.full_tending.line': 'Healthy plants, harvest on schedule.',
   'opt.greenhouse_tending.full_tending.why': 'Plants in low [[gravity]] grow crooked and water does not drain the way you expect: without someone tending them every week, the [[greenhouse]] stops producing.',
@@ -465,7 +465,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: regolith_topup ==============================================
   'card.regolith_topup.title': 'Top up the cover',
-  'card.regolith_topup.text': 'The [[regolith]] layer over the base has thinned. Bags can be stacked back on.',
+  'card.regolith_topup.text': 'Tremors and all the [[eva]] traffic have worn away part of the [[regolith]] layer over the base, and the [[shielding]] got thinner. Restacking the bags restores protection from [[radiation]].',
   'opt.regolith_topup.topup_all.label': 'Top up the whole cover',
   'opt.regolith_topup.topup_all.line': 'Cover back to its design thickness.',
   'opt.regolith_topup.topup_all.why': 'The [[dose]] you have already absorbed never comes down: the only thing under your control is how much gets in from tomorrow on. Topping up [[shielding]] early is worth far more than topping it up late.',
@@ -478,7 +478,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: quiet_day (fallback) ========================================
   'card.quiet_day.title': 'Shift with no incidents',
-  'card.quiet_day.text': 'No alarms. The base routine consumes resources all the same.',
+  'card.quiet_day.text': 'No alarms today. Still, the base never stops: its [[life_support]] uses [[power]] and [[oxygen]] all the time just to keep everyone alive.',
   'opt.quiet_day.standard.label': 'Standard routine',
   'opt.quiet_day.standard.line': 'Quiet shift, normal consumption.',
   'opt.quiet_day.standard.why': 'Even with nothing happening, the base spends: heating, filtering, pumping. There is no such thing as zero cost in a closed system.',
@@ -488,7 +488,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: quiet_night (fallback) ======================================
   'card.quiet_night.title': 'Quiet watch',
-  'card.quiet_night.text': 'Hatches closed, systems stable. The night watch goes on.',
+  'card.quiet_night.text': 'Hatches shut and systems stable. While the crew sleeps, whoever is on watch follows the [[telemetry]] and can take the chance to check systems calmly.',
   'opt.quiet_night.standard.label': 'Standard watch',
   'opt.quiet_night.standard.line': 'A night with no incidents.',
   'opt.quiet_night.standard.why': 'Even asleep the crew breathes and the base heats itself. Night consumption is lower, never zero.',
@@ -498,7 +498,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: data_review_day (fallback) ==================================
   'card.data_review_day.title': 'Review the collected data',
-  'card.data_review_day.text': 'No new target. There is time to reprocess what has already been measured.',
+  'card.data_review_day.text': 'No new target to explore today. The team can reprocess old data calmly: many [[science]] discoveries show up on a second look.',
   'opt.data_review_day.light.label': 'Light review',
   'opt.data_review_day.light.line': 'A few inconsistencies corrected.',
   'opt.data_review_day.light.why': 'Reanalysis finds calibration errors without leaving the base. It yields little, but it yields: old data handled well is still data.',
@@ -508,7 +508,7 @@ export const CONTENT_EN: Dict = {
 
   // ===== card: systems_review_night (fallback) =============================
   'card.systems_review_night.title': 'Review the systems',
-  'card.systems_review_night.text': 'No construction planned. There is time to tune what is already there.',
+  'card.systems_review_night.text': 'No construction planned tonight. It is a chance to inspect valves and tune the [[life_support]] systems so they run with less waste.',
   'opt.systems_review_night.tuning.label': 'Fine-tune the setpoints',
   'opt.systems_review_night.tuning.line': 'Systems a little more efficient.',
   'opt.systems_review_night.tuning.why': 'Adjusting operating limits is the cheapest improvement there is: no new material, only measurement and patience.',
@@ -565,6 +565,52 @@ export const CONTENT_EN: Dict = {
   'glossary.eva.short': 'Leaving the base in a suit, walking outside.',
   'glossary.greenhouse.term': 'greenhouse',
   'glossary.greenhouse.short': 'Lit room where plants grow.',
+  'glossary.pressure.term': 'pressure',
+  'glossary.pressure.short': 'How hard the air pushes on the walls.',
+  'glossary.vacuum.term': 'vacuum',
+  'glossary.vacuum.short': 'Space with no air at all, like outside.',
+  'glossary.co2.term': 'carbon dioxide',
+  'glossary.co2.short': 'Gas we breathe out. Too much of it poisons.',
+  'glossary.battery_cell.term': 'battery cell',
+  'glossary.battery_cell.short': 'One small unit that stores energy inside a battery.',
+  'glossary.short_circuit.term': 'short circuit',
+  'glossary.short_circuit.short': 'Electricity escaping down the wrong path and heating up.',
+  'glossary.cell_balancing.term': 'cell balancing',
+  'glossary.cell_balancing.short': 'Bringing every battery cell to the same charge.',
+  'glossary.spectrometer.term': 'spectrometer',
+  'glossary.spectrometer.short': 'Device that reads what things are made of from light.',
+  'glossary.seismometer.term': 'seismometer',
+  'glossary.seismometer.short': 'Sensor that feels ground shaking, even very faint shaking.',
+  'glossary.lava_tube.term': 'lava tube',
+  'glossary.lava_tube.short': 'Tunnel left by ancient lava that flowed and cooled.',
+  'glossary.orbit.term': 'orbit',
+  'glossary.orbit.short': 'Path around the Moon, always falling, never landing.',
+  'glossary.radio_telescope.term': 'radio telescope',
+  'glossary.radio_telescope.short': 'Big antenna that listens to radio waves from space.',
+  'glossary.magnetic_anomaly.term': 'magnetic anomaly',
+  'glossary.magnetic_anomaly.short': 'Patch of ground that became magnetized, like a magnet.',
+  'glossary.photoperiod.term': 'photoperiod',
+  'glossary.photoperiod.short': 'How many hours of light a plant gets daily.',
+  'glossary.electrostatic.term': 'static charge',
+  'glossary.electrostatic.short': 'Built-up electric charge that makes dust cling to things.',
+  'glossary.flare_class.term': 'flare class',
+  'glossary.flare_class.short': 'Strength grade of solar explosions, from A up to X.',
+  'glossary.compost.term': 'composting',
+  'glossary.compost.short': 'Turning food and plant scraps into fertilizer.',
+  'glossary.redundancy.term': 'redundancy',
+  'glossary.redundancy.short': 'Having a backup ready in case the main fails.',
+  'glossary.curation.term': 'curation',
+  'glossary.curation.short': 'Labeling and storing samples so scientists can study them.',
+  'glossary.closed_loop.term': 'closed loop',
+  'glossary.closed_loop.short': 'A system that reuses everything and throws nothing away.',
+  'glossary.telemetry.term': 'telemetry',
+  'glossary.telemetry.short': 'Readings that sensors send nonstop to the computer.',
+  'glossary.volatiles.term': 'volatiles',
+  'glossary.volatiles.short': 'Gases and ices that escape easily when warmed.',
+  'glossary.dosimeter.term': 'dosimeter',
+  'glossary.dosimeter.short': 'Meter that counts how much radiation someone has absorbed.',
+  'glossary.sun_tracker.term': 'sun tracker',
+  'glossary.sun_tracker.short': 'Motor that turns the panel to follow the Sun.',
 
   // ===== loadout: commanders ===============================================
   'loadout.cmd_engineer.name': 'Cmdr. Okonkwo',

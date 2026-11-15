@@ -22,7 +22,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     cooldownDays: 3,
     title: 'Poeira nos paineis',
-    text: 'O [[regolith]] cobriu os [[solar_panel]]. A geracao de [[power]] caiu.',
+    text: 'A poeira de [[regolith]] fica cheia de [[electrostatic]]: ela gruda e cobre o [[solar_panel]] como uma camada de talco. Sem vento nem chuva na Lua, nada limpa sozinho, e a geracao de [[power]] ja caiu bastante.',
     options: [
       {
         id: 'eva_clean',
@@ -73,7 +73,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'day',
     title: 'Enlace perdido',
-    text: 'A [[antenna]] perdeu o apontamento. Nenhum dado esta chegando a Terra.',
+    text: 'A [[antenna]] principal saiu da direcao da Terra, talvez por um tremor ou pela dilatacao do metal no calor. Sem o enlace de radio, nenhuma [[telemetry]] e nenhum dado de [[science]] chegam ao controle da missao.',
     options: [
       {
         id: 'realign',
@@ -126,7 +126,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'day',
     title: 'Micro-vazamento',
-    text: 'Sensor acusa perda lenta de pressao na [[airlock]].',
+    text: 'Um sensor percebeu a [[pressure]] caindo devagar na [[airlock]], a porta dupla que separa a base do [[vacuum]]. O furo e minusculo, mas o ar escapa sem parar ate alguem vedar.',
     options: [
       {
         id: 'seal_now',
@@ -174,7 +174,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     cooldownDays: 2,
     title: 'Filtros do reciclador',
-    text: 'Os filtros de agua estao saturados. A [[electrolysis]] rende menos.',
+    text: 'Os filtros do reciclador de agua ficaram entupidos de sais e sujeira. Com agua menos pura, a [[electrolysis]], que separa a agua em hidrogenio e [[oxygen]], produz menos ar respiravel.',
     options: [
       {
         id: 'full',
@@ -224,7 +224,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     solarFlare: 'weak',
     title: 'Tempestade solar fraca',
-    text: 'O monitor acusa [[solar_storm]] de classe baixa a caminho.',
+    text: 'O monitor de clima espacial detectou uma [[solar_storm]] de [[flare_class]] baixa vindo na direcao da Lua. As particulas carregadas chegam em minutos ou horas e aumentam a [[radiation]] la fora.',
     options: [
       {
         id: 'shelter',
@@ -278,7 +278,7 @@ export const CARDS: readonly Card[] = [
     phase: 'any',
     solarFlare: 'strong',
     title: 'Tempestade solar classe X',
-    text: 'Evento forte. As particulas continuam chegando por varios turnos.',
+    text: 'Uma explosao de [[flare_class]] X, a mais forte da escala, atingiu a Lua. As particulas continuam chegando por varios turnos: enquanto durar, a [[dose]] sobe e a [[shielding]] se desgasta um pouco a cada turno.',
     temporal: {
       slots: 3,
       perSlot: [
@@ -334,7 +334,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'day',
     title: 'Reforco de blindagem',
-    text: 'Sacos de [[regolith]] podem engrossar a [[shielding]] da base.',
+    text: 'O [[regolith]] ensacado e empilhado sobre os modulos vira uma parede grossa que reforca a [[shielding]] contra a [[radiation]]. Mas encher e carregar os sacos exige [[eva]]: horas la fora, sem a protecao da base.',
     options: [
       {
         id: 'full_crew',
@@ -385,7 +385,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     requires: [{ stat: 'food', op: 'lte', value: 70 }],
     title: 'Fotoperiodo da estufa',
-    text: 'A [[greenhouse]] rende mais com mais horas de luz, e luz custa [[power]].',
+    text: 'As plantas da [[greenhouse]] crescem mais rapido com um [[photoperiod]] mais longo, ou seja, mais horas de luz por dia. So que as lampadas de LED gastam [[power]], e a base tem pouca sobrando.',
     options: [
       {
         id: 'more_light',
@@ -437,7 +437,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'day',
     title: 'Bateria do rover',
-    text: 'O [[rover]] perdeu capacidade depois da noite fria.',
+    text: 'Na noite lunar a temperatura cai para perto de 170 °C negativos, e o frio estraga baterias. O [[rover]] voltou ao amanhecer com menos carga util, e ninguem sabe ainda qual [[battery_cell]] foi afetada.',
     options: [
       {
         id: 'diagnose',
@@ -486,7 +486,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     sequentialOnly: true,
     title: 'Diagnostico: celula em curto',
-    text: 'Uma celula do pacote esta em curto e puxa as outras para baixo.',
+    text: 'O diagnostico achou o culpado: uma [[battery_cell]] do pacote do [[rover]] entrou em [[short_circuit]]. Ligada as outras, ela drena a carga das vizinhas e esquenta o conjunto inteiro.',
     options: [
       {
         id: 'isolate',
@@ -524,7 +524,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     cooldownDays: 3,
     title: 'Checagem dos trajes',
-    text: 'Os trajes de [[eva]] precisam de teste de pressao.',
+    text: 'Antes de qualquer [[eva]], cada traje precisa passar num teste de [[pressure]]. Um vazamento pequeno la fora, no [[vacuum]], vira emergencia em poucos minutos.',
     options: [
       {
         id: 'full_check',
@@ -566,7 +566,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'night',
     title: 'Alarme as 03:00 UTC',
-    text: 'Alarme de pressao durante a vigilia. Pode ser sensor ruim.',
+    text: 'As 03:00 [[utc]] o alarme de [[pressure]] disparou durante a vigilia. A [[telemetry]] mostra uma queda, mas pode ser so um sensor com defeito, e acordar todo mundo tambem tem custo.',
     options: [
       {
         id: 'wake_crew',
@@ -617,7 +617,7 @@ export const CARDS: readonly Card[] = [
     phase: 'night',
     cooldownDays: 2,
     title: 'Cartucho do scrubber',
-    text: 'O [[scrubber]] de CO2 esta no fim do cartucho.',
+    text: 'O [[scrubber]] retira do ar o [[co2]] que a tripulacao solta a cada respiracao. O cartucho que absorve esse gas esta quase cheio, e sem troca o ar fica pesado e da dor de cabeca.',
     options: [
       {
         id: 'swap',
@@ -667,7 +667,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'night',
     title: 'Impacto na cupula',
-    text: 'Um [[micrometeoroid]] furou a camada externa da [[shielding]].',
+    text: 'Um [[micrometeoroid]] menor que um grao de arroz, viajando a mais de 20 km/s, furou a camada externa da [[shielding]] da cupula. A camada interna segurou, mas o buraco precisa de reparo.',
     options: [
       {
         id: 'patch_now',
@@ -721,7 +721,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'night',
     title: 'Noite termica',
-    text: 'As escotilhas estao fechadas e a base precisa de aquecimento.',
+    text: 'A noite lunar dura cerca de 14 dias terrestres, sem nenhum Sol. As escotilhas estao fechadas, e o calor da base escapa para o frio la fora: manter os modulos aquecidos gasta muita [[power]].',
     options: [
       {
         id: 'heat_all',
@@ -771,7 +771,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'night',
     title: 'Inventario de racoes',
-    text: 'A contagem de [[food]] no sistema nao fecha com a prateleira.',
+    text: 'A contagem de [[food]] no computador nao bate com o que esta nas prateleiras. Pode ser erro de registro ou racao estragada. Planejar a missao com numeros errados e perigoso.',
     options: [
       {
         id: 'recount',
@@ -820,7 +820,7 @@ export const CARDS: readonly Card[] = [
     phase: 'night',
     cooldownDays: 3,
     title: 'Limpeza da eclusa',
-    text: '[[regolith]] acumulado nas vedacoes da [[airlock]].',
+    text: 'Graos de [[regolith]], afiados como caco de vidro, se acumularam nas borrachas de vedacao da [[airlock]]. Cada vez que a porta fecha, eles arranham a vedacao e deixam escapar um pouco de ar.',
     options: [
       {
         id: 'deep_clean',
@@ -872,7 +872,7 @@ export const CARDS: readonly Card[] = [
     phase: 'night',
     requires: [{ stat: 'dose', op: 'gte', value: 25 }],
     title: 'Exame medico da tripulacao',
-    text: 'A [[dose]] acumulada da tripulacao passou do limite planejado.',
+    text: 'O [[dosimeter]] de cada tripulante mostrou que a [[dose]] acumulada passou do limite planejado para esta etapa. O medico precisa decidir se a equipe reduz o ritmo ou segue o cronograma.',
     options: [
       {
         id: 'reduce_eva',
@@ -929,7 +929,7 @@ export const CARDS: readonly Card[] = [
     track: 'science',
     phase: 'day',
     title: 'Cratera a 12 km',
-    text: 'Anomalia magnetica no fundo de uma [[crater]] a 12 km da base.',
+    text: 'Sondas em [[orbit]] detectaram uma [[magnetic_anomaly]] no fundo de uma [[crater]] a 12 km da base. A Lua quase nao tem campo magnetico hoje, entao essa rocha guarda pistas do passado.',
     options: [
       {
         id: 'rover_trip',
@@ -984,7 +984,7 @@ export const CARDS: readonly Card[] = [
     track: 'science',
     phase: 'day',
     title: 'Impacto fresco',
-    text: 'Um [[micrometeoroid]] maior abriu uma marca nova a 4 km.',
+    text: 'As cameras viram um clarao: uma rocha espacial maior que um [[micrometeoroid]] comum abriu uma [[crater]] nova a 4 km. O material recem-escavado quase nao sofreu a acao do Sol e da [[radiation]].',
     options: [
       {
         id: 'collect',
@@ -1025,7 +1025,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     requires: [{ stat: 'power', op: 'gte', value: 40 }],
     title: 'Gelo em sombra permanente',
-    text: 'Ha agua congelada no fundo de uma [[permanent_shadow]].',
+    text: 'Uma sonda detectou gelo de agua no fundo de uma [[permanent_shadow]], onde a temperatura fica abaixo de 200 °C negativos. Esse gelo pode guardar [[volatiles]] de bilhoes de anos e virar agua e [[oxygen]] para a base.',
     options: [
       {
         id: 'descend',
@@ -1065,7 +1065,7 @@ export const CARDS: readonly Card[] = [
     track: 'science',
     phase: 'night',
     title: 'Rede de sismometros',
-    text: 'Medir tremores lunares exige sensores espalhados.',
+    text: 'Um [[seismometer]] sozinho sente o tremor, mas nao diz de onde ele veio. Com varios espalhados longe uns dos outros, da para localizar os tremores lunares e espiar o interior da Lua.',
     options: [
       {
         id: 'full_net',
@@ -1106,7 +1106,7 @@ export const CARDS: readonly Card[] = [
     track: 'science',
     phase: 'night',
     title: 'Analise de regolito',
-    text: 'O espectrometro pode ler a composicao do [[regolith]] coletado.',
+    text: 'O [[spectrometer]] da base pode ler a composicao do [[regolith]] coletado e descobrir quais minerais e metais existem ali. Uma analise mais longa enxerga mais detalhes, mas deixa o aparelho ligado por horas.',
     options: [
       {
         id: 'long_run',
@@ -1147,7 +1147,7 @@ export const CARDS: readonly Card[] = [
     track: 'lifeSupport',
     phase: 'day',
     title: 'Expandir o cultivo',
-    text: 'Mais area de [[greenhouse]] significa [[life_support]] mais estavel.',
+    text: 'Expandir a [[greenhouse]] significa mais plantas produzindo comida e [[oxygen]] e reciclando agua. Com mais area de cultivo, o [[life_support]] da base fica mais estavel e menos dependente da Terra.',
     options: [
       {
         id: 'full_expand',
@@ -1201,7 +1201,7 @@ export const CARDS: readonly Card[] = [
     track: 'lifeSupport',
     phase: 'day',
     title: 'Fechar o loop de agua',
-    text: 'Reciclar toda a agua da base, inclusive a suja.',
+    text: 'Hoje parte da agua suja da base e descartada. Um [[closed_loop]] recicla tudo, ate urina e suor, e a Estacao Espacial Internacional ja recupera quase toda a sua agua assim. Cada litro reaproveitado e um litro a menos trazido da Terra.',
     options: [
       {
         id: 'closed_loop',
@@ -1239,7 +1239,7 @@ export const CARDS: readonly Card[] = [
     track: 'lifeSupport',
     phase: 'night',
     title: 'Redundancia do gerador',
-    text: 'A base depende de uma unica fonte de [[power]].',
+    text: 'Toda a [[power]] da base vem de uma unica fonte. Se ela falhar, ar, aquecimento e comunicacao param juntos. A solucao e [[redundancy]]: um segundo gerador pronto para assumir.',
     options: [
       {
         id: 'second_unit',
@@ -1277,7 +1277,7 @@ export const CARDS: readonly Card[] = [
     track: 'lifeSupport',
     phase: 'night',
     title: 'Ampliar o abrigo central',
-    text: 'O [[central_shelter]] e pequeno para a tripulacao inteira.',
+    text: 'O [[central_shelter]] e a sala mais protegida da base, onde a tripulacao se esconde durante uma [[solar_storm]]. Hoje ele e pequeno demais para todos ficarem la juntos por muitas horas.',
     options: [
       {
         id: 'regolith_expand',
@@ -1321,7 +1321,7 @@ export const CARDS: readonly Card[] = [
     role: 'event',
     phase: 'day',
     title: 'Capsula de suprimentos',
-    text: 'A carga estacionada em orbita aguarda comando de descida.',
+    text: 'Uma capsula de carga vinda da Terra esta estacionada em [[orbit]], esperando o comando de descida. O pouso so aguenta uma certa quantidade de carga por vez, entao e preciso escolher o que desce primeiro.',
     options: [
       {
         id: 'basics',
@@ -1384,7 +1384,7 @@ export const CARDS: readonly Card[] = [
     track: 'science',
     phase: 'day',
     title: 'Tubo de lava',
-    text: 'Um tubo de lava colapsado abre entrada a 3 km da base.',
+    text: 'A 3 km da base, o teto de um [[lava_tube]] desabou e abriu uma entrada. La dentro, a rocha bloqueia a [[radiation]] e a temperatura quase nao muda: um otimo lugar para futuras bases.',
     options: [
       {
         id: 'descend',
@@ -1424,7 +1424,7 @@ export const CARDS: readonly Card[] = [
     track: 'science',
     phase: 'night',
     title: 'Radio-silencio',
-    text: 'A base esta na janela de silencio de radio, longe do ruido da Terra.',
+    text: 'Com quase todos os aparelhos da base desligados na vigilia, o [[radio_telescope]] pode escutar ondas de radio muito fracas vindas do Universo distante. O ruido de radio da Terra atrapalha, entao cada minuto de silencio na base vale ouro.',
     options: [
       {
         id: 'long_obs',
@@ -1462,7 +1462,7 @@ export const CARDS: readonly Card[] = [
     track: 'lifeSupport',
     phase: 'day',
     title: 'Oxigenio do regolito',
-    text: 'O forno pode arrancar [[oxygen]] do proprio [[regolith]] lunar.',
+    text: 'Quase metade do peso do [[regolith]] e [[oxygen]] preso nos minerais. Um forno a mais de 900 °C consegue soltar esse gas, que vai para os tanques de reserva do [[life_support]], e nao direto para o ar de agora.',
     options: [
       {
         id: 'full_batch',
@@ -1501,7 +1501,7 @@ export const CARDS: readonly Card[] = [
     track: 'lifeSupport',
     phase: 'night',
     title: 'Enfermaria',
-    text: 'Montar a enfermaria com monitor de [[dose]] por tripulante.',
+    text: 'Montar uma enfermaria com um [[dosimeter]] para cada tripulante permite acompanhar a [[dose]] de cada pessoa e tratar machucados sem precisar voltar para a Terra.',
     options: [
       {
         id: 'full_bay',
@@ -1541,7 +1541,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     cooldownDays: 3,
     title: 'Rastreamento dos paineis',
-    text: 'Os [[solar_panel]] sairam do angulo otimo em relacao ao Sol.',
+    text: 'O [[sun_tracker]] saiu de calibracao, e o [[solar_panel]] nao esta mais virado de frente para o Sol. Quanto mais torto o angulo, menos luz bate na placa e menos [[power]] ela gera.',
     options: [
       {
         id: 'recalibrate',
@@ -1579,7 +1579,7 @@ export const CARDS: readonly Card[] = [
     phase: 'night',
     cooldownDays: 2,
     title: 'Equalizar as baterias',
-    text: 'As celulas perderam sincronia e a carga util caiu.',
+    text: 'Com o tempo, cada [[battery_cell]] do banco de baterias fica com uma carga diferente, e as mais fracas seguram todas as outras. A [[cell_balancing]] devolve a sincronia e recupera a carga util.',
     options: [
       {
         id: 'full_cycle',
@@ -1624,7 +1624,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'night',
     title: 'Degelo das amostras',
-    text: 'O gelo coletado tem que derreter sem perder os gases presos.',
+    text: 'Blocos de gelo trazidos para a base precisam virar agua. Se esquentarem rapido demais, os [[volatiles]] presos no gelo escapam antes de serem medidos e aproveitados.',
     options: [
       {
         id: 'controlled',
@@ -1662,7 +1662,7 @@ export const CARDS: readonly Card[] = [
     role: 'basic',
     phase: 'night',
     title: 'Curadoria de amostras',
-    text: 'Amostra sem catalogo e sem contexto perde valor cientifico.',
+    text: 'Uma amostra lunar sem etiqueta, sem foto e sem o local exato da coleta perde quase todo o valor para a [[science]]. Uma boa [[curation]] registra tudo isso antes que alguem esqueca.',
     options: [
       {
         id: 'catalog_all',
@@ -1701,7 +1701,7 @@ export const CARDS: readonly Card[] = [
     track: 'lifeSupport',
     phase: 'day',
     title: 'Processar residuos',
-    text: 'Nada pode ser lixo numa base: todo residuo volta para algum ciclo.',
+    text: 'Numa base lunar nada pode virar lixo: restos de comida, plantas e ate embalagens voltam para algum ciclo. A [[compost]] transforma os restos organicos em adubo para a [[greenhouse]].',
     options: [
       {
         id: 'full_compost',
@@ -1741,7 +1741,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     cooldownDays: 2,
     title: 'Tratar a estufa',
-    text: 'A [[greenhouse]] precisa de poda, rega e checagem de nutrientes.',
+    text: 'As plantas da [[greenhouse]] precisam de poda, rega e checagem de nutrientes, como numa horta na Terra. Planta mal cuidada produz menos comida e fica doente.',
     options: [
       {
         id: 'full_tending',
@@ -1791,7 +1791,7 @@ export const CARDS: readonly Card[] = [
     phase: 'day',
     cooldownDays: 3,
     title: 'Repor a cobertura',
-    text: 'A camada de [[regolith]] sobre a base afinou. Da para repor sacos.',
+    text: 'Tremores e o vai e vem das [[eva]] desmancharam parte da camada de [[regolith]] sobre a base, e a [[shielding]] ficou mais fina. Repor os sacos devolve a protecao contra a [[radiation]].',
     options: [
       {
         id: 'topup_all',
@@ -1847,7 +1847,7 @@ export const CARDS: readonly Card[] = [
     isFallback: true,
     cooldownDays: 1,
     title: 'Turno sem ocorrencias',
-    text: 'Nenhum alarme. A rotina da base consome recursos de todo jeito.',
+    text: 'Nenhum alarme hoje. Mesmo assim a base nunca para: o [[life_support]] gasta [[power]] e [[oxygen]] o tempo todo, so para manter todo mundo vivo.',
     options: [
       {
         id: 'standard',
@@ -1885,7 +1885,7 @@ export const CARDS: readonly Card[] = [
     isFallback: true,
     cooldownDays: 1,
     title: 'Vigilia calma',
-    text: 'Escotilhas fechadas, sistemas estaveis. A vigilia segue.',
+    text: 'Escotilhas fechadas e sistemas estaveis. Enquanto a tripulacao dorme, quem esta de vigilia acompanha a [[telemetry]] e pode aproveitar para checar os sistemas com calma.',
     options: [
       {
         id: 'standard',
@@ -1926,7 +1926,7 @@ export const CARDS: readonly Card[] = [
     isFallback: true,
     cooldownDays: 1,
     title: 'Revisar dados coletados',
-    text: 'Sem alvo novo. Da para reprocessar o que ja foi medido.',
+    text: 'Nenhum alvo novo para explorar hoje. Da para reprocessar dados antigos com calma: muitas descobertas da [[science]] aparecem na segunda olhada.',
     options: [
       {
         id: 'light',
@@ -1965,7 +1965,7 @@ export const CARDS: readonly Card[] = [
     isFallback: true,
     cooldownDays: 1,
     title: 'Revisar os sistemas',
-    text: 'Sem obra planejada. Da para ajustar o que ja existe.',
+    text: 'Nenhuma obra planejada para esta noite. E a chance de revisar valvulas e ajustar os sistemas do [[life_support]] para que funcionem com menos desperdicio.',
     options: [
       {
         id: 'tuning',
