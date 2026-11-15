@@ -35,212 +35,32 @@ interface SpotlightRect {
 }
 
 /**
- * Mascote robo infantil posicionado abaixo do quadro de cada passo do tutorial,
- * segurando uma vareta de professor apontando para a explicacao acima.
+ * Mascote do tutorial: o robo da equipe, embaixo do quadro.
+ *
+ * Fica do MESMO lado do quadro e aponta para o centro da tela, onde esta o
+ * que o passo explica. Quadro na esquerda: robo alinhado a esquerda,
+ * apontando para a direita. Quadro na direita: alinhado a direita,
+ * apontando para a esquerda. As duas imagens tem o mesmo enquadramento,
+ * entao o robo nao muda de tamanho ao trocar de lado.
  */
-function TutorialRobot({ step }: { step: number }): JSX.Element {
-  // Variacao sutil do angulo da vareta a cada passo para dar vida ao robo.
-  const stickAngles: readonly number[] = [-18, -10, -4, -14, -6, -12, -8, -2];
-  const stickAngle = stickAngles[(step - 1) % stickAngles.length] ?? -10;
-  const happyBlink = step % 2 === 0;
-
+function TutorialRobot({ side }: { side: 'left' | 'right' }): JSX.Element {
+  const src = side === 'left' ? '/mascot/robot-points-right.webp' : '/mascot/robot-points-left.webp';
   return (
     <div
       aria-hidden
-      className="pointer-events-none relative -mt-1 flex select-none flex-col items-center animate-drift"
+      className={`pointer-events-none relative -mt-1 flex select-none flex-col px-6 animate-drift
+        ${side === 'left' ? 'items-start self-start' : 'items-end self-end'}`}
     >
       {/* Rabicho de balao de fala ligando o quadro do tutorial ao robo */}
-      <div className="h-0 w-0 border-x-[10px] border-t-[12px] border-x-transparent border-t-sky-300/45" />
-
-      <svg
-        viewBox="0 0 220 130"
-        className=" -mt-1 h-24 w-44 drop-shadow-[0_10px_18px_rgba(0,0,0,0.75)] sm:h-28 sm:w-52"
-      >
-        <defs>
-          <linearGradient id="tut-bot-body" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#f8fafc" />
-            <stop offset="65%" stopColor="#cbd5e1" />
-            <stop offset="100%" stopColor="#94a3b8" />
-          </linearGradient>
-          <linearGradient id="tut-bot-visor" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#0f172a" />
-            <stop offset="100%" stopColor="#1e293b" />
-          </linearGradient>
-          <linearGradient id="tut-bot-stick" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0%" stopColor="#f59e0b" />
-            <stop offset="60%" stopColor="#fbbf24" />
-            <stop offset="100%" stopColor="#fde68a" />
-          </linearGradient>
-          <radialGradient id="tut-bot-glow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-
-        {/* Halo de propulsao / flutuacao na base */}
-        <ellipse cx="105" cy="121" rx="38" ry="7" fill="url(#tut-bot-glow)" />
-        <ellipse cx="105" cy="119" rx="22" ry="3.5" fill="#38bdf8" opacity="0.55" />
-
-        {/* Braco esquerdo acenando */}
-        <g transform="translate(66, 84) rotate(14)">
-          <path
-            d="M 0 0 Q -18 -6 -22 -20"
-            fill="none"
-            stroke="#94a3b8"
-            strokeWidth="6"
-            strokeLinecap="round"
-          />
-          <circle cx="-22" cy="-20" r="6" fill="url(#tut-bot-body)" stroke="#475569" strokeWidth="1.5" />
-        </g>
-
-        {/* Corpo arredondado de traje espacial */}
-        <rect
-          x="74"
-          y="74"
-          width="62"
-          height="40"
-          rx="20"
-          fill="url(#tut-bot-body)"
-          stroke="#38bdf8"
-          strokeWidth="2"
-        />
-        {/* Painel do peito com emblema */}
-        <rect
-          x="86"
-          y="83"
-          width="38"
-          height="20"
-          rx="8"
-          fill="#0f172a"
-          stroke="#38bdf8"
-          strokeWidth="1.4"
-        />
-        {/* Linha de telemetria amigavel no peito */}
-        <path
-          d="M 91 93 L 97 93 L 100 88 L 104 98 L 108 90 L 111 93 L 119 93"
-          fill="none"
-          stroke="#38bdf8"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-
-        {/* Antena no topo da cabeca */}
-        <line x1="105" y1="16" x2="105" y2="27" stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
-        <circle cx="105" cy="13" r="6" fill="#38bdf8" />
-        <circle cx="103" cy="11" r="2" fill="#e0f2fe" />
-
-        {/* Orelhas / fones laterais do capacete */}
-        <rect x="59" y="42" width="9" height="18" rx="4.5" fill="#38bdf8" stroke="#0284c7" strokeWidth="1.5" />
-        <rect x="142" y="42" width="9" height="18" rx="4.5" fill="#38bdf8" stroke="#0284c7" strokeWidth="1.5" />
-
-        {/* Cabeca arredondada do robo */}
-        <rect
-          x="65"
-          y="26"
-          width="80"
-          height="52"
-          rx="24"
-          fill="url(#tut-bot-body)"
-          stroke="#38bdf8"
-          strokeWidth="2.2"
-        />
-
-        {/* Visor escuro do rosto */}
-        <rect
-          x="74"
-          y="34"
-          width="62"
-          height="36"
-          rx="16"
-          fill="url(#tut-bot-visor)"
-          stroke="#38bdf8"
-          strokeWidth="1.5"
-        />
-
-        {/* Olhos expressivos e infantis no visor */}
-        {happyBlink ? (
-          <>
-            <path
-              d="M 85 50 Q 92 42 99 50"
-              fill="none"
-              stroke="#38bdf8"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-            />
-            <path
-              d="M 111 50 Q 118 42 125 50"
-              fill="none"
-              stroke="#38bdf8"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-            />
-          </>
-        ) : (
-          <>
-            <circle cx="92" cy="49" r="6.5" fill="#38bdf8" />
-            <circle cx="90" cy="46.5" r="2.3" fill="#ffffff" />
-            <circle cx="118" cy="49" r="6.5" fill="#38bdf8" />
-            <circle cx="116" cy="46.5" r="2.3" fill="#ffffff" />
-          </>
-        )}
-
-        {/* Bochechas digitais fofas */}
-        <ellipse cx="83" cy="57" rx="4" ry="2.2" fill="#f472b6" opacity="0.65" />
-        <ellipse cx="127" cy="57" rx="4" ry="2.2" fill="#f472b6" opacity="0.65" />
-
-        {/* Sorriso luminoso */}
-        <path
-          d="M 97 57 Q 105 64 113 57"
-          fill="none"
-          stroke="#38bdf8"
-          strokeWidth="2.6"
-          strokeLinecap="round"
-        />
-
-        {/* Braco direito segurando a vareta apontando para a tela do tutorial acima */}
-        <g transform={`translate(136, 84) rotate(${stickAngle})`}>
-          {/* Braco mecanico */}
-          <path
-            d="M 0 0 Q 18 -4 26 -18"
-            fill="none"
-            stroke="#94a3b8"
-            strokeWidth="6"
-            strokeLinecap="round"
-          />
-          {/* Mao segurando a vareta */}
-          <circle cx="26" cy="-18" r="6.5" fill="url(#tut-bot-body)" stroke="#475569" strokeWidth="1.5" />
-
-          {/* Vareta de professor apontando para o quadro do tutorial em cima */}
-          <line
-            x1="26"
-            y1="-18"
-            x2="4"
-            y2="-78"
-            stroke="url(#tut-bot-stick)"
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-          <line
-            x1="26"
-            y1="-18"
-            x2="20"
-            y2="-34"
-            stroke="#b45309"
-            strokeWidth="5"
-            strokeLinecap="round"
-          />
-
-          {/* Ponteira de estrela brilhante no topo da vareta */}
-          <circle cx="4" cy="-78" r="9" fill="#38bdf8" opacity="0.28" />
-          <polygon
-            points="4,-86 6.4,-80.5 12,-79.8 7.8,-76 9,-70.3 4,-73.3 -1,-70.3 0.2,-76 -4,-79.8 1.6,-80.5"
-            fill="#fbbf24"
-            stroke="#fef08a"
-            strokeWidth="1"
-          />
-        </g>
-      </svg>
+      <div className="mx-8 h-0 w-0 border-x-[10px] border-t-[12px] border-x-transparent border-t-sky-300/45" />
+      <img
+        src={src}
+        alt=""
+        draggable={false}
+        width={399}
+        height={480}
+        className="-mt-1 h-28 w-auto drop-shadow-[0_10px_18px_rgba(0,0,0,0.75)] sm:h-32"
+      />
     </div>
   );
 }
@@ -478,7 +298,7 @@ export function TutorialOverlay({
             </div>
           </div>
 
-          <TutorialRobot step={step} />
+          <TutorialRobot side={placeLeft ? 'left' : 'right'} />
         </div>
       </div>
     </div>
