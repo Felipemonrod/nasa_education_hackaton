@@ -20,33 +20,58 @@ function Delta({ stat, from, to }: { stat: Stat; from: number; to: number }): JS
   if (diff === 0) return null;
   const label = t(`stat.${stat}`);
   const isBad = stat === 'dose' ? diff > 0 : diff < 0;
+  const statColor =
+    stat === 'oxygen' ? 'text-oxygen' : stat === 'power' ? 'text-power'
+    : stat === 'food' ? 'text-food' : stat === 'dose' ? 'text-radiation'
+    : stat === 'science' ? 'text-science' : stat === 'lifeSupport' ? 'text-life' : 'text-slate-200';
   return (
-    <span
-      className="hud-chip"
+    <div
+      className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.04] px-3 py-1.5"
       role="img"
       aria-label={t(isBad ? 'outcome.deltaWorse' : 'outcome.deltaBetter', {
         stat: label, amount: Math.abs(diff), value: to,
       })}
     >
-      <span className={`text-[0.7rem] font-bold ${
-        stat === 'oxygen' ? 'text-oxygen' : stat === 'power' ? 'text-power'
-        : stat === 'food' ? 'text-food' : stat === 'dose' ? 'text-radiation'
-        : stat === 'science' ? 'text-science' : stat === 'lifeSupport' ? 'text-life' : 'text-slate-200'
-      }`}>{label}</span>
-      <span className={`tabular-nums text-[0.78rem] font-extrabold ${isBad ? 'text-radiation' : 'text-food'}`}>
-        {diff > 0 ? '+' : ''}{diff}
+      <div className="flex min-w-0 flex-col leading-tight">
+        <span className={`truncate text-[0.68rem] font-extrabold uppercase tracking-wider ${statColor}`}>
+          {label}
+        </span>
+        <span className={`tabular-nums text-[0.78rem] font-extrabold ${isBad ? 'text-radiation' : 'text-food'}`}>
+          {diff > 0 ? '+' : ''}{diff}
+        </span>
+      </div>
+      <span className="tabular-nums font-display text-base font-extrabold text-slate-100">
+        {to}
       </span>
-      <span className="tabular-nums text-[0.65rem] font-semibold text-slate-300">→ {to}</span>
-    </span>
+    </div>
   );
 }
 
-function DeltaRow({ title, from, to }: { title: string; from: Stats; to: Stats }): JSX.Element | null {
+function DeltaRow({ title, from, to, help }: { title: string; from: Stats; to: Stats; help?: string }): JSX.Element | null {
   if (ALL_STATS.every((stat) => from[stat] === to[stat])) return null;
   return (
     <div className="rounded-2xl border border-white/8 bg-white/[.03] px-3.5 py-2.5">
-      <p className="mb-1.5 text-[0.65rem] font-extrabold uppercase tracking-wider text-slate-300">{title}</p>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <p className="text-[0.65rem] font-extrabold uppercase tracking-wider text-slate-300">{title}</p>
+        {help !== undefined ? (
+          <div className="group relative inline-flex shrink-0">
+            <button
+              type="button"
+              aria-label={help}
+              className="grid h-4 w-4 place-items-center rounded-full border border-white/20 bg-white/[.08] text-[0.6rem] font-extrabold text-slate-200 transition-colors hover:border-sky-300/60 hover:bg-sky-400/20 hover:text-white focus:outline-none"
+            >
+              ?
+            </button>
+            <div
+              role="tooltip"
+              className="pointer-events-none absolute right-0 top-full z-20 mt-1.5 w-56 origin-top-right scale-95 rounded-xl border border-sky-400/30 bg-space-950/95 p-2.5 text-[0.72rem] font-medium normal-case leading-relaxed tracking-normal text-slate-200 opacity-0 shadow-2xl transition-all duration-150 group-hover:scale-100 group-hover:opacity-100 group-focus-within:scale-100 group-focus-within:opacity-100"
+            >
+              {help}
+            </div>
+          </div>
+        ) : null}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
         {ALL_STATS.map((stat) => <Delta key={stat} stat={stat} from={from[stat]} to={to[stat]} />)}
       </div>
     </div>
@@ -120,7 +145,7 @@ export function OutcomePanel({
 
         <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           <DeltaRow title={t('outcome.fromChoice')} from={outcome.before} to={outcome.afterChoice} />
-          <DeltaRow title={t('outcome.fromShift')} from={outcome.afterChoice} to={outcome.after} />
+          <DeltaRow title={t('outcome.fromShift')} from={outcome.afterChoice} to={outcome.after} help={t('outcome.fromShiftHelp')} />
         </div>
 
         {outcome.declined !== null ? (

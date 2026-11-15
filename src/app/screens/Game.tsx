@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Bell, Moon, Radio, Settings, Sun, Telescope, X } from 'lucide-react';
 import { trackFor } from '../../engine/balance.js';
+import type { CardOption, Stat } from '../../engine/types.js';
+import { playPaperPullSfx } from '../audio/sfx.js';
 import { CardView } from '../components/CardView.js';
 import { GearMenu } from '../components/GearMenu.js';
 import { MoonScene } from '../components/MoonScene.js';
@@ -28,6 +30,7 @@ export function Game(): JSX.Element {
   const autoRead = useAccount((s) => s.settings.autoRead);
   const speechRate = useAccount((s) => s.settings.speechRate);
   const speechVolume = useAccount((s) => s.settings.speechVolume);
+  const sfxVolume = useAccount((s) => s.settings.sfxVolume);
   const locale = useI18n((s) => s.locale);
   const content = useContent();
   const speak = useSpeech((s) => s.speak);
@@ -39,10 +42,18 @@ export function Game(): JSX.Element {
   const [cardReady, setCardReady] = useState(false);
   const [decisionsModalOpen, setDecisionsModalOpen] = useState(false);
   const [mobileCardIndex, setMobileCardIndex] = useState<0 | 1>(0);
+  const [hoveredOption, setHoveredOption] = useState<CardOption | null>(null);
+  const [shaking, setShaking] = useState(false);
+  const [outcomeVisible, setOutcomeVisible] = useState(false);
+  const shakeTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const timer = window.setTimeout(() => { setCardReady(true); }, 3000);
     return () => { window.clearTimeout(timer); };
+  }, []);
+
+  useEffect(() => () => {
+    if (shakeTimerRef.current !== null) window.clearTimeout(shakeTimerRef.current);
   }, []);
 
   const slotKey = run === null || run.current === null
@@ -59,7 +70,47 @@ export function Game(): JSX.Element {
   useEffect(() => {
     setDecisionsModalOpen(false);
     setMobileCardIndex(0);
+    setHoveredOption(null);
   }, [slotKey, outcome]);
+
+  useEffect(() => {
+    if (outcome === null) {
+      setOutcomeVisible(false);
+      return;
+    }
+    setOutcomeVisible(false);
+    const timer = window.setTimeout(() => { setOutcomeVisible(true); }, 1800);
+    return () => { window.clearTimeout(timer); };
+  }, [outcome]);
+
+  const affectedStats = useMemo<ReadonlySet<Stat>>(() => {
+    if (hoveredOption === null) return new Set();
+    const next = new Set<Stat>();
+    for (const eff of hoveredOption.effects) {
+      if (eff.delta !== 0) next.add(eff.stat);
+    }
+    for (const mod of hoveredOption.modifiers ?? []) {
+      if (mod.perSlot !== 0) next.add(mod.stat);
+    }
+    return next;
+  }, [hoveredOption]);
+
+  const triggerCardFeel = (): void => {
+    playPaperPullSfx(sfxVolume);
+    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+      try {
+        navigator.vibrate(10);
+      } catch {
+        // Ignora ambientes que bloqueiam Vibration API
+      }
+    }
+    if (shakeTimerRef.current !== null) window.clearTimeout(shakeTimerRef.current);
+    setShaking(true);
+    shakeTimerRef.current = window.setTimeout(() => {
+      setShaking(false);
+      shakeTimerRef.current = null;
+    }, 270);
+  };
 
   useEffect(() => {
     if (tutorialActive && (tutorialStep === 7 || tutorialStep === 8)) {
@@ -106,7 +157,7 @@ export function Game(): JSX.Element {
   const modalOpen = decisionsModalOpen && cardReady && slot !== null;
 
   return (
-    <div className="mx-auto flex h-dvh max-h-dvh w-full max-w-[90rem] flex-col overflow-hidden px-3 py-2.5 [@media(max-height:540px)]:py-1.5 sm:px-5 sm:py-2.5 lg:px-8 lg:py-4">
+    <div className={`mx-auto flex h-dvh max-h-dvh w-full max-w-[90rem] flex-col overflow-hidden px-3 py-2.5 [@media(max-height:540px)]:py-1.5 sm:px-5 sm:py-2.5 lg:px-8 lg:py-4 ${shaking ? 'animate-screen-shake' : ''}`}>
       {/* Barra superior de telemetria */}
       <header className="flex shrink-0 items-center justify-between gap-2.5 sm:gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-initial sm:gap-3">
@@ -160,18 +211,20 @@ export function Game(): JSX.Element {
           </div>
 
           <div className="flex h-full min-h-0 flex-col sm:col-span-5 lg:flex-1">
-            <ResourceHUD stats={run.stats} objective={objectiveTrack} theme={theme} />
+            <ResourceHUD stats={run.stats} objective={objectiveTrack} theme={theme} affectedStats={affectedStats} />
           </div>
         </section>
 
         {/* Direita no mobile horizontal / Base (20%) centralizada no retrato: Botao de Notificacoes sem fundo */}
         <section className="flex h-full min-h-0 flex-col items-center justify-center sm:col-span-2 lg:hidden">
-          {!cardReady ? (
-            <div className="flex flex-col items-center justify-center gap-1.5 text-center">
-              <Radio size={20} className="animate-pulse text-sky-300" aria-hidden />
-              <p className="animate-pulse text-[0.7rem] font-bold leading-tight text-slate-300">
-                {t('game.waiting')}
-              </p>
+          {!cardReady || outcome !== null ? (
+            <div role="status" aria-label={t('game.waiting')} className="flex flex-col items-center justify-center gap-1.5 text-center">
+              <Radio size={22} className="animate-pulse text-sky-300" aria-hidden />
+              <span className="flex items-center gap-1" aria-hidden>
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-300/90 animate-dot-wave" style={{ animationDelay: '0ms' }} />
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-300/90 animate-dot-wave" style={{ animationDelay: '160ms' }} />
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-300/90 animate-dot-wave" style={{ animationDelay: '320ms' }} />
+              </span>
             </div>
           ) : slot === null ? (
             <div className="flex flex-col items-center justify-center gap-2 text-center">
@@ -218,14 +271,14 @@ export function Game(): JSX.Element {
               : 'hidden lg:col-span-8 lg:flex lg:min-h-0 lg:flex-col lg:justify-center lg:overflow-y-auto lg:scroll-thin'
           }
         >
-          {!cardReady ? (
-            <div className="card-surface mx-auto flex h-full max-h-72 w-full max-w-xl flex-col items-center justify-center gap-3 p-6 text-center">
-              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-sky-400/15 text-sky-300 animate-pulse">
-                <Radio size={22} aria-hidden />
+          {!cardReady || outcome !== null ? (
+            <div role="status" aria-label={t('game.waiting')} className="mx-auto flex flex-col items-center justify-center gap-2 text-center">
+              <Radio size={26} className="animate-pulse text-sky-300" aria-hidden />
+              <span className="flex items-center gap-1.5" aria-hidden>
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-300/90 animate-dot-wave" style={{ animationDelay: '0ms' }} />
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-300/90 animate-dot-wave" style={{ animationDelay: '160ms' }} />
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-300/90 animate-dot-wave" style={{ animationDelay: '320ms' }} />
               </span>
-              <p className="animate-pulse text-sm font-bold text-slate-200">
-                {t('game.waiting')}
-              </p>
             </div>
           ) : slot === null ? (
             <div className="card-surface mx-auto flex w-full max-w-xl flex-col items-center justify-center gap-4 p-8 text-center">
@@ -293,8 +346,11 @@ export function Game(): JSX.Element {
                         compact={isPair}
                         inModal={modalOpen}
                         isFirstCard={index === 0}
+                        onHoverOption={setHoveredOption}
                         onChoose={(optionId) => {
+                          setHoveredOption(null);
                           setDecisionsModalOpen(false);
+                          triggerCardFeel();
                           decide(entry.card.id, optionId);
                         }}
                       />
@@ -329,7 +385,7 @@ export function Game(): JSX.Element {
         />
       ) : null}
 
-      {outcome !== null ? (
+      {outcome !== null && outcomeVisible ? (
         <OutcomePanel
           outcome={outcome}
           onContinue={dismissOutcome}

@@ -203,6 +203,10 @@ export function Settings(): JSX.Element {
   const isMuted = settings.speechVolume <= 0;
   const VolumeIcon = isMuted ? VolumeX : settings.speechVolume < 0.5 ? Volume1 : Volume2;
 
+  const sfxVolumePct = Math.round(settings.sfxVolume * 100);
+  const isSfxMuted = settings.sfxVolume <= 0;
+  const SfxVolumeIcon = isSfxMuted ? VolumeX : settings.sfxVolume < 0.5 ? Volume1 : Volume2;
+
   const activeIndex = TABS.findIndex((tab) => tab.id === activeTab);
   const stepTab = (delta: number): void => {
     const next = (activeIndex + delta + TABS.length) % TABS.length;
@@ -213,6 +217,11 @@ export function Settings(): JSX.Element {
     const clamped = Math.round(Math.min(VOLUME_MAX, Math.max(VOLUME_MIN, next)) * 100) / 100;
     setSetting('speechVolume', clamped);
     if (clamped <= 0) stop();
+  };
+
+  const setSfxVolume = (next: number): void => {
+    const clamped = Math.round(Math.min(VOLUME_MAX, Math.max(VOLUME_MIN, next)) * 100) / 100;
+    setSetting('sfxVolume', clamped);
   };
 
   return (
@@ -380,6 +389,32 @@ export function Settings(): JSX.Element {
                 checked={settings.autoRead}
                 onChange={(v) => { setSetting('autoRead', v); }}
               />
+            </SettingRow>
+
+            <SettingRow label={t('settings.sfxVolume')} hint={t('settings.sfxVolumeHint')}>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label={t('settings.sfxMute')}
+                  onClick={() => { setSfxVolume(isSfxMuted ? 1 : 0); }}
+                  className={`${ACTION_BTN} h-9 w-9 rounded-xl
+                    ${isSfxMuted
+                      ? 'bg-radiation/20 text-radiation hover:bg-radiation/30'
+                      : 'bg-space-900 text-sky-300 hover:bg-space-800'}`}
+                >
+                  <SfxVolumeIcon size={15} aria-hidden />
+                </button>
+                <GameMeter
+                  id="sfx-volume"
+                  value={settings.sfxVolume}
+                  min={VOLUME_MIN}
+                  max={VOLUME_MAX}
+                  step={0.1}
+                  display={isSfxMuted ? t('settings.speechMute') : t('settings.speechVolumeValue', { volume: sfxVolumePct })}
+                  ariaLabel={t('settings.sfxVolumeAria')}
+                  onChange={setSfxVolume}
+                />
+              </div>
             </SettingRow>
 
             <SettingRow label={t('settings.speechVolume')} hint={t('settings.speechVolumeHint')}>

@@ -25,13 +25,14 @@ export interface OptionState {
 }
 
 export function CardView({
-  card, options, phase, stage, onChoose, dimmed, compact, isFirstCard = true, inModal = false,
+  card, options, phase, stage, onChoose, onHoverOption, dimmed, compact, isFirstCard = true, inModal = false,
 }: {
   card: Card;
   options: readonly OptionState[];
   phase: Phase;
   stage?: number | undefined;
   onChoose: (optionId: string) => void;
+  onHoverOption?: (option: CardOption | null) => void;
   dimmed?: boolean;
   compact?: boolean;
   isFirstCard?: boolean;
@@ -166,7 +167,7 @@ export function CardView({
 
         {/* Corpo central da moldura (expansível conforme texto e opções) */}
         <div
-          className="relative -my-px flex flex-1 flex-col px-[11.5%] py-1.5"
+          className="relative -my-px flex flex-1 flex-col px-[11.5%] py-0.5"
           style={{
             backgroundImage: `url(${frame.image})`,
             backgroundSize: '100% 300%',
@@ -174,7 +175,7 @@ export function CardView({
             backgroundRepeat: 'no-repeat',
           }}
         >
-          <div className={`flex flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 p-3 shadow-lg ${inModal ? '[@media(max-height:540px)]:p-2' : ''}`}>
+          <div className={`flex flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 p-2.5 shadow-lg ${inModal ? '[@media(max-height:540px)]:p-2' : ''}`}>
             <div>
               {hasBadges ? (
                 <div className={`mb-1.5 flex flex-wrap items-center gap-1.5 ${inModal ? '[@media(max-height:540px)]:mb-1' : ''}`}>
@@ -221,8 +222,13 @@ export function CardView({
                       type="button"
                       aria-disabled={!selectable}
                       aria-expanded={confirmDecisions ? openBrief : undefined}
+                      onMouseEnter={() => { if (selectable) onHoverOption?.(option); }}
+                      onMouseLeave={() => { onHoverOption?.(null); }}
+                      onFocus={() => { if (selectable) onHoverOption?.(option); }}
+                      onBlur={() => { onHoverOption?.(null); }}
                       onClick={() => {
                         if (!selectable) return;
+                        onHoverOption?.(null);
                         if (confirmDecisions) setBriefId(openBrief ? null : option.id);
                         else onChoose(option.id);
                       }}

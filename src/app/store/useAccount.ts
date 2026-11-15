@@ -34,6 +34,7 @@ export interface AccountState {
     autoRead: boolean;
     speechRate: number;
     speechVolume: number;
+    sfxVolume: number;
     /** Exige um segundo toque para fechar a decisao. */
     confirmDecisions: boolean;
   };
@@ -61,6 +62,7 @@ const EMPTY: AccountState = {
     autoRead: true,
     speechRate: 1,
     speechVolume: 1,
+    sfxVolume: 1,
     // Ligada de fabrica: a decisao e irreversivel e o publico tem 10 anos.
     // Um toque acidental nao deve martelar a escolha final.
     confirmDecisions: true,
