@@ -8,7 +8,7 @@ Passagem de bastão de 15/11/2026. Leia isto antes de mexer no código.
 |---|---|
 | Branch de trabalho | `guilherme-main`, igual à `caio-main` (`e9b0f76`) + o commit que adicionou esta pasta `docs/` |
 | Enviada ao GitHub? | **Não.** O commit dos docs está só no computador do Guilherme |
-| Branch órfã | `feat/nasa-data` (`b40c49f`) existe **só localmente**. Ver seção 4 antes de apagar qualquer coisa |
+| Branch `feat/nasa-data` | Existe só localmente e está **fora do escopo** (seção 4) |
 | Identidade git | Já configurada neste repositório (`git config user.name/email`) |
 
 ## 2. Primeiros comandos
@@ -29,7 +29,7 @@ npm run sim -- 3000
 npm run dev -- --host
 ```
 
-> **Atenção:** a linha de base **não foi verificada** depois de atualizar a `guilherme-main` para a `caio-main`. O `npm ci` falhou porque um servidor de desenvolvimento estava aberto. O `CORRECOES.md` registra 90/90 testes, `typecheck`, `validate` e `build` OK na `caio-main` durante as rodadas de teste.
+> **Linha de base verificada em 15/11/2026** (logo após atualizar a `guilherme-main` para a `caio-main`): 12 arquivos e 100 testes passando, `typecheck` limpo, `validate` OK (43 cards, 39 jogáveis, 24 verbetes) e `build` OK.
 
 ## 3. Documentos (em `docs/`)
 
@@ -41,15 +41,9 @@ npm run dev -- --host
 | `../DESIGN.md` | Modelo formal do engine (recursos, slots, ordem de resolução, determinismo). |
 | `../AUDIT.md` | Auditoria anterior do código. |
 
-## 4. Trabalho que ainda NÃO está na `caio-main`
+## 4. Branch `feat/nasa-data` (fora do escopo)
 
-O commit `b40c49f` (branch local `feat/nasa-data`) saiu de uma base antiga (`69540be`), então um merge direto vai dar muito conflito. **Porte à mão**, por partes. Para ver o código de cada item, use `git show b40c49f -- <arquivo>`.
-
-Para não perder esse commit, envie a branch antes de tudo:
-
-```bash
-git push -u origin feat/nasa-data
-```
+**Decisão do Guilherme (15/11/2026): não portar.** O commit `b40c49f` (branch local `feat/nasa-data`) fica só como referência; o trabalho segue pela `caio-main`. A tabela abaixo é apenas um registro do que ele continha, caso alguém precise de uma ideia dali no futuro (`git show b40c49f -- <arquivo>`).
 
 | Item | Valor | Arquivos em `b40c49f` | Situação na `caio-main` |
 |---|---|---|---|
@@ -61,14 +55,12 @@ git push -u origin feat/nasa-data
 
 ## 5. Próximos passos sugeridos
 
-1. Rodar a linha de base (seção 2) e registrar o resultado.
-2. Enviar a `feat/nasa-data` ao GitHub (seção 4).
-3. Seguir o `CORRECOES.md` §6, na ordem:
+1. Rodar a linha de base (seção 2) e conferir que bate com a registrada.
+2. Seguir o `CORRECOES.md` §6, na ordem:
    1. bugs que quebram ou enganam a criança (A1, A2, D1, D2, D3, E4, E5, E6);
    2. layout do celular (E1, E2, E3);
    3. energia e objetivos (C1 + C2 + C3), rodando `npm run sim` a cada ajuste;
    4. o resto da lista.
-4. Portar o escopo por destino (seção 4) antes de qualquer conteúdo de Marte.
 
 ## 6. Pedidos em aberto do Guilherme
 
