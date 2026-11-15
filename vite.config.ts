@@ -103,12 +103,13 @@ export default defineConfig({
           {
             // Base 3D: modelos .glb (meshopt) e texturas. CacheFirst: depois da
             // primeira visita a cena abre sem rede. v1 = arquivos otimizados
-            // v3: modelos e texturas voltaram aos originais (qualidade); trocar o
-            // nome se os arquivos mudarem de novo.
+            // v3: modelos e texturas voltaram aos originais (qualidade).
+            // v4: texturas pequenas na tela reduzidas (ceu e modelos intactos);
+            // trocar o nome se os arquivos mudarem de novo.
             urlPattern: /\/(models\/.+\.glb|textures\/.+\.(jpe?g|webp|png))$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'base-3d-v3',
+              cacheName: 'base-3d-v4',
               expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 30 },
               cacheableResponse: { statuses: [0, 200] },
             },

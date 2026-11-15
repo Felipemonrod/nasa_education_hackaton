@@ -82,18 +82,33 @@ I/O v4.5.47" in each file).
 | `public/models/solar.glb` | Solar panel model | Made in Blender. `TODO(team)`: author / source | `TODO(team)` | `TODO(team)` |
 | `public/textures/DoorTexture.jpg` | Door texture | File carries a **Google C2PA manifest** with `digitalSourceType` = `trainedAlgorithmicMedia` and a SynthID mark | Google generative AI terms (`TODO(team)`: tool name) | **Yes** (proven by metadata). A small ✦ icon in the corner of every 3D scene shows "Some textures made with AI" when tapped (`src/app/components/AiTexturesBadge.tsx`) |
 | `public/textures/solarPanel.jpg` | Solar panel texture | Same Google C2PA manifest (`trainedAlgorithmicMedia`, SynthID) | Same | **Yes** (proven by metadata). Same icon |
-| `public/textures/world.topo.200401.3x5400x2700.jpg` | Earth texture | File name matches NASA's **Blue Marble Next Generation** (January 2004, with topography), NASA Earth Observatory / Visible Earth. `TODO(team)`: confirm download page | NASA, public domain | No |
+| `public/textures/world.topo.200401.3x5400x2700.jpg` | Earth texture (resized to 2048×1024; the file name keeps NASA's original name) | File name matches NASA's **Blue Marble Next Generation** (January 2004, with topography), NASA Earth Observatory / Visible Earth. `TODO(team)`: confirm download page | NASA, public domain | No |
 | `public/textures/2k_moon.jpg` | Moon surface texture | Name and size (2048×1024) match the **Solar System Scope** texture set, which is based on NASA data. `TODO(team)`: confirm | Solar System Scope textures are CC BY 4.0 (credit required) | No |
 | `public/textures/stars_milky_way_4k.jpg` | Star field / Milky Way sky | Probably Solar System Scope ("stars_milky_way") or ESO's Milky Way panorama (eso0932a, ESO/S. Brunier). `TODO(team)`: confirm which | Both are CC BY 4.0 (credit required) | No |
-| `public/textures/white_metal.jpg` | Metal texture (1000×1000) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
-| `public/textures/black-road-texture.jpg` | Rover tire texture (original 5616×3744, 13.6 MB; now 2048 px, 1.1 MB) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
+| `public/textures/white_metal.jpg` | Metal texture (original 1000×1000; now 512×512) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
+| `public/textures/black-road-texture.jpg` | Rover tire texture (original 5616×3744, 13.6 MB; now 1024 px, 0.4 MB) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
 
-**Size and quality (15/11/2026).** All models and textures are the **original files**, kept for visual
-quality (a compressed/resized version was tried and looked worse). The only exception is the rover tire
-texture `black-road-texture.jpg`: the original was 5616×3744 (13.6 MB) for a small tiled tire, so it was
-re-encoded at 2048 px, quality 90 (1.1 MB). The two AI textures keep their original Google C2PA manifest.
-Loading cost is handled instead by a full-screen loading screen, preloading during the opening cutscene,
-and the service worker cache after the first visit (about 12 MB in total for the 3D scene).
+**Size and quality (15/11/2026).** The 3D **models** (`.glb`) and the two **sky** images
+(`stars_milky_way_*`) are the **original files**, untouched: a compressed version of the models was tried
+earlier and looked worse, and the sky must stay sharp. The other textures were resized to what they cover
+on screen and re-encoded as JPEG quality 90 without chroma subsampling (4:4:4), checked side by side in
+"Explore the base" at the closest zoom (no visible difference):
+
+| Texture | Before | After |
+|---|---|---|
+| `DoorTexture.jpg` (small disc on the airlock) | 2048×2048, 2.8 MB | 1024×1024, 0.3 MB |
+| `solarPanel.jpg` (4 small panels) | 1696×2528, 3.0 MB | 687×1024, 0.24 MB |
+| `black-road-texture.jpg` (rover tires) | 2048×1365, 1.1 MB | 1024×682, 0.4 MB |
+| `white_metal.jpg` (rover body) | 1000×1000, 0.36 MB | 512×512, 0.08 MB |
+| `world.topo…jpg` (Earth, a small distant disc) | 5400×2700, 1.9 MB | 2048×1024, 0.35 MB |
+| `2k_moon.jpg` (ground, seen up close) | 2048×1024, 1.0 MB | same size, 0.8 MB |
+
+Total for these textures: about 10.1 MB down to 2.2 MB. The original metadata blocks were copied into the
+new files (EXIF/XMP/Photoshop, and the **Google C2PA manifest** of the two AI textures), so the AI
+declaration is still readable in the files. Because the images were resized after Google signed them, a
+C2PA validator will report the manifest as present but the content as modified, which is accurate. The
+in-game ✦ badge is unchanged. Loading is also covered by preloading during the opening cutscene and the
+in-memory scene cache (the 3D scene is not reloaded when going back to the menu).
 
 ## 2. Audio
 
