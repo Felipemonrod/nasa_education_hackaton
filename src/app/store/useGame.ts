@@ -59,12 +59,15 @@ interface GameStore {
   run: RunState | null;
   outcome: OutcomeView | null;
   draft: Draft;
+  destinationStep: 1 | 2 | 3;
   savedRunExists: boolean;
   tutorialStep: number;
+  planningTutorialStep: number;
   rewardsGranted: { unlocked: string[]; badges: string[] } | null;
 
   go(screen: Screen): void;
   newMission(): void;
+  setDestinationStep(step: 1 | 2 | 3): void;
   setSite(siteId: string): void;
   setObjective(objective: MissionObjective): void;
   setTutorial(enabled: boolean): void;
@@ -81,6 +84,11 @@ interface GameStore {
   goToTutorialStep(step: number): void;
   startTutorial(): void;
   skipTutorial(): void;
+  advancePlanningTutorial(): void;
+  prevPlanningTutorial(): void;
+  goToPlanningTutorialStep(step: number): void;
+  startPlanningTutorial(): void;
+  skipPlanningTutorial(): void;
   saveRun(): boolean;
   resumeRun(): boolean;
   abandonRun(): void;
@@ -128,14 +136,24 @@ function finishRun(run: RunState, set: (partial: Partial<GameStore>) => void): v
   set({ screen: 'result', savedRunExists: false, rewardsGranted: rewards });
 }
 
+function planningScreenPatch(step: number): Partial<Pick<GameStore, 'screen' | 'destinationStep' | 'planningTutorialStep'>> {
+  if (step <= 0) return { planningTutorialStep: 0 };
+  if (step === 1) return { screen: 'destination', destinationStep: 1, planningTutorialStep: 1 };
+  if (step === 2) return { screen: 'destination', destinationStep: 2, planningTutorialStep: 2 };
+  if (step === 3) return { screen: 'destination', destinationStep: 3, planningTutorialStep: 3 };
+  return { screen: 'loadout', planningTutorialStep: step };
+}
+
 export const useGame = create<GameStore>()((set, get) => ({
   screen: 'cutscene',
   prevScreen: 'menu',
   run: null,
   outcome: null,
   draft: { ...FRESH_DRAFT, rerollsLeft: { ...FRESH_DRAFT.rerollsLeft } },
+  destinationStep: 1,
   savedRunExists: hasLoadableRun(),
   tutorialStep: 0,
+  planningTutorialStep: 0,
   rewardsGranted: null,
 
   go(screen) {
@@ -149,18 +167,23 @@ export const useGame = create<GameStore>()((set, get) => ({
     // As telas de destino/loadout dao tempo para a DONKI responder.
     prefetchLiveWeather();
     const showTutorial = !useAccount.getState().tutorialSeen;
+    const showPlanningTutorial = !useAccount.getState().planningTutorialSeen;
     set({
       draft: {
         ...FRESH_DRAFT,
         tutorial: showTutorial,
         rerollsLeft: { ...FRESH_DRAFT.rerollsLeft },
       },
+      destinationStep: 1,
+      planningTutorialStep: showPlanningTutorial ? 1 : 0,
       run: null,
       outcome: null,
       rewardsGranted: null,
       screen: 'destination',
     });
   },
+
+  setDestinationStep(destinationStep) { set({ destinationStep }); },
 
   setSite(siteId) { set((s) => ({ draft: { ...s.draft, siteId } })); },
   setObjective(objective) { set((s) => ({ draft: { ...s.draft, objective } })); },
@@ -224,8 +247,11 @@ export const useGame = create<GameStore>()((set, get) => ({
     // Grava JA: antes, a run so ia para o storage em enterGame(), e fechar a
     // aba durante a viagem/loading perdia o loadout montado. O save anterior
     // (se houver) so e substituido aqui, quando a nova missao de fato existe.
+    if (get().planningTutorialStep > 0) {
+      useAccount.getState().markPlanningTutorialSeen();
+    }
     const saved = writeRaw(RUN_KEY, serializeRun(run));
-    set({ run, screen: 'loading', savedRunExists: saved || get().savedRunExists });
+    set({ run, screen: 'loading', planningTutorialStep: 0, savedRunExists: saved || get().savedRunExists });
   },
 
   enterGame() {
@@ -298,6 +324,28 @@ export const useGame = create<GameStore>()((set, get) => ({
   skipTutorial() {
     useAccount.getState().markTutorialSeen();
     set({ tutorialStep: 0 });
+  },
+
+  advancePlanningTutorial() {
+    set((s) => planningScreenPatch(s.planningTutorialStep + 1));
+  },
+  prevPlanningTutorial() {
+    set((s) => planningScreenPatch(Math.max(1, s.planningTutorialStep - 1)));
+  },
+  goToPlanningTutorialStep(step) {
+    set(planningScreenPatch(step));
+  },
+  startPlanningTutorial() {
+    prefetchLiveWeather();
+    set({
+      screen: 'destination',
+      destinationStep: 1,
+      planningTutorialStep: 1,
+    });
+  },
+  skipPlanningTutorial() {
+    useAccount.getState().markPlanningTutorialSeen();
+    set({ planningTutorialStep: 0 });
   },
 
   saveRun() {

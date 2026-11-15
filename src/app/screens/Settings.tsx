@@ -1,5 +1,5 @@
 import {
-  ArrowLeft, Eye, Gamepad2, Lock, Minus, Plus, Trash2, Volume1, Volume2, VolumeX,
+  ArrowLeft, CircleHelp, Eye, Gamepad2, Lock, Minus, Plus, Trash2, Volume1, Volume2, VolumeX,
 } from 'lucide-react';
 import { useState } from 'react';
 import { LOCALES, LOCALE_LABEL } from '../../i18n/core.js';
@@ -185,7 +185,7 @@ function GameMeter({
 
 export function Settings(): JSX.Element {
   const t = useT();
-  const { go, prevScreen } = useGame();
+  const { go, prevScreen, startPlanningTutorial } = useGame();
   const locale = useI18n((s) => s.locale);
   const setLocale = useI18n((s) => s.setLocale);
   const settings = useAccount((s) => s.settings);
@@ -335,6 +335,16 @@ export function Settings(): JSX.Element {
                 })}
                 onChange={(v) => { setHudTheme(v); }}
               />
+            </SettingRow>
+
+            <SettingRow label={t('settings.planningTutorial')} hint={t('settings.planningTutorialHint')}>
+              <button
+                type="button"
+                className={`${ACTION_BTN} min-h-[40px] rounded-xl bg-sky-400/15 px-4 py-2 text-[0.8rem] text-sky-300 hover:bg-sky-400/25`}
+                onClick={startPlanningTutorial}
+              >
+                <CircleHelp size={15} aria-hidden /> {t('settings.planningTutorialButton')}
+              </button>
             </SettingRow>
 
             <SettingRow label={t('settings.reset')} hint={t('settings.resetHint')}>

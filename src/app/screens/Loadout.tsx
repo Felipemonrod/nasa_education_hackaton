@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Check, Lock, Maximize2, Plus, RefreshCw, X } fro
 import { COMMANDERS, findLoadout } from '../data/loadout.js';
 import type { LoadoutCard } from '../data/loadout.js';
 import { NasaCardPhoto, getLoadoutFrameMeta } from '../components/CardArtwork.js';
+import { PLANNING_TUTORIAL_STEP_COUNT, PlanningTutorialOverlay } from '../components/TutorialOverlay.js';
 import { iconFor } from '../components/icons.js';
 import { useContent } from '../i18n/useContent.js';
 import { useT } from '../i18n/useI18n.js';
@@ -252,6 +253,7 @@ function RolledCard({
   mobileVisible,
   onInspect,
   inspectAria,
+  tutorialId,
 }: {
   card: LoadoutCard | undefined;
   label: string;
@@ -262,9 +264,13 @@ function RolledCard({
   mobileVisible: boolean;
   onInspect: () => void;
   inspectAria: string;
+  tutorialId?: string;
 }): JSX.Element {
   return (
-    <div className={`${mobileVisible ? 'flex' : 'hidden sm:flex'} h-full min-h-0 flex-col items-center justify-center lg:justify-start`}>
+    <div
+      data-tutorial={tutorialId}
+      className={`${mobileVisible ? 'flex' : 'hidden sm:flex'} h-full min-h-0 flex-col items-center justify-center lg:justify-start`}
+    >
       <div className="mb-2 flex min-h-[22px] w-full max-w-[min(74vw,calc(52dvh*0.716))] shrink-0 items-center justify-center sm:mb-1.5 sm:max-w-[min(18.5rem,calc(58dvh*0.716))] [@media(max-height:560px)]:mb-1 [@media(max-height:560px)]:min-h-[18px] lg:mb-3 lg:min-h-[28px] lg:max-w-[20.5rem]">
         <p className="font-display text-sm font-extrabold uppercase tracking-widest text-sky-300 [@media(max-height:560px)]:text-xs sm:text-base lg:text-xl">
           {label}
@@ -312,7 +318,11 @@ function RolledCard({
 type MobileSlot = 'commander' | 'structure' | 'equipment';
 
 export function Loadout(): JSX.Element {
-  const { go, draft, pickCommander, rollExtras, reroll, confirmLoadout } = useGame();
+  const {
+    go, draft, pickCommander, rollExtras, reroll, confirmLoadout,
+    planningTutorialStep, advancePlanningTutorial, prevPlanningTutorial,
+    goToPlanningTutorialStep, skipPlanningTutorial,
+  } = useGame();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [mobileSlot, setMobileSlot] = useState<MobileSlot>('commander');
   const [inspectedCard, setInspectedCard] = useState<LoadoutCard | null>(null);
@@ -322,6 +332,11 @@ export function Loadout(): JSX.Element {
   useEffect(() => {
     if (draft.structureId === null || draft.equipmentId === null) rollExtras();
   }, [draft.structureId, draft.equipmentId, rollExtras]);
+
+  useEffect(() => {
+    if (planningTutorialStep === 4) setMobileSlot('commander');
+    else if (planningTutorialStep === 5) setMobileSlot('structure');
+  }, [planningTutorialStep]);
 
   useEffect(() => {
     if (inspectedCard === null) return;
@@ -350,7 +365,10 @@ export function Loadout(): JSX.Element {
         <div className="flex min-w-0 items-center gap-2.5 sm:gap-3.5">
           <button
             type="button"
-            onClick={() => { go('destination'); }}
+            onClick={() => {
+              if (planningTutorialStep >= 4) goToPlanningTutorialStep(3);
+              else go('destination');
+            }}
             className="btn-ghost shrink-0 px-3 py-1.5 text-xs sm:px-3.5 sm:py-2 sm:text-sm"
           >
             <ArrowLeft size={16} aria-hidden /> {t('common.back')}
@@ -367,6 +385,7 @@ export function Loadout(): JSX.Element {
 
         <button
           type="button"
+          data-tutorial="plan-launch"
           className="btn-primary w-full justify-center py-2 text-xs sm:w-auto sm:px-5 sm:py-2.5 sm:text-sm [@media(max-height:560px)]:px-4 [@media(max-height:560px)]:py-1.5 lg:px-6 lg:py-3 lg:text-base"
           disabled={!ready}
           onClick={confirmLoadout}
@@ -402,7 +421,10 @@ export function Loadout(): JSX.Element {
 
       {/* Mesa horizontal de 3 cards: Comandante | Estrutura | Equipamento */}
       <div className="my-auto grid min-h-0 flex-1 grid-cols-1 items-center gap-4 py-2 sm:grid-cols-3 sm:gap-4 sm:py-2 [@media(max-height:560px)]:py-1 lg:flex-initial lg:items-start lg:gap-8 lg:py-4">
-        <div className={`${mobileSlot === 'commander' ? 'flex' : 'hidden sm:flex'} h-full min-h-0 flex-col items-center justify-center lg:justify-start`}>
+        <div
+          data-tutorial="plan-commander"
+          className={`${mobileSlot === 'commander' ? 'flex' : 'hidden sm:flex'} h-full min-h-0 flex-col items-center justify-center lg:justify-start`}
+        >
           <div className="mb-2 flex min-h-[22px] w-full max-w-[min(74vw,calc(52dvh*0.716))] shrink-0 items-center justify-center sm:mb-1.5 sm:max-w-[min(18.5rem,calc(58dvh*0.716))] [@media(max-height:560px)]:mb-1 [@media(max-height:560px)]:min-h-[18px] lg:mb-3 lg:min-h-[28px] lg:max-w-[20.5rem]">
             <p className="font-display text-sm font-extrabold uppercase tracking-widest text-sky-300 [@media(max-height:560px)]:text-xs sm:text-base lg:text-xl">
               {t('loadout.commander')}
@@ -462,34 +484,45 @@ export function Loadout(): JSX.Element {
           <div className="mt-3 hidden h-10 lg:block" aria-hidden />
         </div>
 
-        <RolledCard
-          card={structure}
-          label={t('loadout.structure')}
-          rerollAria={t('loadout.rerollStructureAria')}
-          rerollsLeft={draft.rerollsLeft.structure}
-          onReroll={() => { reroll('structure'); }}
-          delay={60}
-          mobileVisible={mobileSlot === 'structure'}
-          onInspect={() => { if (structure !== undefined) setInspectedCard(structure); }}
-          inspectAria={t('loadout.inspectCard')}
-        />
+        <div
+          data-tutorial="plan-extras"
+          className={`${mobileSlot === 'commander' ? 'hidden sm:grid' : 'flex h-full min-h-0 flex-col sm:grid'} sm:col-span-2 sm:grid-cols-2 sm:gap-4 lg:gap-8`}
+        >
+          <RolledCard
+            card={structure}
+            label={t('loadout.structure')}
+            rerollAria={t('loadout.rerollStructureAria')}
+            rerollsLeft={draft.rerollsLeft.structure}
+            onReroll={() => { reroll('structure'); }}
+            delay={60}
+            mobileVisible={mobileSlot === 'structure'}
+            onInspect={() => { if (structure !== undefined) setInspectedCard(structure); }}
+            inspectAria={t('loadout.inspectCard')}
+          />
 
-        <RolledCard
-          card={equipment}
-          label={t('loadout.equipment')}
-          rerollAria={t('loadout.rerollEquipmentAria')}
-          rerollsLeft={draft.rerollsLeft.equipment}
-          onReroll={() => { reroll('equipment'); }}
-          delay={160}
-          mobileVisible={mobileSlot === 'equipment'}
-          onInspect={() => { if (equipment !== undefined) setInspectedCard(equipment); }}
-          inspectAria={t('loadout.inspectCard')}
-        />
+          <RolledCard
+            card={equipment}
+            label={t('loadout.equipment')}
+            rerollAria={t('loadout.rerollEquipmentAria')}
+            rerollsLeft={draft.rerollsLeft.equipment}
+            onReroll={() => { reroll('equipment'); }}
+            delay={160}
+            mobileVisible={mobileSlot === 'equipment'}
+            onInspect={() => { if (equipment !== undefined) setInspectedCard(equipment); }}
+            inspectAria={t('loadout.inspectCard')}
+          />
+        </div>
       </div>
 
       <CommanderPicker
         open={pickerOpen}
-        onPick={(id) => { pickCommander(id); setPickerOpen(false); }}
+        onPick={(id) => {
+          pickCommander(id);
+          setPickerOpen(false);
+          if (planningTutorialStep === 4) {
+            goToPlanningTutorialStep(5);
+          }
+        }}
         onClose={() => { setPickerOpen(false); }}
       />
 
@@ -517,6 +550,19 @@ export function Loadout(): JSX.Element {
           </div>
         </div>
       ) : null}
+
+      <PlanningTutorialOverlay
+        step={planningTutorialStep}
+        paused={pickerOpen || inspectedCard !== null}
+        nextDisabled={planningTutorialStep === 4 && draft.commanderId === null}
+        onNext={() => {
+          if (planningTutorialStep >= PLANNING_TUTORIAL_STEP_COUNT) skipPlanningTutorial();
+          else advancePlanningTutorial();
+        }}
+        onPrev={prevPlanningTutorial}
+        onStep={goToPlanningTutorialStep}
+        onSkip={skipPlanningTutorial}
+      />
     </div>
   );
 }

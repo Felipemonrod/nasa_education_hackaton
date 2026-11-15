@@ -16,6 +16,7 @@ export interface AccountState {
   version: number;
   cutsceneSeen: boolean;
   tutorialSeen: boolean;
+  planningTutorialSeen: boolean;
   /** Cards que o jogador ja viu em partida (entram no baralho). */
   knownCards: string[];
   /** Desfechos experimentados, no formato "cardId:optionId". */
@@ -48,6 +49,7 @@ const EMPTY: AccountState = {
   version: ACCOUNT_VERSION,
   cutsceneSeen: false,
   tutorialSeen: false,
+  planningTutorialSeen: false,
   knownCards: [],
   knownOutcomes: [],
   unlocks: [],
@@ -119,6 +121,7 @@ export function parseAccount(raw: string | null): AccountState {
       version: ACCOUNT_VERSION,
       cutsceneSeen: false,
       tutorialSeen: typeof data['tutorialSeen'] === 'boolean' ? data['tutorialSeen'] : EMPTY.tutorialSeen,
+      planningTutorialSeen: typeof data['planningTutorialSeen'] === 'boolean' ? data['planningTutorialSeen'] : EMPTY.planningTutorialSeen,
       knownCards: stringList(data['knownCards']),
       knownOutcomes: stringList(data['knownOutcomes']),
       unlocks: stringList(data['unlocks']),
@@ -141,6 +144,7 @@ function load(): AccountState {
 interface AccountActions {
   markCutsceneSeen(): void;
   markTutorialSeen(): void;
+  markPlanningTutorialSeen(): void;
   seeCard(cardId: string): void;
   experienceOutcome(cardId: string, optionId: string): void;
   recordRunEnd(input: {
@@ -166,6 +170,15 @@ export const useAccount = create<AccountState & AccountActions>()((set, get) => 
     if (get().tutorialSeen) return;
     set((s) => {
       const next = { ...s, tutorialSeen: true };
+      persist(next);
+      return next;
+    });
+  },
+
+  markPlanningTutorialSeen() {
+    if (get().planningTutorialSeen) return;
+    set((s) => {
+      const next = { ...s, planningTutorialSeen: true };
       persist(next);
       return next;
     });
