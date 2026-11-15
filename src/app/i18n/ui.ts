@@ -501,6 +501,8 @@ export const UI_EN: Dict = {
 
   // ----- credito visivel nas fotos reais das cartas -----
   'cardArt.aiFictional': 'AI-generated image · fictional character',
+  'rotate.title': 'Turn your phone upright',
+  'rotate.body': 'On phones, HEAD X is played in portrait mode.',
   'cardArt.imageCredit': 'Image: {credit}',
 
   // ----- cena da base -----
@@ -990,6 +992,8 @@ export const UI_PT: Dict = {
 
   // ----- credito visivel nas fotos reais das cartas -----
   'cardArt.aiFictional': 'Imagem gerada por IA · personagem fictício',
+  'rotate.title': 'Gire o celular',
+  'rotate.body': 'No celular, o HEAD X é jogado na vertical.',
   'cardArt.imageCredit': 'Imagem: {credit}',
 
   // ----- cena da base -----

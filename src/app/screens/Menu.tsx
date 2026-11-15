@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useEscapeKey } from '../a11y/useEscapeKey.js';
 import { BookOpen, Info, Orbit, Play, RotateCcw, Settings2, Shuffle, Trophy, Rocket, Award } from 'lucide-react';
 import { useT } from '../i18n/useI18n.js';
 import { useAccount } from '../store/useAccount.js';
@@ -28,6 +29,9 @@ export function Menu(): JSX.Element {
   const [sceneStatus, setSceneStatus] = useState<SceneStatus>(() => (isSceneWarm() ? 'ready' : 'loading'));
   const loader = useFadeOut(sceneStatus === 'loading');
   const stayRef = useRef<HTMLButtonElement>(null);
+
+  // Esc cancela a confirmacao de "nova missao" (mesmo que "Manter").
+  useEscapeKey(() => { setConfirmNew(false); }, confirmNew !== false);
 
   // O botao tocado some ao abrir a confirmacao: o foco vai para "Manter".
   useEffect(() => {

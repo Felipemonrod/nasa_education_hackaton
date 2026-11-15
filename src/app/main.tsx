@@ -6,6 +6,12 @@ import { ErrorBoundary } from './components/ErrorBoundary.js';
 import { requestPersistentStorage } from './store/persistence.js';
 import './index.css';
 
+// Safari no iOS ignora user-scalable=no: bloqueia o gesto de pinca da pagina.
+// (Os eventos gesture* sao so do WebKit; nos outros navegadores nao disparam.)
+for (const type of ['gesturestart', 'gesturechange'] as const) {
+  document.addEventListener(type, (e) => { e.preventDefault(); }, { passive: false });
+}
+
 // O save mora no localStorage; pedir persistencia evita despejo pelo navegador.
 void requestPersistentStorage();
 

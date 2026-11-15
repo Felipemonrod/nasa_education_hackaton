@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useEscapeKey } from '../a11y/useEscapeKey.js';
 import {
   ArrowDown, ArrowLeft, ArrowUp, ChevronLeft, ChevronRight, Clock3, HelpCircle,
   Link2, Lock, Repeat, Rocket, Search, Sparkles, X,
@@ -341,6 +342,7 @@ export function Deck(): JSX.Element {
   const [page, setPage] = useState(1);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+  useEscapeKey(() => { setUnlockModalOpen(false); }, unlockModalOpen);
 
   const visible = useMemo(() => CARDS.filter((card) => {
     if (card.isFallback === true) return false;

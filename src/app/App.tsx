@@ -3,6 +3,7 @@ import { useApplyA11y } from './a11y/useA11y.js';
 import { useSpeech } from './a11y/speech.js';
 import { syncMusic } from './audio/music.js';
 import { Cutscene } from './screens/Cutscene.js';
+import { RotateDeviceNotice } from './components/RotateDeviceNotice.js';
 import { Credits } from './screens/Credits.js';
 import { BaseExplorer } from './components/BaseExplorer.js';
 import { Deck } from './screens/Deck.js';
@@ -72,6 +73,9 @@ export function App(): JSX.Element {
         : screen === 'credits' ? <Credits />
         : screen === 'base' ? <BaseExplorer />
         : <Menu />}
+
+      {/* Celular deitado: pede para girar (o jogo no celular e so na vertical). */}
+      <RotateDeviceNotice />
     </>
   );
 }
