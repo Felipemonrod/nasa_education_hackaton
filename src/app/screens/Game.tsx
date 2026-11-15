@@ -10,12 +10,32 @@ import { OutcomePanel } from '../components/OutcomePanel.js';
 import { ResourceHUD } from '../components/ResourceHUD.js';
 import { SpaceWindow } from '../components/SpaceWindow.js';
 import { TUTORIAL_STEP_COUNT, TutorialOverlay } from '../components/TutorialOverlay.js';
-import { useSpeech } from '../a11y/speech.js';
+import { joinSpoken, useSpeech } from '../a11y/speech.js';
 import { useAnnounce } from '../a11y/useA11y.js';
 import { useContent } from '../i18n/useContent.js';
 import { useI18n, useT } from '../i18n/useI18n.js';
 import { useAccount } from '../store/useAccount.js';
 import { useGame } from '../store/useGame.js';
+
+/** Breakpoint `lg` do Tailwind (padrao): a partir dele a mesa de decisoes fica sempre visivel. */
+const DESKTOP_MIN_WIDTH = 1024;
+/** Breakpoint `sm`: abaixo dele o par de cartas aparece uma por vez, em abas. */
+const PAIR_SIDE_BY_SIDE_MIN_WIDTH = 640;
+
+/** true enquanto a janela tiver pelo menos `px` de largura; acompanha rotacao e redimensionamento. */
+function useMinWidth(px: number): boolean {
+  const query = `(min-width: ${px}px)`;
+  const [matches, setMatches] = useState(() => typeof window !== 'undefined' && window.matchMedia?.(query).matches === true);
+  useEffect(() => {
+    const media = window.matchMedia?.(query);
+    if (media === undefined) return;
+    const onChange = (): void => { setMatches(media.matches); };
+    onChange();
+    media.addEventListener('change', onChange);
+    return () => { media.removeEventListener('change', onChange); };
+  }, [query]);
+  return matches;
+}
 
 const SLOT_CLOCK: readonly string[] = ['08:00', '13:00', '20:00', '01:00'];
 
@@ -61,9 +81,6 @@ export function Game(): JSX.Element {
     : run.current.shape === 'single'
       ? run.current.cardId
       : `${run.current.basicCardId}+${run.current.extraCardId}`;
-  const slotText = run === null ? '' : currentSlot()?.cards
-    .map((entry) => `${content.cardTitle(entry.card)}. ${content.cardText(entry.card)}`)
-    .join(' ') ?? '';
 
   const tutorialActive = tutorialStep > 0 && tutorialStep <= TUTORIAL_STEP_COUNT;
 
@@ -129,10 +146,53 @@ export function Game(): JSX.Element {
     return () => { window.removeEventListener('keydown', onKey); };
   }, [decisionsModalOpen]);
 
+  // Abaixo de `lg` as cartas ficam escondidas atras do botao "Novas
+  // decisoes"; so no desktop elas ja estao na mesa. Narrar antes de a
+  // crianca VER a carta deixava o audio solto, sem nada na tela.
+  const isDesktopLayout = useMinWidth(DESKTOP_MIN_WIDTH);
+  // No celular em pe (< `sm`) o par de cartas vira duas ABAS: so uma carta
+  // aparece por vez. A voz le apenas a carta que esta na tela.
+  const isWideEnoughForPair = useMinWidth(PAIR_SIDE_BY_SIDE_MIN_WIDTH);
+  const cardsOnScreen = isDesktopLayout || decisionsModalOpen;
+
+  const slotCards = run === null ? [] : currentSlot()?.cards ?? [];
+  const visibleCards = slotCards.length > 1 && !isWideEnoughForPair
+    ? slotCards.filter((_, index) => index === mobileCardIndex)
+    : slotCards;
+  const visibleText = joinSpoken(
+    visibleCards.flatMap((entry) => [content.cardTitle(entry.card), content.cardText(entry.card)]),
+  );
+  // Chave do que esta VISIVEL neste turno: trocar de aba narra a outra
+  // carta, mas fechar e reabrir o modal nao repete o mesmo audio. Ciclo e
+  // turno entram na chave porque a MESMA carta volta em outros turnos
+  // (temporal em andamento, rotina) e precisa ser narrada de novo.
+  const visibleKey = slotKey === null || run === null
+    ? null
+    : `${run.day}:${run.slot}:${slotKey}|${visibleCards.map((e) => e.card.id).join('+')}`;
+  const narratedRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
-    if (!autoRead || tutorialActive || slotKey === null || outcome !== null || !cardReady || slotText.length === 0) return;
-    speak(slotText, { locale, rate: speechRate, volume: speechVolume });
-  }, [autoRead, tutorialActive, slotKey, outcome, cardReady, slotText, speak, locale, speechRate, speechVolume]);
+    if (!autoRead || tutorialActive || visibleKey === null || outcome !== null || !cardReady || visibleText.length === 0) return;
+    if (!cardsOnScreen || narratedRef.current.has(visibleKey)) return;
+    narratedRef.current.add(visibleKey);
+    speak(visibleText, { locale, rate: speechRate, volume: speechVolume });
+  }, [autoRead, tutorialActive, visibleKey, outcome, cardReady, visibleText, cardsOnScreen, speak, locale, speechRate, speechVolume]);
+
+  // Desfecho: narrado quando o PAINEL aparece (ha 1,8 s de animacao antes),
+  // com o mesmo texto traduzido que ele mostra. A explicacao so entra na
+  // fala se o painel ja abre com ela visivel.
+  useEffect(() => {
+    if (!autoRead || outcome === null || !outcomeVisible) return;
+    speak(
+      joinSpoken([
+        content.outcomeLine(outcome.card, outcome.option),
+        showWhyByDefault ? content.outcomeWhy(outcome.card, outcome.option) : null,
+        showWhyByDefault ? content.outcomeMistake(outcome.card, outcome.option) : null,
+      ]),
+      { locale, rate: speechRate, volume: speechVolume },
+    );
+    // `content` muda junto com `locale`, que ja esta na lista.
+  }, [autoRead, outcome, outcomeVisible, showWhyByDefault, speak, locale, speechRate, speechVolume]);
 
   useEffect(() => {
     if (run === null) return;

@@ -131,3 +131,12 @@ describe('DONKI ao vivo (conversao pura)', () => {
     expect(w).toMatchObject({ flareClass: 'none', classType: null, date: '2019-07-01/2019-07-07' });
   });
 });
+
+describe('endpoint da DONKI', () => {
+  it('usa o endpoint direto da CCMC, sem chave (o gateway api.nasa.gov/DONKI/FLR responde 404)', async () => {
+    const { donkiFlrUrl } = await import('../src/app/services/donki.js');
+    const url = donkiFlrUrl('2026-11-09', '2026-11-15');
+    expect(url).toBe('https://ccmc.gsfc.nasa.gov/DONKI-API/get/FLR?startDate=2026-11-09&endDate=2026-11-15');
+    expect(url).not.toContain('api_key');
+  });
+});

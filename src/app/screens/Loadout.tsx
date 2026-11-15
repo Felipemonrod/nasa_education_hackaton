@@ -272,7 +272,10 @@ function RolledCard({
       </div>
       <div
         key={card?.id ?? 'empty'}
-        className="flex min-h-0 w-full flex-1 items-center justify-center animate-deal"
+        // Altura natural da carta (como a coluna do comandante): com `flex-1`
+        // no mobile o miolo esticava e empurrava titulo e botoes para as
+        // pontas da tela. So no desktop (lg) a coluna ocupa a altura toda.
+        className="flex w-full shrink-0 items-center justify-center animate-deal lg:min-h-0 lg:flex-1"
         style={{ animationDelay: `${delay}ms` }}
       >
         {card !== undefined ? <CardFace card={card} /> : null}

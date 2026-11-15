@@ -20,14 +20,9 @@ export function App(): JSX.Element {
   const screen = useGame((s) => s.screen);
   const go = useGame((s) => s.go);
   const enterGame = useGame((s) => s.enterGame);
-  const outcome = useGame((s) => s.outcome);
   const markCutsceneSeen = useAccount((s) => s.markCutsceneSeen);
-  const autoRead = useAccount((s) => s.settings.autoRead);
-  const speechRate = useAccount((s) => s.settings.speechRate);
-  const speechVolume = useAccount((s) => s.settings.speechVolume);
   const locale = useI18n((s) => s.locale);
   const syncFromBrowser = useI18n((s) => s.syncFromBrowser);
-  const speak = useSpeech((s) => s.speak);
   const stopSpeech = useSpeech((s) => s.stop);
 
   useApplyA11y();
@@ -41,14 +36,8 @@ export function App(): JSX.Element {
     document.documentElement.lang = LOCALE_TAG[locale];
   }, [locale]);
 
-  // Leitura automatica do desfecho, para quem depende do audio.
-  useEffect(() => {
-    if (!autoRead || outcome === null) return;
-    speak(
-      `${outcome.option.outcome.line}. ${outcome.option.outcome.why}`,
-      { locale, rate: speechRate, volume: speechVolume },
-    );
-  }, [autoRead, outcome, speak, locale, speechRate, speechVolume]);
+  // A leitura automatica do desfecho fica em Game.tsx, junto do painel: so
+  // la se sabe QUANDO ele aparece na tela e o texto traduzido que ele mostra.
 
   // Para a fala ao trocar de tela: audio de uma tela nao deve vazar na seguinte.
   useEffect(() => () => { stopSpeech(); }, [screen, stopSpeech]);
