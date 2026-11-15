@@ -107,7 +107,8 @@ export function useBaseSceneGL(
       const w = host.clientWidth || 1;
       const h = host.clientHeight || 1;
       // pixelRatio aqui (nao so na montagem): acompanha troca de monitor/DPR.
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      // Ate 2x: nitido em celular e tela retina (1.5 deixava a base borrada).
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setSize(w, h, false);
       onResize(w, h);
     };

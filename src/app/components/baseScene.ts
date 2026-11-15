@@ -511,8 +511,9 @@ export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): Base
   // isso acontecer, o modelo recem-carregado e liberado na hora.
   let disposed = false;
   const gltfLoader = new GLTFLoader();
-  // Modelos comprimidos com meshopt (gltf-transform): ~1,5 MB -> ~240 KB. O
-  // decodificador vem no pacote three (WASM embutido), sem rede.
+  // Os .glb atuais sao os ORIGINAIS (a versao meshopt+quantizada perdia
+  // qualidade). O decodificador fica registrado para aceitar modelos
+  // comprimidos com meshopt no futuro; vem no pacote three, sem rede.
   gltfLoader.setMeshoptDecoder(MeshoptDecoder);
   // Carrega um glTF, deixa `place` posiciona-lo, registra seus recursos para o
   // dispose() e o adiciona a cena. Em falha, fica so o que ja esta na tela.

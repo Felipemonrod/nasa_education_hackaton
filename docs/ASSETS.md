@@ -87,16 +87,14 @@ I/O v4.5.47" in each file).
 | `public/textures/2k_moon.jpg` | Moon surface texture | Name and size (2048×1024) match the **Solar System Scope** texture set, which is based on NASA data. `TODO(team)`: confirm | Solar System Scope textures are CC BY 4.0 (credit required) | No |
 | `public/textures/stars_milky_way_4k.jpg` | Star field / Milky Way sky | Probably Solar System Scope ("stars_milky_way") or ESO's Milky Way panorama (eso0932a, ESO/S. Brunier). `TODO(team)`: confirm which | Both are CC BY 4.0 (credit required) | No |
 | `public/textures/white_metal.jpg` | Metal texture (1000×1000) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
-| `public/textures/black-road-texture.jpg` | Rover tire texture (original 5616×3744, 13.6 MB; now 512 px) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
+| `public/textures/black-road-texture.jpg` | Rover tire texture (original 5616×3744, 13.6 MB; now 2048 px, 1.1 MB) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
 
-**Optimization (15/11/2026).** Textures were resized to the size they are shown at and re-encoded (mozjpeg,
-progressive): ground 2048 px, Earth 1024 px, door 1024 px, solar panel 768 px, tire and metal 512 px. The
-star-field sky keeps the **original** 8K and 4K files (the GPU picks one), because the re-encoded sky lost
-detail. Models were compressed with
-gltf-transform (`EXT_meshopt_compression` + quantization, node and material names kept): 1.51 MB → 0.24 MB;
-the decoder ships with three.js. Re-encoding drops the C2PA block of the two AI textures, so each now carries
-a JPEG comment stating it is AI-generated; the originals with the C2PA manifest are kept by the team. Scene
-files are cached by the service worker after the first visit.
+**Size and quality (15/11/2026).** All models and textures are the **original files**, kept for visual
+quality (a compressed/resized version was tried and looked worse). The only exception is the rover tire
+texture `black-road-texture.jpg`: the original was 5616×3744 (13.6 MB) for a small tiled tire, so it was
+re-encoded at 2048 px, quality 90 (1.1 MB). The two AI textures keep their original Google C2PA manifest.
+Loading cost is handled instead by a full-screen loading screen, preloading during the opening cutscene,
+and the service worker cache after the first visit (about 12 MB in total for the 3D scene).
 
 ## 2. Audio
 

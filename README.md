@@ -106,9 +106,9 @@ committed) raises the rate limit of the legacy APOD API.
 - **React + TypeScript + Vite + Tailwind**, state in **Zustand**, installable **PWA** (vite-plugin-pwa).
 - The lunar base is a **3D scene in three.js** (Blender models, loaded on demand in a separate chunk), with
   an "Explore the base" screen to orbit and zoom. Devices without WebGL, or with high contrast or reduced
-  motion turned on, get the drawn SVG base instead. While the 3D scene loads (compressed models and textures,
-  cached after the first visit) a "Loading 3D models…" screen is shown; if the 3D scene fails or takes longer
-  than 30 seconds, the SVG base takes its place.
+  motion turned on, get the drawn SVG base instead. The 3D files start downloading during the opening
+  cutscene and are cached after the first visit; until they are ready a full-screen "Loading 3D models…"
+  screen is shown. If the 3D scene fails or takes longer than 30 seconds, the SVG base takes its place.
 - The game rules live in a **pure, deterministic engine** (`src/engine`): no React, no network, no clock,
   no `Math.random()`. The same seed always gives the same mission, so saves can't be "re-rolled" and bugs
   are reproducible. Space weather enters the engine as an input chosen when the mission starts.
