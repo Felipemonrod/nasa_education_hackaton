@@ -82,7 +82,9 @@ CC-BY-4.0 (1: caniuse-lite, browser data from "Can I use" by Alexis Deveria, use
 - **Docker** — optional development container (`Dockerfile`, `docker-compose.yml`).
 - **Google generative AI** (C2PA metadata "Created by Google Generative AI", SynthID): the four commander
   portraits (fictional people) and two 3D textures (door and solar panel).
-- AI-generated media, all marked as described in `docs/ASSETS.md`: background music (tool: `TODO(team)`),
-  commander portraits and the two 3D textures. Whether the HEAD X logo used AI: `TODO(team)`.
+- **Moreka.ai** — AI music generator used for the background music ("Silent Horizon" 1 and 2).
+- AI-generated media, all marked as described in `docs/ASSETS.md`: background music (Moreka.ai),
+  commander portraits and the two 3D textures (Google generative AI), and the HEAD X logo / app icon
+  (made partly with AI).
 - Textures from third parties (NASA Blue Marble; probably Solar System Scope / ESO, CC BY 4.0) are listed
   with their credit in `docs/ASSETS.md` §1.5.

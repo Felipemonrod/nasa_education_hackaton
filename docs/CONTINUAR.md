@@ -65,9 +65,10 @@ janela do espaço com GIBS, uma cutscene com Framer Motion e um teste de traduç
 
 - **Publicar a demo** (Netlify, Vercel ou Cloudflare Pages, na raiz do domínio) e pôr o link no README
   e no formulário.
-- **Responder as perguntas de `ASSETS.md` §5**: ferramenta de IA da música e dos retratos dos
-  comandantes, origem do logo HEAD X, autoria dos modelos 3D e do mascote, plano do Canva, IDs NASA
-  das fotos de destino e da cutscene.
+- **Responder o que falta em `ASSETS.md` §5**: ferramenta de IA dos retratos dos comandantes e do logo,
+  autoria dos modelos 3D (e se usaram IA) e do mascote, plano do Canva, IDs NASA das fotos de destino e
+  da cutscene. Já respondido: música feita no Moreka.ai; logo feito parcialmente com IA; repositório
+  público.
 - **Vídeo ou slides de demonstração** para o formulário.
 - **Testar com crianças** (a meta de dificuldade foi definida com jogadores simulados).
 

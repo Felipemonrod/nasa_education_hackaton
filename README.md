@@ -79,8 +79,9 @@ The NASA Space Apps guide asks teams to declare AI ("SI") use. What we can state
   - two **3D textures** (door and solar panel of the 3D base): their files carry Google C2PA metadata
     marking them as AI-generated; every 3D scene has a small ✦ icon in the corner that shows
     "Some textures made with AI" when tapped, so the note stays visible without covering the scene.
-  - The generation tool for the music: `TODO(team)`. Whether the HEAD X logo (app icon) was made with
-    AI: `TODO(team)`.
+  - The music was generated with **Moreka.ai**.
+  - The **app icon** (HEAD X logo) was made **partly with AI**; declared here, on the Credits screen and
+    in `docs/ASSETS.md`.
 - **Not AI-generated** (per the team): the card frames (designed in Canva), the robot mascot, and the
   NASA photos (structure cards, landing sites, opening cutscene).
 

@@ -41,8 +41,9 @@ the browser in English and Portuguese, reads every card aloud, and works offline
 ## Link to Final Project
 
 - Playable game: `TODO(team)`: public URL after deploy (see "Deploy" in the README).
-- Source code: https://github.com/Felipemonrod/nasa_education_hackaton (branch `feat/auditoria-nasa-p0`;
-  `TODO(team)`: confirm the repository is public and which branch the jury should read).
+- Source code (public repository): https://github.com/Felipemonrod/nasa_education_hackaton
+  (final version on branch `feat/auditoria-nasa-p0`; `TODO(team)`: merge it into `main` or point the
+  jury to this branch).
 
 ## Detailed Project Description
 
@@ -131,10 +132,12 @@ the MIT license.
     SynthID watermark). The game shows "AI-generated image · fictional character";
   - two textures of the 3D base (door and solar panel; Google generative AI, C2PA metadata). Every 3D
     scene has a ✦ icon that shows "Some textures made with AI";
-  - the background music (declared on the Credits screen and in the MP3 metadata). Tool:
-    `TODO(team)`.
+  - the background music, generated with **Moreka.ai** (declared on the Credits screen and in the MP3
+    metadata);
+  - the app icon (HEAD X logo), made partly with AI (declared on the Credits screen and in
+    `docs/ASSETS.md`).
 - **Not AI-generated** (per the team): the card frames (Canva), the robot mascot and all NASA photos.
-  `TODO(team)`: confirm whether the HEAD X logo and the 3D models (Blender) used AI.
+  `TODO(team)`: confirm whether the 3D models (Blender) used AI.
 - Full file-by-file list: `docs/ASSETS.md` in the repository.
 
 ## References
@@ -181,7 +184,8 @@ does:
 ## Checklist final (para a equipe)
 
 - [ ] Demo publicada e link testado em celular e computador
-- [ ] Repositório público e branch certa indicada
+- [x] Repositório público
+- [ ] Branch final (`feat/auditoria-nasa-p0`) levada para a `main`, ou indicada aos jurados
 - [ ] Vídeo de 30 s ou slides prontos
 - [ ] Itens `TODO(team)` deste arquivo, do README e de `docs/ASSETS.md` §5 respondidos
 - [ ] Nomes e limites dos campos conferidos no formulário do site

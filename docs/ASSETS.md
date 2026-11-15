@@ -49,7 +49,7 @@ metadata; for the others we list what the image itself shows and leave the exact
 | File | What it is | AI? | Watermark | Used in |
 |---|---|---|---|---|
 | `public/cards/commanders/cmd_engineer.jpg`, `cmd_medic.jpg`, `cmd_geologist.jpg`, `cmd_botanist.jpg` | Commander portraits: **fictional people**, one scene per specialty (station electronics, flight medicine, field geology, space greenhouse) | **Yes**. Each file carries a **Google C2PA manifest** ("Created by Google Generative AI", `digitalSourceType` = `trainedAlgorithmicMedia`) and a SynthID watermark; files are kept byte-for-byte as generated, so the manifest still validates. The manifest also records an input image being opened, and the scenes match the NASA photos used before (`iss065e241981`, `iss074e0316047`, `jsc2019e054994`, `iss059e035668`); `TODO(team)`: confirm they were the reference and the tool name | SynthID (invisible) + visible text: an ⓘ icon on the card shows "AI-generated image · fictional character", and the commander list shows the same line | Commander cards and commander list (`CardArtwork.tsx`, `Loadout.tsx`) |
-| `public/logo.ico`, `public/icon-192.png`, `public/icon-512.png`, `public/icon-maskable.png` | App icon: HEAD X mission logo (triangle with "HEAD") | `TODO(team)`: declare whether the logo was AI-generated | The PNGs were rendered from the 256 px PNG inside `logo.ico` (maskable: logo at 72% on white, inside the safe zone) | Browser tab (favicon = `logo.ico`), installed PWA icon |
+| `public/logo.ico`, `public/icon-192.png`, `public/icon-512.png`, `public/icon-maskable.png` | App icon: HEAD X mission logo (triangle with "HEAD") | **Partly** (per the team: made partly with AI). `TODO(team)`: tool name | The PNGs were rendered from the 256 px PNG inside `logo.ico` (maskable: logo at 72% on white, inside the safe zone) | Browser tab (favicon = `logo.ico`), installed PWA icon |
 
 ### 1.4 Team-made art
 
@@ -109,7 +109,7 @@ in-memory scene cache (the 3D scene is not reloaded when going back to the menu)
 
 | File | What it is | AI? | Acknowledgment | Used in |
 |---|---|---|---|---|
-| `public/audio/silent-horizon-1.mp3`, `silent-horizon-2.mp3` | Background music ("Silent Horizon" 1 and 2) | **Yes** (team). Tool: `TODO(team)` | Text: here, README, Credits screen. **Metadata:** ID3v2.4 tag `COMM` = "AI-generated music. Declared by the Lunar Outpost team (NASA Space Apps Challenge 2026). See docs/ASSETS.md." and `TXXX:AI_GENERATED=true` (audio frames unchanged) | `src/app/audio/music.ts` (can be muted in Settings) |
+| `public/audio/silent-horizon-1.mp3`, `silent-horizon-2.mp3` | Background music ("Silent Horizon" 1 and 2) | **Yes** (team). Tool: **Moreka.ai** | Text: here, README, Credits screen. **Metadata:** ID3v2.4 tag `COMM` = "AI-generated music. Declared by the Lunar Outpost team (NASA Space Apps Challenge 2026). See docs/ASSETS.md." and `TXXX:AI_GENERATED=true` (audio frames unchanged) | `src/app/audio/music.ts` (can be muted in Settings) |
 
 Narration uses the browser's built-in Web Speech API (the device's own voices); the project ships no
 voice recordings.
@@ -135,11 +135,11 @@ The "look at space" window loads live images; each shows its own credit on scree
 
 ## 5. Open questions for the team
 
-1. Which AI tool generated the music? (Add it to section 2.)
+1. ~~Which AI tool generated the music?~~ Answered: Moreka.ai.
 2. NASA IDs or page links for the destination and cutscene photos in section 1.2.
 3. Canva license tier used for the card frames.
-4. Mascot author (name to credit) and whether `public/logo.ico` (the HEAD X logo, now the app icon) was
-   AI-generated.
+4. Mascot author (name to credit). The HEAD X logo (app icon) was made partly with AI (answered); the
+   tool name is still open.
 5. Commander portraits (section 1.3): which Google tool made them, and were the four NASA photos listed
    there the visual reference?
 6. 3D models (section 1.5): who made them, and was AI used? Source and license of `2k_moon.jpg`, the
