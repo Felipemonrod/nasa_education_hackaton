@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { extractKeywords, GLOSSARY, GLOSSARY_IDS, wordCount } from './glossary.js';
+import { extractKeywords, GLOSSARY_IDS, wordCount } from './glossary.js';
 import { LUNAR_SITE_IDS } from '../engine/types.js';
 import type { Card, CardRole, Effect, Phase } from '../engine/types.js';
 
@@ -245,16 +245,6 @@ export function validateCards(cards: readonly Card[]): Violation[] {
     }
   }
 
-  return problems;
-}
-
-export function validateGlossary(): Violation[] {
-  const problems: Violation[] = [];
-  const ids = new Set<string>();
-  for (const entry of GLOSSARY) {
-    if (ids.has(entry.id)) problems.push({ cardId: entry.id, rule: 'glossario', detail: 'id duplicado' });
-    ids.add(entry.id);
-  }
   return problems;
 }
 

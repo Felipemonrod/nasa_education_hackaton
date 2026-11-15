@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useEscapeKey } from '../a11y/useEscapeKey.js';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -89,14 +90,7 @@ export function CardView({
     ? undefined
     : options.find((o) => o.option.id === briefId)?.option;
 
-  useEffect(() => {
-    if (briefOption === undefined) return;
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') setBriefId(null);
-    };
-    document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('keydown', onKey); };
-  }, [briefOption]);
+  useEscapeKey(() => { setBriefId(null); }, briefOption !== undefined);
 
   const requirementText = (requires: readonly Threshold[]): string =>
     requires

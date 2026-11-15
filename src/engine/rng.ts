@@ -27,10 +27,6 @@ export interface Draw<T> {
   readonly cursor: number;
 }
 
-export function nextFloat(seed: number, cursor: number): Draw<number> {
-  return { value: randomAt(seed, cursor), cursor: cursor + 1 };
-}
-
 /** Inteiro em [min, max] inclusive. */
 export function nextInt(seed: number, cursor: number, min: number, max: number): Draw<number> {
   const r = randomAt(seed, cursor);

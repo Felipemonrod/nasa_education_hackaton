@@ -20,7 +20,6 @@ export type StructureStat = 'shielding';
 export type Stat = BasicResource | HazardStat | TrackStat | StructureStat;
 
 export const BASIC_RESOURCES = ['oxygen', 'power', 'food'] as const;
-export const TRACK_STATS = ['science', 'lifeSupport'] as const;
 export const ALL_STATS = [
   'oxygen', 'power', 'food', 'dose', 'shielding', 'science', 'lifeSupport',
 ] as const;
@@ -30,11 +29,6 @@ export type Stats = Record<Stat, number>;
 
 export type Phase = 'day' | 'night';
 export type MissionObjective = 'science' | 'habitat';
-
-export const TRACK_FOR_OBJECTIVE: Record<MissionObjective, TrackStat> = {
-  science: 'science',
-  habitat: 'lifeSupport',
-};
 
 // ---------------------------------------------------------------------------
 // Conteudo (cards)

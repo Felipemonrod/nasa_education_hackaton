@@ -119,14 +119,6 @@ export const DEFAULT_BALANCE: Balance = {
   flareWeight: { none: 0, C: 1.3, M: 2, X: 3 },
 };
 
-/** Dreno total por dia de um recurso, dado o plano de slots do MVP. */
-export function dailyDrain(balance: Balance, resource: BasicResource, slotsPerPhase: Record<Phase, number>): number {
-  return (
-    balance.drainPerSlot.day[resource] * slotsPerPhase.day +
-    balance.drainPerSlot.night[resource] * slotsPerPhase.night
-  );
-}
-
 export function trackFor(objective: MissionObjective): TrackStat {
   return objective === 'science' ? 'science' : 'lifeSupport';
 }

@@ -1,8 +1,13 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { MoonScene } from '../src/app/components/MoonScene.js';
 import { BaseExplorer } from '../src/app/components/BaseExplorer.js';
+import { useI18n } from '../src/app/i18n/useI18n.js';
+
+// O Node recente tem `navigator.language` (vem do sistema): numa maquina em
+// portugues o idioma detectado seria pt. O contrato testado e o do padrao (en).
+beforeAll(() => { useI18n.setState({ locale: 'en' }); });
 
 /**
  * CONTRATO DO FALLBACK DA CENA.

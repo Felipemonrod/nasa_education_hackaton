@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useEscapeKey } from '../a11y/useEscapeKey.js';
 import { ArrowLeft, ArrowRight, Check, Lock, Maximize2, Plus, RefreshCw, X } from 'lucide-react';
 import { COMMANDERS, findLoadout } from '../data/loadout.js';
 import type { LoadoutCard } from '../data/loadout.js';
@@ -171,14 +172,7 @@ function CommanderPicker({
   const t = useT();
   const content = useContent();
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('keydown', onKey); };
-  }, [open, onClose]);
+  useEscapeKey(onClose, open);
 
   if (!open) return null;
   return (

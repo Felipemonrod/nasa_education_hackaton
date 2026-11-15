@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useEscapeKey } from '../a11y/useEscapeKey.js';
 import { Loader2, Telescope, X, WifiOff } from 'lucide-react';
 import { loadSpaceView, offlineView } from '../services/nasa.js';
 import type { SpacePhotoSource, SpaceView } from '../services/nasa.js';
@@ -29,11 +30,7 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
     return () => { alive = false; };
   }, [failedSources]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent): void => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('keydown', onKey); };
-  }, [onClose]);
+  useEscapeKey(onClose);
 
   const resolved = view;
   const photo = resolved?.kind === 'photo' ? resolved : null;

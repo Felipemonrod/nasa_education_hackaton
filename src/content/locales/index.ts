@@ -38,10 +38,6 @@ export function hasContentKey(locale: Locale, key: string): boolean {
   return DICTS[locale][key] !== undefined;
 }
 
-export function contentDict(locale: Locale): Dict {
-  return DICTS[locale];
-}
-
 export const cardTitleKey = (cardId: string): string => `card.${cardId}.title`;
 export const cardTextKey = (cardId: string): string => `card.${cardId}.text`;
 export const optionKey = (cardId: string, optionId: string, field: 'label' | 'line' | 'why' | 'mistake'): string =>

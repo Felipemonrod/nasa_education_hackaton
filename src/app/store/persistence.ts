@@ -82,14 +82,3 @@ export async function requestPersistentStorage(): Promise<boolean> {
     return false;
   }
 }
-
-export function storageAvailable(): boolean {
-  try {
-    const probe = '__lo_probe__';
-    window.localStorage.setItem(probe, '1');
-    window.localStorage.removeItem(probe);
-    return true;
-  } catch {
-    return false;
-  }
-}

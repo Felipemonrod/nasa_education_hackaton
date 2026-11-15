@@ -1,5 +1,5 @@
 import type { Balance } from './balance.js';
-import { ALL_STATS, BASIC_RESOURCES } from './types.js';
+import { BASIC_RESOURCES } from './types.js';
 import type { Effect, LossCause, Stat, Stats, TrackStat } from './types.js';
 
 export const STAT_MIN = 0;
@@ -9,12 +9,6 @@ export function clampStat(value: number): number {
   if (value < STAT_MIN) return STAT_MIN;
   if (value > STAT_MAX) return STAT_MAX;
   return Math.round(value);
-}
-
-export function clampStats(stats: Stats): Stats {
-  const out = {} as Stats;
-  for (const stat of ALL_STATS) out[stat] = clampStat(stats[stat]);
-  return out;
 }
 
 export function applyEffects(stats: Stats, effects: readonly Effect[]): Stats {

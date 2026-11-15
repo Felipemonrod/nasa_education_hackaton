@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useEscapeKey } from '../a11y/useEscapeKey.js';
 import { Check, CircleHelp, Home, Save, Settings2, X } from 'lucide-react';
 import { useT } from '../i18n/useI18n.js';
 
@@ -15,11 +16,7 @@ export function GearMenu({
   const [saved, setSaved] = useState<null | boolean>(null);
   const [confirmExit, setConfirmExit] = useState(false);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent): void => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('keydown', onKey); };
-  }, [onClose]);
+  useEscapeKey(onClose);
 
   return (
     <div
