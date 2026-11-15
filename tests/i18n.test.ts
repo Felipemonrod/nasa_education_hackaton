@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { detectBrowserLocale } from '../src/i18n/core.js';
 import { CARDS } from '../src/content/cards.js';
 import { GLOSSARY, GLOSSARY_IDS, extractKeywords, wordCount } from '../src/content/glossary.js';
 import { CONTENT_EN } from '../src/content/locales/en.js';
@@ -142,5 +143,15 @@ describe('catalogo de interface', () => {
       }
     }
     expect(bad).toEqual([]);
+  });
+
+  it('detecta portugues quando o idioma nativo do navegador e pt e ingles nos demais casos', () => {
+    expect(detectBrowserLocale({ language: 'pt-BR', languages: ['pt-BR', 'en-US'] })).toBe('pt');
+    expect(detectBrowserLocale({ language: 'pt-PT', languages: ['pt-PT'] })).toBe('pt');
+    expect(detectBrowserLocale({ language: 'pt' })).toBe('pt');
+    expect(detectBrowserLocale({ language: 'en-US', languages: ['en-US'] })).toBe('en');
+    expect(detectBrowserLocale({ language: 'es-ES', languages: ['es-ES', 'pt-BR'] })).toBe('en');
+    expect(detectBrowserLocale({ language: 'fr-FR' })).toBe('en');
+    expect(detectBrowserLocale(null)).toBe('en');
   });
 });

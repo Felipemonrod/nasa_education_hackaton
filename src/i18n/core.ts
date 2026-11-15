@@ -35,6 +35,23 @@ export function isLocale(value: unknown): value is Locale {
 }
 
 /**
+ * Detecta o idioma inicial a partir do idioma nativo do navegador:
+ * - se o idioma nativo for portugues (ex.: "pt-BR", "pt-PT", "pt"), retorna 'pt';
+ * - caso seja ingles ou qualquer outro idioma (ex.: "en-US", "es", "fr"), retorna 'en'.
+ */
+export function detectBrowserLocale(
+  nav?: { readonly language?: string; readonly languages?: readonly string[] } | null,
+): Locale {
+  const source = nav !== undefined ? nav : (typeof navigator !== 'undefined' ? navigator : null);
+  if (source === null || source === undefined) return DEFAULT_LOCALE;
+  const raw = (source.languages?.[0] ?? source.language ?? '').trim().toLowerCase();
+  if (raw === 'pt' || raw.startsWith('pt-') || raw.startsWith('pt_')) {
+    return 'pt';
+  }
+  return DEFAULT_LOCALE;
+}
+
+/**
  * Resolve uma chave. Ordem: idioma atual -> fallback -> a propria chave.
  * Devolver a chave (e nao string vazia) e proposital: um texto faltando
  * aparece na tela como "menu.newMission" e e impossivel de ignorar.

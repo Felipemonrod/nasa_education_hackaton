@@ -28,10 +28,16 @@ export function App(): JSX.Element {
   const speechRate = useAccount((s) => s.settings.speechRate);
   const speechVolume = useAccount((s) => s.settings.speechVolume);
   const locale = useI18n((s) => s.locale);
+  const syncFromBrowser = useI18n((s) => s.syncFromBrowser);
   const speak = useSpeech((s) => s.speak);
   const stopSpeech = useSpeech((s) => s.stop);
 
   useApplyA11y();
+
+  // Valida o idioma do navegador antes da cutscene iniciar.
+  useEffect(() => {
+    syncFromBrowser();
+  }, [syncFromBrowser]);
 
   useEffect(() => {
     document.documentElement.lang = LOCALE_TAG[locale];
