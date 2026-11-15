@@ -77,56 +77,56 @@ export function Game(): JSX.Element {
   const isPair = slot?.shape === 'pair';
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col px-4 py-3 sm:px-6 sm:py-4 lg:h-dvh lg:overflow-hidden lg:px-8">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[1800px] flex-col px-4 py-3 sm:px-6 sm:py-4 lg:h-dvh lg:overflow-hidden lg:px-8 lg:py-5">
       {/* Barra superior de telemetria */}
       <header className="flex shrink-0 items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 sm:gap-3">
-          <div data-tutorial="clock" className="flex items-center gap-3 rounded-2xl glass px-3.5 py-2">
+          <div data-tutorial="clock" className="flex items-center gap-3.5 rounded-2xl glass px-4 py-2.5 sm:px-5 sm:py-3">
             <div>
-              <p className="text-[0.62rem] font-extrabold uppercase tracking-widest text-sky-300">
+              <p className="text-[0.68rem] font-extrabold uppercase tracking-widest text-sky-300 sm:text-xs">
                 {t('game.dayOf', { day: run.day, total: run.config.days })}
               </p>
-              <p className="flex items-center gap-1.5 font-display text-sm font-extrabold leading-tight text-white">
+              <p className="flex items-center gap-1.5 font-display text-base font-extrabold leading-tight text-white sm:text-lg">
                 {phase === 'day'
-                  ? <Sun size={14} className="text-power" aria-hidden />
-                  : <Moon size={14} className="text-sky-300" aria-hidden />}
-                {SLOT_CLOCK[run.slot] ?? '--:--'} <span className="text-[0.65rem] font-bold text-slate-400">UTC</span>
+                  ? <Sun size={16} className="text-power" aria-hidden />
+                  : <Moon size={16} className="text-sky-300" aria-hidden />}
+                {SLOT_CLOCK[run.slot] ?? '--:--'} <span className="text-xs font-bold text-slate-400">UTC</span>
               </p>
             </div>
-            <span className="h-7 w-px bg-white/10" aria-hidden />
-            <p className="text-[0.72rem] font-extrabold uppercase tracking-wider text-slate-300">
+            <span className="h-8 w-px bg-white/10" aria-hidden />
+            <p className="text-xs font-extrabold uppercase tracking-wider text-slate-200 sm:text-sm">
               {t(phase === 'day' ? 'game.shiftDay' : 'game.shiftNight')}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
             data-tutorial="window"
             onClick={() => { setSpaceOpen(true); }}
             aria-label={t('game.windowAria')}
-            className="grid h-11 w-11 place-items-center rounded-2xl glass hover:border-sky-300/40 hover:bg-white/10 transition-colors"
+            className="grid h-12 w-12 place-items-center rounded-2xl glass hover:border-sky-300/40 hover:bg-white/10 transition-colors sm:h-13 sm:w-13"
           >
-            <Telescope size={18} className="text-sky-300" aria-hidden />
+            <Telescope size={20} className="text-sky-300" aria-hidden />
           </button>
           <button
             type="button"
             data-tutorial="gear"
             onClick={() => { setGearOpen(true); }}
             aria-label={t('common.options')}
-            className="grid h-11 w-11 place-items-center rounded-2xl glass hover:border-sky-300/40 hover:bg-white/10 transition-colors"
+            className="grid h-12 w-12 place-items-center rounded-2xl glass hover:border-sky-300/40 hover:bg-white/10 transition-colors sm:h-13 sm:w-13"
           >
-            <Settings size={18} aria-hidden />
+            <Settings size={20} aria-hidden />
           </button>
         </div>
       </header>
 
       {/* Painel horizontal principal */}
-      <main className="mt-2.5 grid min-h-0 flex-1 grid-cols-12 gap-3.5 sm:mt-3 sm:gap-4 lg:gap-6">
+      <main className="mt-3 grid min-h-0 flex-1 grid-cols-1 gap-4 md:grid-cols-12 lg:mt-4 lg:gap-6 xl:gap-8">
         {/* Coluna esquerda: Visor da Base Lunar + Telemetria de Recursos */}
-        <section className="col-span-5 flex min-h-0 flex-col justify-between gap-2.5 overflow-y-auto scroll-thin lg:col-span-4 lg:gap-3">
-          <div data-tutorial="scene" className="relative min-h-[84px] flex-1 overflow-hidden rounded-3xl border border-white/12 bg-space-950 shadow-inner sm:min-h-[110px]">
+        <section className="flex min-h-0 flex-col justify-between gap-3 overflow-y-auto scroll-thin md:col-span-5 lg:col-span-4 lg:gap-4">
+          <div data-tutorial="scene" className="relative min-h-[140px] flex-1 overflow-hidden rounded-3xl border border-white/12 bg-space-950 shadow-inner sm:min-h-[180px]">
             <MoonScene phase={phase} />
           </div>
 
@@ -136,7 +136,7 @@ export function Game(): JSX.Element {
         </section>
 
         {/* Coluna direita: Mesa de Decisoes */}
-        <section className="col-span-7 flex min-h-0 flex-col justify-start overflow-y-auto scroll-thin lg:col-span-8 lg:justify-center">
+        <section className="flex min-h-0 flex-col justify-start overflow-y-auto scroll-thin md:col-span-7 lg:col-span-8 lg:justify-center">
           {!cardReady ? (
             <div className="card-surface mx-auto flex h-full max-h-72 w-full max-w-xl flex-col items-center justify-center gap-3 p-6 text-center">
               <span className="grid h-12 w-12 place-items-center rounded-2xl bg-sky-400/15 text-sky-300 animate-pulse">
@@ -156,10 +156,10 @@ export function Game(): JSX.Element {
               ) : null}
             </div>
           ) : (
-            <div className="flex min-h-0 flex-1 flex-col justify-center gap-2.5">
+            <div className="flex min-h-0 flex-1 flex-col justify-center">
               <div className={isPair
-                ? 'grid min-h-0 grid-cols-2 items-stretch gap-3 lg:gap-4'
-                : 'mx-auto w-full max-w-2xl'}
+                ? 'grid min-h-0 w-full grid-cols-1 items-stretch justify-items-center gap-4 sm:grid-cols-2 lg:gap-6 xl:gap-8'
+                : 'mx-auto flex w-full justify-center'}
               >
                 {slot.cards.map((entry, index) => (
                   <CardView
