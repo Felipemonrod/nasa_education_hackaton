@@ -184,7 +184,7 @@ function GameMeter({
 
 export function Settings(): JSX.Element {
   const t = useT();
-  const { go, run } = useGame();
+  const { go, run, prevScreen } = useGame();
   const locale = useI18n((s) => s.locale);
   const setLocale = useI18n((s) => s.setLocale);
   const settings = useAccount((s) => s.settings);
@@ -220,7 +220,13 @@ export function Settings(): JSX.Element {
       <header className="flex items-center gap-3.5">
         <button
           type="button"
-          onClick={() => { go(run !== null && run.status === 'running' ? 'game' : 'menu'); }}
+          onClick={() => {
+            if (prevScreen === 'destination' || prevScreen === 'loadout') {
+              go(prevScreen);
+              return;
+            }
+            go(run !== null && run.status === 'running' ? 'game' : 'menu');
+          }}
           className={`${ACTION_BTN} min-h-[42px] bg-space-850 px-4 py-2 text-sm text-slate-100 hover:bg-space-800`}
         >
           <ArrowLeft size={16} aria-hidden /> {t('common.back')}

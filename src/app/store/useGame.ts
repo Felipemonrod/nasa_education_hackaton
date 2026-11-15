@@ -20,8 +20,8 @@ import { useAccount } from './useAccount.js';
 export const engine = createEngine(CARDS);
 
 export type Screen =
-  | 'cutscene' | 'menu' | 'story' | 'destination' | 'loadout'
-  | 'travel' | 'loading' | 'game' | 'result' | 'deck' | 'settings' | 'credits';
+  | 'cutscene' | 'menu' | 'destination' | 'loadout'
+  | 'loading' | 'game' | 'result' | 'deck' | 'settings' | 'credits';
 
 export interface OutcomeView {
   readonly card: Card;
@@ -55,6 +55,7 @@ const FRESH_DRAFT: Draft = {
 
 interface GameStore {
   screen: Screen;
+  prevScreen: Screen;
   run: RunState | null;
   outcome: OutcomeView | null;
   draft: Draft;
@@ -129,6 +130,7 @@ function finishRun(run: RunState, set: (partial: Partial<GameStore>) => void): v
 
 export const useGame = create<GameStore>()((set, get) => ({
   screen: 'cutscene',
+  prevScreen: 'menu',
   run: null,
   outcome: null,
   draft: { ...FRESH_DRAFT, rerollsLeft: { ...FRESH_DRAFT.rerollsLeft } },
@@ -136,17 +138,22 @@ export const useGame = create<GameStore>()((set, get) => ({
   tutorialStep: 0,
   rewardsGranted: null,
 
-  go(screen) { set({ screen }); },
+  go(screen) {
+    set((state) => ({
+      screen,
+      prevScreen: screen === 'settings' ? state.screen : state.prevScreen,
+    }));
+  },
 
   newMission() {
-    // As telas de historia/destino/loadout dao tempo para a DONKI responder.
+    // As telas de destino/loadout dao tempo para a DONKI responder.
     prefetchLiveWeather();
     set({
       draft: { ...FRESH_DRAFT, rerollsLeft: { ...FRESH_DRAFT.rerollsLeft } },
       run: null,
       outcome: null,
       rewardsGranted: null,
-      screen: 'story',
+      screen: 'destination',
     });
   },
 
@@ -213,7 +220,7 @@ export const useGame = create<GameStore>()((set, get) => ({
     // aba durante a viagem/loading perdia o loadout montado. O save anterior
     // (se houver) so e substituido aqui, quando a nova missao de fato existe.
     const saved = writeRaw(RUN_KEY, serializeRun(run));
-    set({ run, screen: 'travel', savedRunExists: saved || get().savedRunExists });
+    set({ run, screen: 'loading', savedRunExists: saved || get().savedRunExists });
   },
 
   enterGame() {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Lock, Plus, RefreshCw, X } from 'lucide-react';
-import { COMMANDERS, EQUIPMENT, STRUCTURES, findLoadout } from '../data/loadout.js';
+import { COMMANDERS, findLoadout } from '../data/loadout.js';
 import type { LoadoutCard } from '../data/loadout.js';
 import { NasaCardPhoto, getLoadoutFrameMeta } from '../components/CardArtwork.js';
 import { iconFor } from '../components/icons.js';
@@ -41,7 +41,7 @@ function CardFace({ card }: { card: LoadoutCard; compact?: boolean }): JSX.Eleme
         : 'top-[88.1%] h-[6.45%] left-[24%] right-[24%] text-slate-950';
 
   return (
-    <div className="relative mx-auto aspect-[1432/2000] w-full max-w-[16.5rem] select-none overflow-hidden drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)]">
+    <div className="relative mx-auto aspect-[1432/2000] w-full max-w-[16.5rem] select-none overflow-hidden drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)] sm:max-w-[18.5rem] lg:max-w-[20.5rem]">
       {/* Somente as cartas de Capitão (5-frame.png) e de Estrutura (6-frame.png) possuem janela vazada com foto real da NASA */}
       {card.kind === 'commander' ? (
         <div className="absolute left-[15.0%] right-[13.5%] top-[20.1%] z-0 h-[48.4%] overflow-hidden rounded-full bg-space-950">
@@ -185,23 +185,10 @@ function RolledCard({
   onReroll: () => void;
   delay: number;
 }): JSX.Element {
-  const t = useT();
   return (
     <div className="flex h-full flex-col items-center">
-      <div className="mb-2 flex w-full max-w-[16.5rem] items-center justify-between gap-2">
-        <p className="text-[0.72rem] font-extrabold uppercase tracking-widest text-sky-300">{label}</p>
-        <button
-          type="button"
-          onClick={onReroll}
-          disabled={rerollsLeft <= 0}
-          aria-label={rerollAria}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/[.06]
-                     px-3 py-1 text-[0.72rem] font-extrabold text-slate-200 transition-all
-                     hover:bg-white/[.13] active:scale-95 disabled:opacity-35 disabled:pointer-events-none"
-        >
-          <RefreshCw size={12} aria-hidden />
-          {rerollsLeft > 0 ? t('loadout.reroll', { left: rerollsLeft }) : t('loadout.rerollNone')}
-        </button>
+      <div className="mb-3 flex min-h-[28px] w-full max-w-[16.5rem] items-center justify-center sm:max-w-[18.5rem] lg:max-w-[20.5rem]">
+        <p className="font-display text-base font-extrabold uppercase tracking-widest text-sky-300 sm:text-lg lg:text-xl">{label}</p>
       </div>
       <div
         key={card?.id ?? 'empty'}
@@ -209,6 +196,22 @@ function RolledCard({
         style={{ animationDelay: `${delay}ms` }}
       >
         {card !== undefined ? <CardFace card={card} /> : null}
+      </div>
+      <div className="mt-3 flex justify-center">
+        <button
+          type="button"
+          onClick={onReroll}
+          disabled={rerollsLeft <= 0}
+          aria-label={rerollAria}
+          title={rerollAria}
+          className={`grid h-10 w-16 place-items-center rounded-xl border transition-all duration-200 ${
+            rerollsLeft > 0
+              ? 'border-sky-400/60 bg-sky-400/15 text-sky-200 shadow-[0_4px_16px_-4px_rgba(56,189,248,0.45)] hover:border-sky-300 hover:bg-sky-400/25 active:scale-95'
+              : 'cursor-not-allowed border-white/10 bg-slate-800/70 text-slate-500 opacity-50 shadow-none'
+          }`}
+        >
+          <RefreshCw size={17} aria-hidden />
+        </button>
       </div>
     </div>
   );
@@ -249,17 +252,17 @@ export function Loadout(): JSX.Element {
       </header>
 
       {/* Mesa horizontal de 3 cards: Comandante | Estrutura | Equipamento */}
-      <div className="my-auto grid grid-cols-3 items-stretch gap-3 py-3 sm:gap-5 sm:py-5">
+      <div className="my-auto grid grid-cols-1 items-start gap-6 py-3 sm:grid-cols-3 sm:gap-5 sm:py-4 lg:gap-8">
         <div className="flex h-full flex-col items-center">
-          <div className="mb-2 flex min-h-[28px] w-full max-w-[16.5rem] items-center justify-between">
-            <p className="text-[0.72rem] font-extrabold uppercase tracking-widest text-sky-300">
+          <div className="mb-3 flex min-h-[28px] w-full max-w-[16.5rem] items-center justify-center sm:max-w-[18.5rem] lg:max-w-[20.5rem]">
+            <p className="font-display text-base font-extrabold uppercase tracking-widest text-sky-300 sm:text-lg lg:text-xl">
               {t('loadout.commander')}
             </p>
           </div>
           <button
             type="button"
             onClick={() => { setPickerOpen(true); }}
-            className="relative flex w-full max-w-[16.5rem] flex-1 flex-col overflow-hidden rounded-3xl text-left transition-all active:scale-[.99]"
+            className="relative flex w-full max-w-[16.5rem] flex-1 flex-col overflow-hidden rounded-3xl text-left transition-all active:scale-[.99] sm:max-w-[18.5rem] lg:max-w-[20.5rem]"
           >
             {commander === undefined ? (
               <span className="flex aspect-[1432/2000] w-full flex-col items-center justify-center gap-3 rounded-3xl
@@ -279,6 +282,7 @@ export function Loadout(): JSX.Element {
               </span>
             )}
           </button>
+          <div className="mt-3 hidden h-10 sm:block" aria-hidden />
         </div>
 
         <RolledCard
@@ -299,14 +303,6 @@ export function Loadout(): JSX.Element {
           delay={160}
         />
       </div>
-
-      <p className="text-center text-[0.75rem] leading-snug text-slate-400">
-        {t('loadout.available', {
-          commanders: COMMANDERS.length,
-          structures: STRUCTURES.length,
-          equipment: EQUIPMENT.length,
-        })}
-      </p>
 
       <CommanderPicker
         open={pickerOpen}
