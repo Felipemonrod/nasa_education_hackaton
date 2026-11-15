@@ -147,3 +147,15 @@ html[data-underline='always'] button[data-glossary] {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
+
+/* Efeito moderado de brilho (shine) continuo na imagem da carta. */
+@keyframes card-idle-shine {
+  0%   { transform: translateX(-130%) skewX(-22deg); opacity: 0; }
+  20%  { opacity: 0.45; }
+  55%  { transform: translateX(130%) skewX(-22deg); opacity: 0; }
+  100% { transform: translateX(130%) skewX(-22deg); opacity: 0; }
+}
+
+.animate-card-shine {
+  animation: card-idle-shine 5.5s ease-in-out infinite;
+}

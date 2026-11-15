@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowDown, ArrowLeft, ArrowUp, ChevronLeft, ChevronRight, Clock3, HelpCircle,
   Link2, Lock, Repeat, Rocket, Search, Sparkles, X,
@@ -31,11 +31,9 @@ const KIND_BADGE: Record<Card['kind'], { key: string; icon: typeof Repeat } | nu
   sequential: { key: 'card.kindSequential', icon: Link2 },
 };
 
-const STAT_COLOR: Record<Stat, string> = {
-  oxygen: 'text-oxygen', power: 'text-power', food: 'text-food',
-  dose: 'text-radiation', shielding: 'text-slate-200',
-  science: 'text-science', lifeSupport: 'text-life',
-};
+function clamp(v: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, v));
+}
 
 function CardEntry({ card, known, knownOutcomes, selected, onSelect }: {
   card: Card;
@@ -112,166 +110,43 @@ function CardEntry({ card, known, knownOutcomes, selected, onSelect }: {
   );
 }
 
-function DeckExplanationModal({ card, known, knownOutcomes, onClose }: {
-  card: Card;
-  known: boolean;
-  knownOutcomes: readonly string[];
-  onClose: () => void;
-}): JSX.Element {
-  const t = useT();
-  const content = useContent();
-  const title = content.cardTitle(card);
-  const discovered = card.options.filter((o) => knownOutcomes.includes(`${card.id}:${o.id}`)).length;
-
-  return (
-    <section
-      role="dialog"
-      aria-label={t('deck.explanationTitle')}
-      className="card-surface animate-card-in rounded-3xl border border-sky-400/35 p-5 shadow-2xl lg:sticky lg:top-5"
-    >
-      <header className="flex items-start justify-between gap-3 border-b border-white/10 pb-3.5">
-        <div className="min-w-0 flex-1">
-          <p className="text-[0.68rem] font-extrabold uppercase tracking-widest text-sky-300">
-            {t('deck.explanationTitle')}
-          </p>
-          <h2 className="mt-1 font-display text-lg font-extrabold leading-snug text-white">
-            {known ? title : t('deck.unknownCard')}
-          </h2>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            <span className="rounded-lg bg-white/10 px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider text-slate-300">
-              {t(KIND_KEY[card.kind])}
-            </span>
-            {card.role === 'extra' ? (
-              <span className={`rounded-lg px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider
-                ${card.track === 'science' ? 'bg-science/20 text-science' : 'bg-life/20 text-life'}`}>
-                {t(card.track === 'science' ? 'stat.science' : 'stat.lifeSupport')}
-              </span>
-            ) : null}
-            <span className="tabular-nums text-[0.68rem] font-bold text-slate-400">
-              {t('deck.outcomesCount', { found: discovered, total: card.options.length })}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-1.5">
-          {known ? (
-            <SpeakButton
-              text={`${title}. ${content.cardText(card)}`}
-              label={t('deck.listenAria', { title })}
-            />
-          ) : null}
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={t('common.close')}
-            className="btn-ghost h-9 w-9 rounded-xl p-0"
-          >
-            <X size={16} aria-hidden />
-          </button>
-        </div>
-      </header>
-
-      <div className="mt-4">
-        {known ? (
-          <>
-            <GlossaryText
-              text={content.cardText(card)}
-              className="block text-[0.88rem] leading-relaxed text-slate-200"
-            />
-            <ul className="mt-4 flex flex-col gap-3">
-              {card.options.map((option) => {
-                const seen = knownOutcomes.includes(`${card.id}:${option.id}`);
-                return (
-                  <li key={option.id} className="rounded-2xl border border-white/10 bg-white/[.04] p-3.5">
-                    <p className="text-[0.86rem] font-extrabold text-slate-100">
-                      {content.optionLabel(card, option)}
-                    </p>
-                    {seen ? (
-                      <>
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          {option.effects.map((eff, idx) => {
-                            const statLabel = t(`stat.${eff.stat}`);
-                            const isBad = eff.stat === 'dose' ? eff.delta > 0 : eff.delta < 0;
-                            const Arrow = eff.delta > 0 ? ArrowUp : ArrowDown;
-                            return (
-                              <span
-                                key={`eff-${idx}`}
-                                className="hud-chip"
-                                role="img"
-                                aria-label={t(eff.delta > 0 ? 'card.effectUp' : 'card.effectDown', { stat: statLabel })}
-                              >
-                                <Arrow size={12} className={STAT_COLOR[eff.stat]} aria-hidden />
-                                <span className={`text-[0.7rem] font-bold ${STAT_COLOR[eff.stat]}`}>{statLabel}</span>
-                                <span className={`tabular-nums text-[0.74rem] font-extrabold ${isBad ? 'text-radiation' : 'text-food'}`}>
-                                  {eff.delta > 0 ? '+' : ''}{eff.delta}
-                                </span>
-                              </span>
-                            );
-                          })}
-                          {(option.modifiers ?? []).map((mod, idx) => {
-                            const statLabel = t(`stat.${mod.stat}`);
-                            const isBad = mod.stat === 'dose' ? mod.perSlot > 0 : mod.perSlot < 0;
-                            const Arrow = mod.perSlot > 0 ? ArrowUp : ArrowDown;
-                            return (
-                              <span
-                                key={`mod-${idx}`}
-                                className="hud-chip"
-                                role="img"
-                                aria-label={t(mod.perSlot > 0 ? 'card.effectUp' : 'card.effectDown', { stat: statLabel })}
-                              >
-                                <Arrow size={12} className={STAT_COLOR[mod.stat]} aria-hidden />
-                                <span className={`text-[0.7rem] font-bold ${STAT_COLOR[mod.stat]}`}>{statLabel}</span>
-                                <span className={`tabular-nums text-[0.74rem] font-extrabold ${isBad ? 'text-radiation' : 'text-food'}`}>
-                                  {mod.perSlot > 0 ? '+' : ''}{mod.perSlot}
-                                </span>
-                                <span className="text-[0.62rem] font-semibold text-slate-300">
-                                  ({t('card.later')})
-                                </span>
-                              </span>
-                            );
-                          })}
-                        </div>
-                        <p className="mt-2.5 text-[0.82rem] font-bold text-white">
-                          {content.outcomeLine(card, option)}
-                        </p>
-                        <GlossaryText
-                          text={content.outcomeWhy(card, option)}
-                          className="mt-1 block text-[0.78rem] leading-relaxed text-slate-300"
-                        />
-                      </>
-                    ) : (
-                      <p className="mt-2 flex items-center gap-1.5 text-[0.78rem] font-semibold text-slate-400">
-                        <HelpCircle size={14} className="shrink-0 text-sky-300" aria-hidden />
-                        {t('deck.unknownOutcome')}
-                      </p>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        ) : (
-          <div className="flex flex-col items-center gap-3 py-6 text-center">
-            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10">
-              <Lock size={20} className="text-slate-400" aria-hidden />
-            </span>
-            <p className="text-[0.84rem] leading-relaxed text-slate-300">
-              {t('deck.unknownCardBody')}
-            </p>
-          </div>
-        )}
-      </div>
-    </section>
-  );
+interface TiltState {
+  readonly rotateX: number;
+  readonly rotateY: number;
+  readonly skewX: number;
+  readonly shiftX: number;
+  readonly shineX: number;
+  readonly shineY: number;
+  readonly active: boolean;
 }
 
-function DeckCardPreviewModal({ card, known, onClose }: {
+const REST_TILT: TiltState = {
+  rotateX: 0,
+  rotateY: 0,
+  skewX: 0,
+  shiftX: 0,
+  shineX: 50,
+  shineY: 35,
+  active: false,
+};
+
+function DeckCardPreview({ card, known }: {
   card: Card;
   known: boolean;
-  onClose: () => void;
 }): JSX.Element {
   const t = useT();
   const content = useContent();
+  const cardRef = useRef<HTMLElement | null>(null);
+  const dragOriginRef = useRef<{ x: number; y: number } | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const [tilt, setTilt] = useState<TiltState>(REST_TILT);
+
+  useEffect(() => {
+    setTilt(REST_TILT);
+    setDragging(false);
+    dragOriginRef.current = null;
+  }, [card.id]);
+
   const resolvedPhase: Phase = card.phase === 'night' ? 'night' : 'day';
   const frame = getCardFrameMeta(card, resolvedPhase);
   const badge = KIND_BADGE[card.kind];
@@ -287,31 +162,120 @@ function DeckCardPreviewModal({ card, known, onClose }: {
       }))
       .join(t('card.requiresAnd'));
 
+  const updateFromPointer = (clientX: number, clientY: number, isDrag: boolean): void => {
+    const el = cardRef.current;
+    if (el === null) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+
+    let nx: number;
+    let ny: number;
+    if (isDrag && dragOriginRef.current !== null) {
+      const dx = clientX - dragOriginRef.current.x;
+      const dy = clientY - dragOriginRef.current.y;
+      nx = clamp(dx / (rect.width * 0.45), -1, 1);
+      ny = clamp(dy / (rect.height * 0.45), -1, 1);
+    } else {
+      nx = clamp(((clientX - rect.left) / rect.width) * 2 - 1, -1, 1);
+      ny = clamp(((clientY - rect.top) / rect.height) * 2 - 1, -1, 1);
+    }
+
+    const intensity = isDrag ? 1 : 0.65;
+    setTilt({
+      rotateY: nx * 13 * intensity,
+      rotateX: -ny * 9 * intensity,
+      skewX: nx * 1.8 * intensity,
+      shiftX: isDrag ? nx * 10 : 0,
+      shineX: clamp(50 + nx * 48, 2, 98),
+      shineY: clamp(50 + ny * 42, 4, 96),
+      active: true,
+    });
+  };
+
   return (
-    <section
-      role="dialog"
+    <div
       aria-label={t('deck.cardPreviewTitle')}
-      className="card-surface animate-card-in rounded-3xl border border-sky-400/35 p-5 shadow-2xl lg:sticky lg:top-5"
+      className="relative flex items-center justify-center py-2 lg:sticky lg:top-5"
+      style={{ perspective: '1050px' }}
     >
-      <header className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-3">
-        <p className="text-[0.68rem] font-extrabold uppercase tracking-widest text-sky-300">
-          {t('deck.cardPreviewTitle')}
-        </p>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t('common.close')}
-          className="btn-ghost h-8 w-8 rounded-xl p-0"
-        >
-          <X size={15} aria-hidden />
-        </button>
-      </header>
+      {/* Leve blur direto atrás da carta, sem fundo de caixa modal */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-6 inset-y-4 -z-10 rounded-[2.75rem] bg-space-950/30 backdrop-blur-md"
+      />
 
       <article
-        className={`relative mx-auto flex w-full max-w-[22rem] flex-col overflow-hidden drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)] ${
+        ref={cardRef}
+        onPointerDown={(e) => {
+          if ((e.target as HTMLElement).closest('button') !== null) return;
+          dragOriginRef.current = { x: e.clientX, y: e.clientY };
+          setDragging(true);
+          e.currentTarget.setPointerCapture(e.pointerId);
+          updateFromPointer(e.clientX, e.clientY, true);
+        }}
+        onPointerMove={(e) => {
+          updateFromPointer(e.clientX, e.clientY, dragging);
+        }}
+        onPointerUp={(e) => {
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId);
+          }
+          dragOriginRef.current = null;
+          setDragging(false);
+          setTilt(REST_TILT);
+        }}
+        onPointerCancel={() => {
+          dragOriginRef.current = null;
+          setDragging(false);
+          setTilt(REST_TILT);
+        }}
+        onPointerLeave={() => {
+          if (!dragging) setTilt(REST_TILT);
+        }}
+        style={{
+          transform: `perspective(1050px) translate3d(${tilt.shiftX}px, 0, 0) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) skewX(${tilt.skewX}deg) scale3d(${dragging ? 1.02 : 1}, ${dragging ? 1.02 : 1}, 1)`,
+          transition: dragging
+            ? 'transform 55ms ease-out'
+            : 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)',
+          transformStyle: 'preserve-3d',
+        }}
+        className={`relative mx-auto flex w-full max-w-[22.5rem] cursor-grab select-none touch-none flex-col overflow-hidden animate-card-in drop-shadow-[0_18px_36px_rgba(0,0,0,0.72)] active:cursor-grabbing ${
           known ? '' : 'opacity-80'
         }`}
       >
+        {/* Camada de Shine (brilho interativo que corre de um lado para o outro + brilho moderado contínuo) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-[2rem]"
+        >
+          {/* Brilho ambiente suave quando em repouso */}
+          <div
+            className={`absolute inset-y-0 -left-1/4 w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent mix-blend-screen ${
+              tilt.active ? 'opacity-0' : 'animate-card-shine'
+            }`}
+          />
+
+          {/* Faixa de brilho diagonal controlada pelo arraste/movimento (vai de um lado para o outro) */}
+          <div
+            style={{
+              background: `linear-gradient(112deg, transparent ${tilt.shineX - 28}%, rgba(255, 255, 255, 0.06) ${tilt.shineX - 14}%, rgba(186, 230, 253, 0.34) ${tilt.shineX - 3}%, rgba(255, 255, 255, 0.52) ${tilt.shineX}%, rgba(186, 230, 253, 0.34) ${tilt.shineX + 3}%, rgba(255, 255, 255, 0.06) ${tilt.shineX + 14}%, transparent ${tilt.shineX + 28}%)`,
+              opacity: tilt.active ? 0.95 : 0.32,
+              transition: dragging ? 'opacity 80ms ease-out' : 'opacity 320ms ease-out',
+            }}
+            className="absolute inset-0 mix-blend-screen"
+          />
+
+          {/* Reflexo radial acompanhando o ponto de arraste */}
+          <div
+            style={{
+              background: `radial-gradient(circle at ${tilt.shineX}% ${tilt.shineY}%, rgba(255, 255, 255, 0.26), rgba(56, 189, 248, 0.1) 36%, transparent 68%)`,
+              opacity: tilt.active ? 0.9 : 0.25,
+              transition: dragging ? 'opacity 80ms ease-out' : 'opacity 320ms ease-out',
+            }}
+            className="absolute inset-0 mix-blend-screen"
+          />
+        </div>
+
         {known ? (
           <div className="absolute right-2 top-2 z-20">
             <SpeakButton
@@ -441,7 +405,112 @@ function DeckCardPreviewModal({ card, known, onClose }: {
           </div>
         </footer>
       </article>
-    </section>
+    </div>
+  );
+}
+
+function DeckDecisionsColumn({ card, known, knownOutcomes, onClose }: {
+  card: Card;
+  known: boolean;
+  knownOutcomes: readonly string[];
+  onClose: () => void;
+}): JSX.Element {
+  const t = useT();
+  const content = useContent();
+
+  return (
+    <div
+      aria-label={t('deck.explanationTitle')}
+      className="animate-card-in flex flex-col gap-3 lg:sticky lg:top-5"
+    >
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t('common.close')}
+          className="btn-ghost h-8 w-8 rounded-xl p-0"
+        >
+          <X size={15} aria-hidden />
+        </button>
+      </div>
+
+      {known ? (
+        <ul className="flex flex-col gap-3">
+          {card.options.map((option) => {
+            const seen = knownOutcomes.includes(`${card.id}:${option.id}`);
+            const changes: { stat: Stat; isUp: boolean }[] = [
+              ...option.effects
+                .filter((eff) => eff.delta !== 0)
+                .map((eff) => ({ stat: eff.stat, isUp: eff.delta > 0 })),
+              ...(option.modifiers ?? [])
+                .filter((mod) => mod.perSlot !== 0)
+                .map((mod) => ({ stat: mod.stat, isUp: mod.perSlot > 0 })),
+            ];
+
+            return (
+              <li
+                key={option.id}
+                className="rounded-2xl glass border border-white/10 p-4 transition-colors hover:border-sky-300/30"
+              >
+                {/* Título da decisão */}
+                <p className="font-display text-[0.92rem] font-extrabold text-white">
+                  {content.optionLabel(card, option)}
+                </p>
+
+                {seen ? (
+                  <>
+                    {/* Resultado de recursos simplificado: seta para cima verde / seta para baixo vermelha + nome do recurso */}
+                    {changes.length > 0 ? (
+                      <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                        {changes.map((chg, idx) => {
+                          const statLabel = t(`stat.${chg.stat}`);
+                          const Arrow = chg.isUp ? ArrowUp : ArrowDown;
+                          return (
+                            <span
+                              key={`${chg.stat}-${idx}`}
+                              className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/[.05] px-2.5 py-1 text-xs font-bold text-slate-100"
+                              role="img"
+                              aria-label={t(chg.isUp ? 'card.effectUp' : 'card.effectDown', { stat: statLabel })}
+                            >
+                              <Arrow
+                                size={14}
+                                strokeWidth={2.7}
+                                className={chg.isUp ? 'text-emerald-400' : 'text-rose-400'}
+                                aria-hidden
+                              />
+                              <span>{statLabel}</span>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    ) : null}
+
+                    {/* Resultado de texto direto e limpo */}
+                    <p className="mt-2.5 text-[0.84rem] font-semibold leading-snug text-slate-200">
+                      {content.outcomeLine(card, option)}
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-2 flex items-center gap-1.5 text-[0.78rem] font-semibold text-slate-400">
+                    <HelpCircle size={14} className="shrink-0 text-sky-300" aria-hidden />
+                    {t('deck.unknownOutcome')}
+                  </p>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <div className="flex flex-col items-center gap-3 rounded-2xl glass border border-white/10 p-6 text-center">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10">
+            <Lock size={20} className="text-slate-400" aria-hidden />
+          </span>
+          <p className="text-[0.84rem] leading-relaxed text-slate-300">
+            {t('deck.unknownCardBody')}
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -699,9 +768,9 @@ export function Deck(): JSX.Element {
       ) : (
         /* Quando uma carta é clicada:
            - Coluna 1: Todas as cartas empilhadas em 1 coluna só + paginação
-           - Coluna 2: Modal de explicação e desfechos da carta
-           - Coluna 3: Modal com a imagem/visual completo da carta em si */
-        <div className="mt-5 grid grid-cols-1 items-start gap-5 lg:grid-cols-12">
+           - Coluna 2 (Ao lado da paginação): A carta sem fundo, com leve blur atrás e efeito de shine + distorção ao arrastar
+           - Coluna 3 (Ao lado): As 3 decisões dentro de divs limpas (título, recursos simplificados e texto do resultado) */
+        <div className="mt-5 grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <ul className="grid grid-cols-1 gap-3">
               {paginated.map((card) => (
@@ -721,18 +790,17 @@ export function Deck(): JSX.Element {
           </div>
 
           <div className="lg:col-span-4">
-            <DeckExplanationModal
+            <DeckCardPreview
               card={selectedCard}
               known={knownCards.includes(selectedCard.id)}
-              knownOutcomes={knownOutcomes}
-              onClose={() => { setSelectedCardId(null); }}
             />
           </div>
 
           <div className="lg:col-span-4">
-            <DeckCardPreviewModal
+            <DeckDecisionsColumn
               card={selectedCard}
               known={knownCards.includes(selectedCard.id)}
+              knownOutcomes={knownOutcomes}
               onClose={() => { setSelectedCardId(null); }}
             />
           </div>
