@@ -3,14 +3,15 @@ import { createPortal } from 'react-dom';
 import {
   Check, ChevronRight, Clock3, Link2, Lock, Repeat, Rocket, X,
 } from 'lucide-react';
-import type { Card, CardOption, Phase, Threshold } from '../../engine/types.js';
+import type { Card, CardOption, Phase, SpaceWeather, Threshold } from '../../engine/types.js';
 import { useAccount } from '../store/useAccount.js';
 import { CardShell, getCardFrameMeta } from './CardArtwork.js';
 import { GlossaryText } from './GlossaryText.js';
 import { joinSpoken } from '../a11y/speech.js';
 import { SpeakButton } from './SpeakButton.js';
+import { StormEventLine, stormEventSentence } from './WeatherNote.js';
 import { useContent } from '../i18n/useContent.js';
-import { useT } from '../i18n/useI18n.js';
+import { useI18n, useT } from '../i18n/useI18n.js';
 
 const KIND_BADGE: Record<Card['kind'], { key: string; icon: typeof Repeat } | null> = {
   unique: null,
@@ -49,7 +50,7 @@ export function useMediaQuery(query: string): boolean {
 }
 
 export function CardView({
-  card, options, phase, stage, onChoose, onHoverOption, dimmed, compact, isFirstCard = true, inModal = false,
+  card, options, phase, stage, onChoose, onHoverOption, dimmed, compact, isFirstCard = true, inModal = false, weather = null,
 }: {
   card: Card;
   options: readonly OptionState[];
@@ -61,8 +62,11 @@ export function CardView({
   compact?: boolean;
   isFirstCard?: boolean;
   inModal?: boolean;
+  /** Clima real da missao: numa carta de tempestade solar, mostra o evento e a fonte. */
+  weather?: SpaceWeather | null;
 }): JSX.Element {
   const t = useT();
+  const locale = useI18n((s) => s.locale);
   const content = useContent();
   const confirmDecisions = useAccount((st) => st.settings.confirmDecisions);
   const [briefId, setBriefId] = useState<string | null>(null);
@@ -71,6 +75,7 @@ export function CardView({
   const title = content.cardTitle(card);
   const text = content.cardText(card);
   const frame = getCardFrameMeta(card, phase);
+  const stormEvent = card.solarFlare !== undefined ? stormEventSentence(weather, locale, t) : null;
 
   const briefOption = briefId === null
     ? undefined
@@ -141,16 +146,91 @@ export function CardView({
     </div>
   ) : null;
 
+  /* Celular deitado: a carta inteira cabe so com ~210 px de largura, e com
+     as opcoes DENTRO da moldura o texto ficava com 2-3 linhas e as opcoes
+     com ~25 px de altura (o texto chegava a pintar por cima delas). Nesse
+     caso a moldura fica so com o texto e as opcoes vao numa coluna ao lado,
+     com alvo de toque de 44 px. No par em duas colunas (desktop baixo) nao
+     ha largura para isso. */
+  const isShortLandscape = useMediaQuery(SHORT_LANDSCAPE_QUERY);
+  const sideOptions = isShortLandscape && (inModal || compact !== true);
+
   /* Largura da carta limitada tambem pela ALTURA da tela (proporcao
      1432/2000 = 0.716): a carta inteira sempre cabe, sem rolar a mesa. */
-  const sizeClass = inModal
-    ? 'max-w-[min(100%,calc((100dvh_-_5.5rem)*0.716))]'
-    : compact === true
-      ? 'max-w-[min(25rem,calc((100dvh_-_8.5rem)*0.716))]'
-      : 'max-w-[min(26rem,calc((100dvh_-_8.5rem)*0.716))]';
+  const sizeClass = sideOptions
+    ? '!mx-0 max-w-[min(48%,calc((100dvh_-_5.5rem)*0.716))]'
+    : inModal
+      ? 'max-w-[min(100%,calc((100dvh_-_5.5rem)*0.716))]'
+      : compact === true
+        ? 'max-w-[min(25rem,calc((100dvh_-_8.5rem)*0.716))]'
+        : 'max-w-[min(26rem,calc((100dvh_-_8.5rem)*0.716))]';
 
-  return (
-    <>
+  const optionList = (
+    <div
+      data-tutorial={isFirstCard ? 'card-options' : undefined}
+      className={sideOptions
+        ? 'flex w-[min(20rem,44%)] shrink-0 flex-col justify-center gap-2'
+        : 'mt-[2cqw] flex shrink-0 flex-col gap-[1.4cqw]'}
+    >
+      {options.map(({ option, selectable }) => {
+        const label = content.optionLabel(card, option);
+        const openBrief = briefId === option.id;
+        return (
+          <button
+            key={option.id}
+            type="button"
+            aria-disabled={!selectable}
+            aria-expanded={confirmDecisions ? openBrief : undefined}
+            onMouseEnter={() => { if (selectable) onHoverOption?.(option); }}
+            onMouseLeave={() => { onHoverOption?.(null); }}
+            onFocus={() => { if (selectable) onHoverOption?.(option); }}
+            onBlur={() => { onHoverOption?.(null); }}
+            onClick={() => {
+              if (!selectable) return;
+              onHoverOption?.(null);
+              if (confirmDecisions) setBriefId(openBrief ? null : option.id);
+              else onChoose(option.id);
+            }}
+            className={`group flex w-full items-center justify-between border text-left transition-all duration-150
+              ${sideOptions
+                ? 'min-h-[44px] gap-2 rounded-xl px-3 py-1.5 backdrop-blur-sm'
+                // Toque (pointer: coarse): no minimo 40 px de altura. Com mouse
+                // o tamanho proporcional da moldura continua valendo.
+                : 'min-h-[max(1.8rem,7.4cqw)] gap-[2cqw] rounded-[2.4cqw] px-[3cqw] py-[1.1cqw] [@media(pointer:coarse)]:min-h-[max(40px,7.4cqw)]'}
+              ${openBrief
+                ? 'border-sky-400/70 bg-sky-400/15 shadow-[0_0_20px_-6px_rgba(56,189,248,0.4)]'
+                : selectable
+                  ? `border-white/12 hover:border-sky-300/40 hover:bg-white/[.12] active:scale-[.99] ${sideOptions ? 'bg-space-900/85' : 'bg-white/[.06]'}`
+                  : `cursor-not-allowed border-white/5 opacity-60 ${sideOptions ? 'bg-space-900/70' : 'bg-white/[.02]'}`}`}
+          >
+            <div className="min-w-0 flex-1">
+              <span className={`flex items-center gap-2 font-bold leading-snug
+                ${sideOptions ? 'text-[0.82rem]' : 'text-[clamp(0.68rem,3.4cqw,0.88rem)]'}
+                ${selectable ? 'text-slate-100' : 'text-slate-400'}`}>
+                {!selectable ? <Lock size={13} className="shrink-0 text-slate-400" aria-hidden /> : null}
+                {label}
+              </span>
+              {!selectable && option.requires !== undefined ? (
+                <span className={`mt-0.5 block font-semibold text-slate-300 ${sideOptions ? 'text-[0.7rem]' : 'text-[clamp(0.6rem,3cqw,0.72rem)]'}`}>
+                  {t('card.requires', { requirement: requirementText(option.requires) })}
+                </span>
+              ) : null}
+            </div>
+            {selectable ? (
+              <ChevronRight
+                size={15}
+                className={`shrink-0 transition-transform duration-150
+                  ${openBrief ? 'rotate-90 text-sky-300' : 'text-slate-400 group-hover:translate-x-0.5 group-hover:text-sky-300'}`}
+                aria-hidden
+              />
+            ) : null}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const shell = (
       <CardShell
         frame={frame}
         title={title}
@@ -159,7 +239,7 @@ export function CardView({
         dimmed={dimmed}
         speak={(
           <SpeakButton
-            text={joinSpoken([title, text, ...options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option))])}
+            text={joinSpoken([title, text, stormEvent, ...options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option))])}
             label={t('card.listenAria', { title })}
           />
         )}
@@ -189,6 +269,8 @@ export function CardView({
             </div>
           ) : null}
 
+          {stormEvent !== null ? <StormEventLine weather={weather} /> : null}
+
           {/* Descricao com rolagem propria, que SO aparece quando o texto nao
               cabe: sem teto fixo, a regiao ocupa a altura livre da caixa da
               moldura (flex-auto + min-h-0) e encolhe primeiro quando a carta
@@ -211,62 +293,18 @@ export function CardView({
           </div>
         </div>
 
-        <div
-          data-tutorial={isFirstCard ? 'card-options' : undefined}
-          className="mt-[2cqw] flex shrink-0 flex-col gap-[1.4cqw]"
-        >
-          {options.map(({ option, selectable }) => {
-            const label = content.optionLabel(card, option);
-            const openBrief = briefId === option.id;
-            return (
-              <button
-                key={option.id}
-                type="button"
-                aria-disabled={!selectable}
-                aria-expanded={confirmDecisions ? openBrief : undefined}
-                onMouseEnter={() => { if (selectable) onHoverOption?.(option); }}
-                onMouseLeave={() => { onHoverOption?.(null); }}
-                onFocus={() => { if (selectable) onHoverOption?.(option); }}
-                onBlur={() => { onHoverOption?.(null); }}
-                onClick={() => {
-                  if (!selectable) return;
-                  onHoverOption?.(null);
-                  if (confirmDecisions) setBriefId(openBrief ? null : option.id);
-                  else onChoose(option.id);
-                }}
-                className={`group flex min-h-[max(1.8rem,7.4cqw)] w-full items-center justify-between gap-[2cqw] rounded-[2.4cqw] border
-                  px-[3cqw] py-[1.1cqw] text-left transition-all duration-150
-                  ${openBrief
-                    ? 'border-sky-400/70 bg-sky-400/15 shadow-[0_0_20px_-6px_rgba(56,189,248,0.4)]'
-                    : selectable
-                      ? 'border-white/12 bg-white/[.06] hover:border-sky-300/40 hover:bg-white/[.12] active:scale-[.99]'
-                      : 'cursor-not-allowed border-white/5 bg-white/[.02] opacity-60'}`}
-              >
-                <div className="min-w-0 flex-1">
-                  <span className={`flex items-center gap-2 text-[clamp(0.68rem,3.4cqw,0.88rem)] font-bold leading-snug
-                    ${selectable ? 'text-slate-100' : 'text-slate-400'}`}>
-                    {!selectable ? <Lock size={13} className="shrink-0 text-slate-400" aria-hidden /> : null}
-                    {label}
-                  </span>
-                  {!selectable && option.requires !== undefined ? (
-                    <span className="mt-0.5 block text-[clamp(0.6rem,3cqw,0.72rem)] font-semibold text-slate-300">
-                      {t('card.requires', { requirement: requirementText(option.requires) })}
-                    </span>
-                  ) : null}
-                </div>
-                {selectable ? (
-                  <ChevronRight
-                    size={15}
-                    className={`shrink-0 transition-transform duration-150
-                      ${openBrief ? 'rotate-90 text-sky-300' : 'text-slate-400 group-hover:translate-x-0.5 group-hover:text-sky-300'}`}
-                    aria-hidden
-                  />
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
+        {sideOptions ? null : optionList}
       </CardShell>
+  );
+
+  return (
+    <>
+      {sideOptions ? (
+        <div className="flex w-full min-w-0 items-center justify-center gap-[clamp(0.75rem,3vw,1.5rem)] self-center">
+          {shell}
+          {optionList}
+        </div>
+      ) : shell}
 
       {confirmModal !== null && typeof document !== 'undefined'
         ? createPortal(confirmModal, document.body)

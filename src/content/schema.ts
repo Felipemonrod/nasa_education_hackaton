@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { extractKeywords, GLOSSARY, GLOSSARY_IDS, wordCount } from './glossary.js';
-import type { Card, Effect } from '../engine/types.js';
+import { LUNAR_SITE_IDS } from '../engine/types.js';
+import type { Card, CardRole, Effect, Phase } from '../engine/types.js';
 
 const statSchema = z.enum(['oxygen', 'power', 'food', 'dose', 'shielding', 'science', 'lifeSupport']);
 
@@ -56,6 +57,7 @@ export const cardSchema = z.object({
   }).optional(),
   sequentialOnly: z.boolean().optional(),
   isFallback: z.boolean().optional(),
+  sites: z.array(z.string().min(1)).min(1).optional(),
   options: z.array(optionSchema).min(1).max(3),
 });
 
@@ -63,6 +65,30 @@ export interface Violation {
   readonly cardId: string;
   readonly rule: string;
   readonly detail: string;
+}
+
+/**
+ * Piso de capacidade do pool por fase x papel numa missao de 10 dias: 2 slots
+ * por fase por dia = 20 saques basicos; extras voltam ao pool quando recusados,
+ * entao 4 bastam. Mesmo piso de tests/content.test.ts, aqui aplicado a CADA
+ * local de pouso (o recorte por `sites` encolhe o pool).
+ */
+export const POOL_FLOOR: Readonly<Record<'basic' | 'extra', number>> = { basic: 20, extra: 4 };
+const MISSION_DAYS = 10;
+
+function allowedAt(card: Card, site: string | undefined): boolean {
+  return site === undefined || card.sites === undefined || card.sites.includes(site);
+}
+
+/** Quantos saques o pool aguenta. Rotinas contam por quantas vezes voltam em 10 dias. */
+export function poolCapacity(
+  cards: readonly Card[], phase: Phase, role: CardRole, site?: string,
+): number {
+  return cards
+    .filter((c) =>
+      c.role === role && (c.phase === phase || c.phase === 'any') &&
+      c.isFallback !== true && c.sequentialOnly !== true && allowedAt(c, site))
+    .reduce((sum, c) => sum + (c.kind === 'routine' ? Math.floor(MISSION_DAYS / (c.cooldownDays ?? 1)) : 1), 0);
 }
 
 /** Um efeito "custa" algo ao jogador. Para `dose`, subir e ruim. */
@@ -134,6 +160,18 @@ export function validateCards(cards: readonly Card[]): Violation[] {
       push(card.id, 'trilho', 'track definido em card que nao e de recurso extra');
     }
 
+    // Local de pouso: so ids conhecidos, sem repetir.
+    if (card.sites !== undefined) {
+      for (const site of card.sites) {
+        if (!(LUNAR_SITE_IDS as readonly string[]).includes(site)) {
+          push(card.id, 'local-de-pouso', `local desconhecido '${site}' (validos: ${LUNAR_SITE_IDS.join(', ')})`);
+        }
+      }
+      if (new Set(card.sites).size !== card.sites.length) {
+        push(card.id, 'local-de-pouso', 'local repetido em sites');
+      }
+    }
+
     // Encadeamento aponta para card que existe e e exclusivo de sequencia.
     for (const option of card.options) {
       if (option.chains === undefined) continue;
@@ -142,6 +180,14 @@ export function validateCards(cards: readonly Card[]): Violation[] {
         push(card.id, 'encadeamento', `opcao ${option.id} aponta para card inexistente ${option.chains}`);
       } else if (child.sequentialOnly !== true) {
         push(card.id, 'encadeamento', `filho ${child.id} deveria ser sequentialOnly`);
+      } else {
+        // O filho precisa valer em todo local onde o pai pode sair; senao a
+        // consequencia fica presa na fila de sequenciais ate expirar.
+        for (const site of card.sites ?? LUNAR_SITE_IDS) {
+          if (!allowedAt(child, site)) {
+            push(card.id, 'encadeamento', `filho ${child.id} nao vale em ${site}, onde o pai pode sair`);
+          }
+        }
       }
     }
 
@@ -174,6 +220,30 @@ export function validateCards(cards: readonly Card[]): Violation[] {
 
   const events = cards.filter((c) => c.role === 'event');
   if (events.length === 0) push('<dataset>', 'evento', 'sem o evento da Capsula de Suprimentos');
+
+  // Recorte por local de pouso: para CADA local, cada fase x papel ainda
+  // tem fallback, a capsula existe e o pool nao seca (sem pool morto).
+  for (const site of LUNAR_SITE_IDS) {
+    if (!events.some((c) => allowedAt(c, site))) {
+      push('<dataset>', 'local-de-pouso', `sem a Capsula de Suprimentos em ${site}`);
+    }
+    for (const phase of ['day', 'night'] as const) {
+      for (const role of ['basic', 'extra'] as const) {
+        const hasFallback = cards.some(
+          (c) => c.isFallback === true && c.role === role &&
+            (c.phase === phase || c.phase === 'any') && allowedAt(c, site),
+        );
+        if (!hasFallback) {
+          push('<dataset>', 'local-de-pouso', `sem card de fallback para ${role}/${phase} em ${site}`);
+        }
+        const capacity = poolCapacity(cards, phase, role, site);
+        if (capacity < POOL_FLOOR[role]) {
+          push('<dataset>', 'local-de-pouso',
+            `pool ${role}/${phase} em ${site} aguenta ${capacity} saques (< ${POOL_FLOOR[role]})`);
+        }
+      }
+    }
+  }
 
   return problems;
 }

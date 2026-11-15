@@ -27,6 +27,7 @@ export const UI_EN: Dict = {
   'common.skip': 'Skip',
   'common.options': 'Options',
   'common.soon': 'Coming soon',
+  'common.aiImages': 'Images made with AI',
 
   // ----- rotulos de recurso, usados no HUD, no resultado e na viagem -----
   'stat.oxygen': 'Oxygen',
@@ -255,6 +256,10 @@ export const UI_EN: Dict = {
   'outcome.deltaBetter': '{stat} improved by {amount}, now {value}',
   'outcome.deltaWorse': '{stat} got worse by {amount}, now {value}',
   'outcome.mistake': 'Where it slipped: {mistake}',
+  'source.factLabel': 'Real-world fact:',
+  'source.sourceLabel': 'Source:',
+  'source.linkAria': 'Source: {org} (opens in a new tab)',
+  'source.spoken': 'Real-world fact: {fact} Source: {org}.',
 
   // ----- HUD de recursos -----
   'hud.valueAria': '{label}: {value} out of 100',
@@ -283,6 +288,18 @@ export const UI_EN: Dict = {
   'weather.effect.weak': 'The weak solar storm card is more likely.',
   'weather.effect.X': 'Solar storm cards, including the class X one, are more likely.',
   'weather.sourceLink': 'Check the source: {source}',
+  'weather.effect.noneDay': 'A calm day on the Sun: solar storm cards will not show up this mission.',
+  'weather.kindHist': 'A real day from the NOAA archive: {date}',
+  'weather.kindLive': 'Live data from NASA DONKI, checked when this mission started',
+  'weather.inGame': 'In the game',
+  'weather.calm': 'Calm',
+  'weather.realEvent': 'Real data for this mission: {classType} flare on {date}.',
+  'weather.listenAria': 'Listen to the space weather',
+  'weather.newTab': 'opens in a new tab',
+  'weather.introKicker': 'Before you start',
+  'weather.chipKicker': 'Real data',
+  'weather.gotIt': 'Got it',
+  'weather.chipAria': 'Space weather for this mission: {label}. Open details',
 
   // ----- menu de engrenagem (em partida) -----
   'gear.save': 'Save the game',
@@ -494,7 +511,9 @@ export const UI_EN: Dict = {
   'credits.donkiNote': '“Experimental Research Information” from NASA CCMC DONKI / Moon to Mars Space Weather Analysis Office (M2M SWAO).',
   'credits.references': 'Science references',
   'credits.images': 'Images & art',
-  'credits.imagesBody': 'Photos of the Moon, Mars, astronauts and space station hardware: NASA (Image and Video Library, LRO, Apollo and other missions). Astronaut photos are used as art for fictional characters. Card frames made with Canva. Full list of every file and its license in CREDITS.md.',
+  'credits.imagesBody': 'Photos of the Moon, Mars, astronauts and space station hardware: NASA (Image and Video Library, LRO, Apollo and other missions). Astronaut photos are used as art for fictional characters. The opening cutscene sky and Moon are AI-generated images (marked on screen). Card frames made with Canva. Full list of every file and its license in docs/ASSETS.md.',
+  'credits.aiTitle': 'Use of AI',
+  'credits.aiBody': 'The game idea and rules come from the team; AI helped draft the specification. AI tools (Claude Code, by Anthropic) helped write the code, card texts and research and check the NASA data, always reviewed by the team. The background music, the opening cutscene images and the app icon were generated with AI. Details in README.md.',
   'credits.software': 'Software, fonts & icons',
   'credits.license': 'Lunar Outpost source code: MIT License. Third-party data, images, fonts and libraries keep their own licenses (see CREDITS.md).',
   'credits.officialNote': 'Official notice from the NASA Space Apps Challenge.',
@@ -518,6 +537,7 @@ export const UI_PT: Dict = {
   'common.skip': 'Pular',
   'common.options': 'Opções',
   'common.soon': 'Em breve',
+  'common.aiImages': 'Imagens feitas com IA',
 
   // ----- rotulos de recurso, usados no HUD, no resultado e na viagem -----
   'stat.oxygen': 'Oxigênio',
@@ -746,6 +766,10 @@ export const UI_PT: Dict = {
   'outcome.deltaBetter': '{stat} melhorou {amount}, agora {value}',
   'outcome.deltaWorse': '{stat} piorou {amount}, agora {value}',
   'outcome.mistake': 'Onde escorregou: {mistake}',
+  'source.factLabel': 'Fato real:',
+  'source.sourceLabel': 'Fonte:',
+  'source.linkAria': 'Fonte: {org} (abre em nova aba)',
+  'source.spoken': 'Fato real: {fact} Fonte: {org}.',
 
   // ----- HUD de recursos -----
   'hud.valueAria': '{label}: {value} de 100',
@@ -774,6 +798,18 @@ export const UI_PT: Dict = {
   'weather.effect.weak': 'O card de tempestade solar fraca fica mais provável.',
   'weather.effect.X': 'Os cards de tempestade solar, inclusive o de classe X, ficam mais prováveis.',
   'weather.sourceLink': 'Conferir a fonte: {source}',
+  'weather.effect.noneDay': 'Dia calmo no Sol: os cards de tempestade solar não aparecem nesta missão.',
+  'weather.kindHist': 'Um dia real do arquivo da NOAA: {date}',
+  'weather.kindLive': 'Dado ao vivo da NASA DONKI, consultado no início desta missão',
+  'weather.inGame': 'No jogo',
+  'weather.calm': 'Calmo',
+  'weather.realEvent': 'Dado real desta missão: flare {classType} em {date}.',
+  'weather.listenAria': 'Ouvir o clima espacial',
+  'weather.newTab': 'abre em outra aba',
+  'weather.introKicker': 'Antes de começar',
+  'weather.chipKicker': 'Dado real',
+  'weather.gotIt': 'Entendi',
+  'weather.chipAria': 'Clima espacial desta missão: {label}. Abrir detalhes',
 
   // ----- menu de engrenagem (em partida) -----
   'gear.save': 'Salvar partida',
@@ -985,7 +1021,9 @@ export const UI_PT: Dict = {
   'credits.donkiNote': '“Experimental Research Information” (informação experimental de pesquisa) da NASA CCMC DONKI / Moon to Mars Space Weather Analysis Office (M2M SWAO).',
   'credits.references': 'Referências científicas',
   'credits.images': 'Imagens e arte',
-  'credits.imagesBody': 'Fotos da Lua, de Marte, de astronautas e de equipamentos da estação espacial: NASA (Image and Video Library, LRO, Apollo e outras missões). As fotos de astronautas são usadas como arte de personagens fictícios. Molduras das cartas feitas no Canva. Lista completa de cada arquivo e sua licença no CREDITS.md.',
+  'credits.imagesBody': 'Fotos da Lua, de Marte, de astronautas e de equipamentos da estação espacial: NASA (Image and Video Library, LRO, Apollo e outras missões). As fotos de astronautas são usadas como arte de personagens fictícios. O céu e a Lua da cena de abertura são imagens geradas por IA (marcadas na tela). Molduras das cartas feitas no Canva. Lista completa de cada arquivo e sua licença em docs/ASSETS.md.',
+  'credits.aiTitle': 'Uso de IA',
+  'credits.aiBody': 'A ideia e as regras do jogo são da equipe; a IA ajudou a redigir a especificação. Ferramentas de IA (Claude Code, da Anthropic) ajudaram a escrever o código, os textos das cartas e a pesquisar e conferir os dados da NASA, sempre revisados pela equipe. A música de fundo, as imagens da cena de abertura e o ícone do app foram gerados com IA. Detalhes no README.md.',
   'credits.software': 'Software, fontes tipográficas e ícones',
   'credits.license': 'Código-fonte do Lunar Outpost: licença MIT. Dados, imagens, fontes e bibliotecas de terceiros mantêm suas próprias licenças (veja CREDITS.md).',
   'credits.officialNote': 'Tradução do aviso oficial do NASA Space Apps Challenge: “A NASA não endossa nenhuma entidade que não seja do Governo dos EUA e não é responsável por informações contidas em sites que não sejam do Governo dos EUA.”',

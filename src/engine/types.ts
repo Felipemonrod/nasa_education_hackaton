@@ -115,6 +115,13 @@ export interface Card {
   /** Ultimo recurso do deck quando o pool seca. Nunca sorteado normalmente. */
   readonly isFallback?: boolean;
   /**
+   * Locais de pouso onde o card faz sentido (ids de LUNAR_SITE_IDS). Ausente
+   * = card universal. Ex.: gelo em sombra permanente so no polo sul; tubo de
+   * lava so onde ha pocos de tubo conhecidos. Filtrado em TODA camada do
+   * sorteio (deck.ts, `siteAllows`).
+   */
+  readonly sites?: readonly string[];
+  /**
    * Card de tempestade solar. A chance de sorteio e multiplicada por
    * `balance.flareWeight` conforme a classe do clima espacial da missao:
    * 'weak' responde a qualquer classe; 'strong' (classe X) so a dia classe X.
@@ -168,7 +175,20 @@ export interface RunConfig {
    * no save: recarregar reproduz os mesmos sorteios.
    */
   readonly spaceWeather: SpaceWeather;
+  /**
+   * Local de pouso (id de LUNAR_SITE_IDS). Restringe os cards com `sites`.
+   * Opcional: saves anteriores ao recorte por local nao tem o campo e seguem
+   * jogaveis com TODOS os cards liberados, como eram.
+   */
+  readonly site?: string;
 }
+
+/**
+ * Ids dos locais de pouso lunares que o conteudo pode citar em `Card.sites`.
+ * Fonte unica no engine (puro); tests/sites.test.ts garante que bate com
+ * src/app/data/sites.ts.
+ */
+export const LUNAR_SITE_IDS = ['tranquillitatis', 'shackleton', 'marius'] as const;
 
 export interface DeckState {
   /** ids ainda disponiveis para sorteio nesta partida. */

@@ -45,6 +45,16 @@ function phaseMatches(card: Card, phase: Phase): boolean {
   return card.phase === 'any' || card.phase === phase;
 }
 
+/**
+ * Recorte por local de pouso. Card sem `sites` e universal; com `sites`, so
+ * entra quando o local da partida esta na lista. Partida sem local (save
+ * anterior ao recorte) libera tudo, como era antes.
+ */
+export function siteAllows(card: Card, site: string | undefined): boolean {
+  if (site === undefined || card.sites === undefined) return true;
+  return card.sites.includes(site);
+}
+
 function routineReady(card: Card, deck: DeckState, day: number): boolean {
   if (card.kind !== 'routine') return true;
   const last = deck.routineLastDay[card.id];
@@ -61,6 +71,8 @@ export interface DrawQuery {
   readonly preferTrack?: TrackStat;
   /** Classe do clima espacial da missao; pondera os cards de tempestade. */
   readonly flareClass?: FlareClass;
+  /** Local de pouso da partida; ausente = todos os cards liberados. */
+  readonly site?: string | undefined;
 }
 
 /**
@@ -88,6 +100,7 @@ function eligible(index: CardIndex, deck: DeckState, query: DrawQuery): Card[] {
     .filter((card) =>
       card.role === query.role &&
       phaseMatches(card, query.phase) &&
+      siteAllows(card, query.site) &&
       requirementsMet(card.requires, query.stats) &&
       routineReady(card, deck, query.day));
 }
@@ -99,6 +112,8 @@ function eligible(index: CardIndex, deck: DeckState, query: DrawQuery): Card[] {
  *   2. rotinas ignorando cooldown
  *   3. cards do pool ignorando limiares (requires)
  *   4. card de fallback declarado no conteudo
+ * O recorte por local de pouso (`siteAllows`) vale em TODAS as camadas:
+ * fallback nenhum pode trazer gelo polar para o equador.
  */
 export function drawCard(
   index: CardIndex,
@@ -132,7 +147,8 @@ export function drawCard(
 
   const ignoringCooldown = deck.available
     .map((id) => getCard(index, id))
-    .filter((c) => c.kind === 'routine' && c.role === query.role && phaseMatches(c, query.phase));
+    .filter((c) =>
+      c.kind === 'routine' && c.role === query.role && phaseMatches(c, query.phase) && siteAllows(c, query.site));
   if (ignoringCooldown.length > 0) {
     const pick = pickOne(seed, cursor, ignoringCooldown);
     if (pick !== null) return { cardId: pick.value.id, cursor: pick.cursor, usedFallback: true };
@@ -140,17 +156,20 @@ export function drawCard(
 
   const ignoringThresholds = deck.available
     .map((id) => getCard(index, id))
-    .filter((c) => c.role === query.role && phaseMatches(c, query.phase) && weight(c) > 0);
+    .filter((c) =>
+      c.role === query.role && phaseMatches(c, query.phase) && siteAllows(c, query.site) && weight(c) > 0);
   if (ignoringThresholds.length > 0) {
     const pick = pickOne(seed, cursor, ignoringThresholds);
     if (pick !== null) return { cardId: pick.value.id, cursor: pick.cursor, usedFallback: true };
   }
 
+  const isSiteFallback = (c: Card): boolean =>
+    c.isFallback === true && phaseMatches(c, query.phase) && siteAllows(c, query.site);
   const fallback =
-    index.all.find((c) => c.isFallback === true && c.role === query.role && phaseMatches(c, query.phase)) ??
-    index.all.find((c) => c.isFallback === true && phaseMatches(c, query.phase));
+    index.all.find((c) => isSiteFallback(c) && c.role === query.role) ??
+    index.all.find(isSiteFallback);
   if (fallback === undefined) {
-    throw new Error(`Conteudo sem card de fallback para ${query.role}/${query.phase}`);
+    throw new Error(`Conteudo sem card de fallback para ${query.role}/${query.phase} em ${query.site ?? 'qualquer local'}`);
   }
   return { cardId: fallback.id, cursor: cursor + 1, usedFallback: true };
 }

@@ -10,6 +10,7 @@ import { OutcomePanel } from '../components/OutcomePanel.js';
 import { ResourceHUD } from '../components/ResourceHUD.js';
 import { SpaceWindow } from '../components/SpaceWindow.js';
 import { TUTORIAL_STEP_COUNT, TutorialOverlay } from '../components/TutorialOverlay.js';
+import { WeatherDialog, isLegacyWeather, stormEventSentence, weatherChipLabel } from '../components/WeatherNote.js';
 import { joinSpoken, useSpeech } from '../a11y/speech.js';
 import { useAnnounce } from '../a11y/useA11y.js';
 import { useContent } from '../i18n/useContent.js';
@@ -29,6 +30,12 @@ function useMinWidth(px: number): boolean {
 }
 
 const SLOT_CLOCK: readonly string[] = ['08:00', '13:00', '20:00', '01:00'];
+
+/**
+ * Seeds das partidas cujo painel de clima de abertura ja foi fechado nesta
+ * sessao: sair para Configuracoes e voltar nao reabre o painel.
+ */
+const weatherIntroSeen = new Set<number>();
 
 export function Game(): JSX.Element {
   const {
@@ -59,6 +66,21 @@ export function Game(): JSX.Element {
   const [shaking, setShaking] = useState(false);
   const [outcomeVisible, setOutcomeVisible] = useState(false);
   const shakeTimerRef = useRef<number | null>(null);
+
+  // Clima espacial REAL da missao (NOAA/SWPC historico ou NASA DONKI ao
+  // vivo). Ele ja muda o sorteio das tempestades no engine; aqui ele fica
+  // visivel: painel no primeiro turno, chip no cabecalho e faixa na carta.
+  const missionWeather = run !== null && !isLegacyWeather(run.config.spaceWeather) ? run.config.spaceWeather : null;
+  const [weatherDialog, setWeatherDialog] = useState<'intro' | 'chip' | null>(() => (
+    run !== null && missionWeather !== null && run.status === 'running' && outcome === null
+      && run.day === 1 && run.slot === 0 && !weatherIntroSeen.has(run.seed)
+      ? 'intro'
+      : null
+  ));
+  const closeWeatherDialog = (): void => {
+    if (run !== null) weatherIntroSeen.add(run.seed);
+    setWeatherDialog(null);
+  };
 
   useEffect(() => {
     const timer = window.setTimeout(() => { setCardReady(true); }, 3000);
@@ -158,7 +180,11 @@ export function Game(): JSX.Element {
     ? slotCards.filter((_, index) => index === mobileCardIndex)
     : slotCards;
   const visibleText = joinSpoken(
-    visibleCards.flatMap((entry) => [content.cardTitle(entry.card), content.cardText(entry.card)]),
+    visibleCards.flatMap((entry) => [
+      content.cardTitle(entry.card),
+      content.cardText(entry.card),
+      entry.card.solarFlare !== undefined ? stormEventSentence(missionWeather, locale, t) : null,
+    ]),
   );
   // Chave do que esta VISIVEL neste turno: trocar de aba narra a outra
   // carta, mas fechar e reabrir o modal nao repete o mesmo audio. Ciclo e
@@ -171,10 +197,11 @@ export function Game(): JSX.Element {
 
   useEffect(() => {
     if (!autoRead || tutorialActive || visibleKey === null || outcome !== null || !cardReady || visibleText.length === 0) return;
-    if (!cardsOnScreen || narratedRef.current.has(visibleKey)) return;
+    // Painel de clima aberto por cima: narra a carta so quando ele fechar.
+    if (!cardsOnScreen || weatherDialog !== null || narratedRef.current.has(visibleKey)) return;
     narratedRef.current.add(visibleKey);
     speak(visibleText, { locale, rate: speechRate, volume: speechVolume });
-  }, [autoRead, tutorialActive, visibleKey, outcome, cardReady, visibleText, cardsOnScreen, speak, locale, speechRate, speechVolume]);
+  }, [autoRead, tutorialActive, visibleKey, outcome, cardReady, visibleText, cardsOnScreen, weatherDialog, speak, locale, speechRate, speechVolume]);
 
   // Desfecho: narrado quando o PAINEL aparece (ha 1,8 s de animacao antes),
   // com o mesmo texto traduzido que ele mostra. A explicacao so entra na
@@ -247,6 +274,19 @@ export function Game(): JSX.Element {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
+          {missionWeather !== null ? (
+            <button
+              type="button"
+              data-weather="chip"
+              onClick={() => { setWeatherDialog('chip'); }}
+              aria-haspopup="dialog"
+              aria-label={t('weather.chipAria', { label: weatherChipLabel(missionWeather, t) })}
+              className="flex h-11 min-w-11 items-center justify-center gap-1 rounded-2xl glass px-2 font-display text-xs font-extrabold text-amber-100 transition-colors hover:border-power/50 hover:bg-white/10 [@media(max-height:540px)]:h-9 [@media(max-height:540px)]:min-w-9 [@media(max-height:540px)]:rounded-xl lg:h-11 lg:min-w-11 lg:rounded-2xl lg:px-3"
+            >
+              <Sun size={17} className="shrink-0 text-power" aria-hidden />
+              <span className="max-[379px]:sr-only">{weatherChipLabel(missionWeather, t)}</span>
+            </button>
+          ) : null}
           <button
             type="button"
             data-tutorial="window"
@@ -447,6 +487,7 @@ export function Game(): JSX.Element {
                         compact={isPair}
                         inModal={modalOpen}
                         isFirstCard={index === 0}
+                        weather={missionWeather}
                         onHoverOption={setHoveredOption}
                         onChoose={(optionId) => {
                           setHoveredOption(null);
@@ -476,6 +517,10 @@ export function Game(): JSX.Element {
 
       {spaceOpen ? <SpaceWindow onClose={() => { setSpaceOpen(false); }} /> : null}
 
+      {weatherDialog !== null && missionWeather !== null ? (
+        <WeatherDialog weather={missionWeather} intro={weatherDialog === 'intro'} onClose={closeWeatherDialog} />
+      ) : null}
+
       {gearOpen ? (
         <GearMenu
           onSave={saveRun}
@@ -504,6 +549,7 @@ export function Game(): JSX.Element {
           onPrev={prevTutorial}
           onStep={goToTutorialStep}
           onSkip={skipTutorial}
+          paused={weatherDialog !== null}
         />
       ) : null}
     </div>

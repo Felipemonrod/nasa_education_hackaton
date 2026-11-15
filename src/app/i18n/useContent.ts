@@ -1,6 +1,7 @@
 import {
-  cardTextKey, cardTitleKey, contentText, glossaryKey, loadoutKey, optionKey, siteKey,
+  cardTextKey, cardTitleKey, contentText, glossaryKey, hasContentKey, loadoutKey, optionKey, siteKey, sourceKey,
 } from '../../content/locales/index.js';
+import { cardSource } from '../../content/cardSources.js';
 import type { Card, CardOption } from '../../engine/types.js';
 import { useI18n } from './useI18n.js';
 
@@ -24,6 +25,19 @@ export interface ContentReader {
   glossaryShort(id: string, fallback: string): string;
   loadout(id: string, field: 'name' | 'role' | 'blurb' | 'effect', fallback: string): string;
   site(id: string, field: 'name' | 'region' | 'blurb' | 'why' | 'note', fallback: string): string;
+  /**
+   * Fato real + fonte do card (content/cardSources.ts). `undefined` quando o
+   * card nao tem fonte conferida OU o fato nao existe no dicionario: sem
+   * fallback de texto aqui, porque fato sem fonte (ou fonte sem fato) nao
+   * deve aparecer.
+   */
+  cardSource(card: Card): CardSourceView | undefined;
+}
+
+export interface CardSourceView {
+  readonly fact: string;
+  readonly url: string;
+  readonly org: string;
 }
 
 export function useContent(): ContentReader {
@@ -48,5 +62,11 @@ export function useContent(): ContentReader {
     glossaryShort: (id, fallback) => get(glossaryKey(id, 'short'), fallback),
     loadout: (id, field, fallback) => get(loadoutKey(id, field), fallback),
     site: (id, field, fallback) => get(siteKey(id, field), fallback),
+    cardSource: (card) => {
+      const source = cardSource(card.id);
+      const key = sourceKey(card.id);
+      if (source === undefined || (!hasContentKey(locale, key) && !hasContentKey('en', key))) return undefined;
+      return { fact: contentText(locale, key), url: source.url, org: source.org };
+    },
   };
 }

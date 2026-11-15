@@ -1,4 +1,4 @@
-import { drawCard, getCard, removeFromPool } from './deck.js';
+import { drawCard, getCard, removeFromPool, siteAllows } from './deck.js';
 import type { CardIndex } from './deck.js';
 import type { Balance } from './balance.js';
 import { trackFor } from './balance.js';
@@ -23,6 +23,10 @@ import type { Card, Phase, PresentedSlot, RunState, SlotSpec } from './types.js'
  *
  * Em slot `pair`, a regra acima decide apenas a METADE BASICA. A metade de
  * recurso extra e SEMPRE sorteada do pool de extras: o par nunca e cancelado.
+ *
+ * Recorte por local de pouso (`config.site`): vale para o sorteio (as duas
+ * metades do par), para a capsula e para sequenciais pendentes. Card com
+ * `sites` que nao inclui o local da partida nunca chega a mesa.
  */
 
 export function slotSpec(state: RunState): SlotSpec {
@@ -57,9 +61,10 @@ function pickBasicHalf(
   phase: Phase,
   cursor: number,
 ): BasicPick {
+  const site = state.config.site;
   const isCapsuleSlot = state.day === state.config.capsuleDay && state.slot === 0;
   if (isCapsuleSlot) {
-    const capsule = index.all.find((c) => c.role === 'event');
+    const capsule = index.all.find((c) => c.role === 'event' && siteAllows(c, site));
     if (capsule === undefined) throw new Error('Conteudo sem o evento da Capsula de Suprimentos');
     if (!state.deck.used.includes(capsule.id)) {
       return { cardId: capsule.id, cursor, state, usedFallback: false };
@@ -68,7 +73,7 @@ function pickBasicHalf(
 
   const pending = state.pendingSequential.find((p) => {
     const card = getCard(index, p.cardId);
-    return phaseAccepts(card, phase);
+    return phaseAccepts(card, phase) && siteAllows(card, site);
   });
   if (pending !== undefined) {
     const next: RunState = {
@@ -92,6 +97,7 @@ function pickBasicHalf(
     day: state.day,
     stats: state.stats,
     flareClass: state.config.spaceWeather.flareClass,
+    site,
   });
   return { cardId: draw.cardId, cursor: draw.cursor, state, usedFallback: draw.usedFallback };
 }
@@ -137,6 +143,7 @@ export function resolveSlot(state: RunState, index: CardIndex, balance: Balance)
     day: working.day,
     stats: working.stats,
     preferTrack: trackFor(working.config.objective),
+    site: working.config.site,
   });
   cursor = extraDraw.cursor;
   if (extraDraw.usedFallback) fallbacks += 1;

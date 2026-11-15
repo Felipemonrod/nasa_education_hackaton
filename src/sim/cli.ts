@@ -4,6 +4,7 @@ import { drainReport } from '../engine/run.js';
 import { validateCards } from '../content/schema.js';
 import { POLICIES } from './policies.js';
 import { evaluate } from './montecarlo.js';
+import type { PolicyReport } from './montecarlo.js';
 import type { MissionObjective } from '../engine/types.js';
 
 const RUNS = Number(process.argv[2] ?? 2000);
@@ -48,6 +49,7 @@ for (const objective of objectives) {
   console.log(`\n=== MONTE CARLO - objetivo: ${objective} (${RUNS} partidas por politica) ===`);
   console.log('  (cada partida com local de pouso e loadout inicial sorteados pela seed, como no app)');
   console.log('  politica    vitoria   p/tempo  p/objetivo | O2   ENE  COM  DOSE | dia-morte  fallback  trilho  dose-fim  min-basico');
+  const reports: PolicyReport[] = [];
   for (const policy of POLICIES) {
     const r = evaluate(policy, objective, RUNS);
     const causes = r.lossCauses;
@@ -58,6 +60,19 @@ for (const objective of objectives) {
       ` | ${num(r.avgLossDay)}      ${num(r.avgFallbackUses)}     ${num(r.avgFinalTrack)}` +
       `     ${num(r.avgFinalDose)}      ${num(r.avgLowestBasic)}`,
     );
+    reports.push(r);
+  }
+  // Recorte por local de pouso: cada local tem um baralho um pouco diferente
+  // (Card.sites). Vitoria e fallback por local mostram se algum ficou magro.
+  const sites = Object.keys(reports[0]?.bySite ?? {});
+  console.log(`  por local    ${sites.map((s) => `${s.padEnd(16)}`).join('')}`);
+  console.log(`  (vitoria / fallback por partida)`);
+  for (const r of reports) {
+    const cells = sites.map((s) => {
+      const site = r.bySite[s];
+      return site === undefined ? ''.padEnd(16) : `${pct(site.winRate)} / ${num(site.avgFallbackUses)}`.padEnd(16);
+    });
+    console.log(`  ${r.policy.padEnd(10)}   ${cells.join('')}`);
   }
 }
 

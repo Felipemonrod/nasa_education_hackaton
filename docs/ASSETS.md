@@ -1,0 +1,107 @@
+# Assets: origin, license and AI use
+
+Every image, sound and font file shipped in `public/` (and loaded at runtime), with its source,
+license, whether AI was used to make it, and where the game uses it. Facts come from the files'
+own metadata, the git history and answers from the team. Anything we could not prove is marked
+**`TODO(team)`**; it is a declared gap, not a claim.
+
+Rules this file follows (NASA Space Apps 2026 guide): every external resource is listed; AI-generated
+images carry a **visible watermark**; AI-generated audio is acknowledged **in text and in the file
+metadata**; NASA branding is not used and no NASA endorsement is implied; no image, video or audio of
+people under 18.
+
+## 1. Images
+
+### 1.1 NASA photos used on cards (confirmed by NASA ID)
+
+Source: NASA Image and Video Library (<https://images.nasa.gov>). License: NASA Images and Media Usage
+Guidelines (generally not copyrighted in the U.S.; credit NASA; do not imply endorsement). IDs are also
+in `public/cards/nasa/manifest.json` and in `src/app/components/CardArtwork.tsx`. The four commander
+photos show **real astronauts used as art for fictional characters**; every one of them carries a
+visible caption on screen ("Real photo: NASA/… · fictional character"). The people pictured are not the
+characters and do not endorse the project.
+
+| File | What it is | NASA ID / credit | AI? | Used in |
+|---|---|---|---|---|
+| `public/cards/nasa/cmd_engineer.jpg` | Astronaut Shane Kimbrough servicing a microscope on the ISS (2021) | `iss065e241981`, NASA/JSC | No | Commander card |
+| `public/cards/nasa/cmd_medic.jpg` | Astronaut Chris Williams in Crew Medical Officer training on the ISS (2026) | `iss074e0316047`, NASA/JSC | No | Commander card |
+| `public/cards/nasa/cmd_geologist.jpg` | Astronaut candidates Kayla Barron and Jessica Watkins in geology training (2019) | `jsc2019e054994`, NASA/Bill Stafford | No | Commander card |
+| `public/cards/nasa/cmd_botanist.jpg` | Astronaut Christina Koch with the Veggie PONDS experiment on the ISS (2019) | `iss059e035668`, NASA/JSC | No | Commander card |
+| `public/cards/nasa/str_regolith_vault.jpg` | Illustration of a lunar habitat and pressurized rover (2025) | "Moon to Mars Transportation and Habitation", NASA HQ | No (NASA illustration) | Structure card |
+| `public/cards/nasa/str_greenhouse.jpg` | Plants in Veggie hardware, ISS simulation chamber at Kennedy (2017) | `KSC-20170808-PH_CSH01_0092`, NASA/KSC | No | Structure card |
+| `public/cards/nasa/str_water_wall.jpg` | ISS Water Recovery System rack (2008) | `KSC-08pd3208`, NASA/KSC | No | Structure card |
+| `public/cards/nasa/str_solar_farm.jpg` | Artist's concept of the ISS with solar arrays deployed (STS-97, 2000) | `0101424`, NASA/MSFC | No | Structure card |
+
+### 1.2 NASA photos on the destination screens (team-confirmed as NASA; IDs pending)
+
+The team confirmed these are NASA images. Only `site_marius.jpg` carries its credit in the file
+metadata; for the others we list what the image itself shows and leave the exact NASA ID as a TODO.
+
+| File | What it shows | Evidence | AI? | Used in |
+|---|---|---|---|---|
+| `public/cards/nasa/site_marius.jpg` | Marius Hills pit, possible lava-tube skylight | XMP/IPTC in the file: "taken by NASA's Lunar Reconnaissance Orbiter", 2010-03-01, credit **NASA/GSFC/Arizona State University** | No | Landing site "Marius Hills" |
+| `public/cards/nasa/site_shackleton.jpg` | Lunar south polar region | Text burned into the image: "Clementine Mission … Lunar South Polar Region". `TODO(team)`: NASA page / ID | No (team) | Landing site "Shackleton" |
+| `public/cards/nasa/site_tranquillitatis.jpg` | Apollo surface photo (Hasselblad réseau crosses) | `TODO(team)`: mission and frame number | No (team) | Landing site "Mare Tranquillitatis" |
+| `public/cards/nasa/dest_moon.jpg` | Full Moon | Looks like the LRO/LROC full-Moon mosaic. `TODO(team)`: NASA page | No (team) | Destination (Moon), landing map |
+| `public/cards/nasa/dest_mars.jpg` | Mars (Valles Marineris) | Looks like the Viking Orbiter mosaic. `TODO(team)`: NASA page | No (team) | Destination (Mars, "coming soon") |
+| `public/cards/nasa/obj_science.jpg` | Apollo 17 astronaut at the split boulder | Probably `AS17-140-21496`. `TODO(team)`: confirm ID | No (team) | Objective "Science" |
+| `public/cards/nasa/obj_life_invitro.jpg` | Seedlings in a growth plate (ISS) | `TODO(team)`: NASA ID | No (team) | Objective "Life support" |
+| `public/cards/nasa/obj_life_chamber.jpg` | Radishes in the ISS Advanced Plant Habitat | `TODO(team)`: NASA ID | No (team) | Objective "Life support" |
+
+### 1.3 AI-generated images (watermarked)
+
+| File | What it is | AI? | Watermark | Used in |
+|---|---|---|---|---|
+| `public/cutscene/sky.jpg` | Night sky background | **Yes** (team). Tool: `TODO(team)` | Visible badge "Images made with AI" on the cutscene screen (`src/app/screens/Cutscene.tsx`) | Opening cutscene |
+| `public/cutscene/moon.jpg` | The Moon seen from orbit | **Yes** (team). Tool: `TODO(team)` | Same badge | Opening cutscene |
+| `public/icon.svg`, `public/icon-192.png`, `public/icon-512.png`, `public/icon-maskable.png` | App icon (stylized Moon) | **Yes** (team). The SVG was added in commit `705fd32`, co-authored by Claude | Declared in text here, in the README and on the Credits screen. A watermark is not legible at icon size (16–512 px). `TODO(team)`: keep as is or replace | Browser tab, installed PWA icon |
+
+### 1.4 Team-made art
+
+| File | What it is | Author | License | AI? | Used in |
+|---|---|---|---|---|---|
+| `public/cards/SolCard2.png`, `LuaCard2.png`, `CiencCard.png`, `HealCard.png`, `ItemCard.png`, `CommanderCard.png`, `StructureCard.png` | Card frames (day, night, science, life support, item, commander, structure) | Designed by the team in **Canva** (commit `5db593d`; Canva metadata) | Canva content license of the team's account: `TODO(team)` confirm (Free or Pro) | No (team) | All cards (`CardArtwork.tsx`, `CardView.tsx`, `Loadout.tsx`, `Deck.tsx`) |
+| `public/mascot/robot-points-left.webp`, `robot-points-right.webp` | Robot mascot of the tutorial (its emblem is **not** the NASA logo) | Drawn by the team (commit `1e549dc`). `TODO(team)`: author name | MIT, like the code (`TODO(team)` confirm) | No (team) | Tutorial (`TutorialOverlay.tsx`) |
+| `public/logo.ico` | Team "HEAD" logo | `TODO(team)` | `TODO(team)` | `TODO(team)` | **Not used** by the app. `TODO(team)`: keep or delete |
+
+**Metadata cleanup (15/11/2026).** The Canva export embedded an XMP block (PNG `iTXt` chunk) with a
+person's name and internal Canva account IDs in every frame. Because these files are public, the
+`iTXt` and `eXIf` chunks were removed from the 7 frames **without re-encoding**: all other chunks are
+byte-identical and the concatenated `IDAT` data has the same SHA-256 before and after. The old frames
+in the git history still contain that metadata; removing it from history would require rewriting it.
+
+## 2. Audio
+
+| File | What it is | AI? | Acknowledgment | Used in |
+|---|---|---|---|---|
+| `public/audio/silent-horizon-1.mp3`, `silent-horizon-2.mp3` | Background music ("Silent Horizon" 1 and 2) | **Yes** (team). Tool: `TODO(team)` | Text: here, README, Credits screen. **Metadata:** ID3v2.4 tag `COMM` = "AI-generated music. Declared by the Lunar Outpost team (NASA Space Apps Challenge 2026). See docs/ASSETS.md." and `TXXX:AI_GENERATED=true` (audio frames unchanged) | `src/app/audio/music.ts` (can be muted in Settings) |
+
+Narration uses the browser's built-in Web Speech API (the device's own voices); the project ships no
+voice recordings.
+
+## 3. Fonts and icons
+
+| Asset | Author | License | Loaded from |
+|---|---|---|---|
+| Baloo 2 (500, 700, 800) | Ek Type | SIL Open Font License 1.1 | Google Fonts (`index.html`) |
+| Nunito (400, 600, 700, 800) | Vernon Adams, Cyreal, Jacques Le Bailly | SIL Open Font License 1.1 | Google Fonts (`index.html`) |
+| Lucide icons (`lucide-react` 0.468.0) | Lucide contributors (parts from Feather, Cole Bemis) | ISC (Feather parts MIT) | npm bundle |
+
+## 4. Images loaded at runtime (not shipped)
+
+The "look at space" window loads live images; each shows its own credit on screen.
+
+| Source | What | Credit shown |
+|---|---|---|
+| NOAA/NESDIS GOES-19 GeoColor | Near-live full-disk Earth | "NOAA GOES-19" |
+| NASA EPIC / NOAA DSCOVR | Whole sunlit Earth from ~1.5 million km | "NASA EPIC" |
+| NASA APOD | Astronomy Picture of the Day | Photographer's credit when the APOD has one ("Photo: … · via NASA APOD") |
+| NASA Image and Video Library | Fallback space photos | NASA, plus photographer when provided |
+
+## 5. Open questions for the team
+
+1. Which AI tool generated the music and the cutscene images? (Add it to sections 1.3 and 2.)
+2. NASA IDs or page links for the seven destination photos in section 1.2.
+3. Canva license tier used for the card frames.
+4. Mascot author (name to credit) and whether `public/logo.ico` stays.
+5. Keep the AI-generated app icon, or replace it?

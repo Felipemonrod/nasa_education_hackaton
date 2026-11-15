@@ -91,6 +91,11 @@ export const runStateSchema = z.object({
       equipmentId: z.string(),
     }),
     spaceWeather: spaceWeatherSchema,
+    // Local de pouso (recorte de cards por local). OPCIONAL de proposito, sem
+    // subir SCHEMA_VERSION: save v3 anterior ao campo carrega sem migracao e
+    // joga com todos os cards liberados (comportamento de antes). Sem esta
+    // linha o zod descartaria o campo e o recorte sumiria ao recarregar.
+    site: z.string().min(1).optional(),
   }),
   deck: z.object({
     available: z.array(z.string()),

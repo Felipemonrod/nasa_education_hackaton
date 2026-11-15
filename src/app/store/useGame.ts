@@ -340,6 +340,9 @@ export const useGame = create<GameStore>()((set, get) => ({
       objective: draft.objective,
       // DONKI ao vivo se ja respondeu; senao registro historico verificado.
       spaceWeather: weatherForNewRun(seed),
+      // Local de pouso recorta o baralho: gelo polar so em Shackleton,
+      // tubo de lava so em Marius/Tranquillitatis (Card.sites).
+      site: draft.siteId,
       tutorial: draft.tutorial && !useAccount.getState().tutorialSeen,
       loadout: {
         commanderId: draft.commanderId ?? 'none',

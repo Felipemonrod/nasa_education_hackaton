@@ -121,7 +121,9 @@ Os números de linha referem-se ao código depois das correções.
 | `loadout.*.blurb` (ex.: "11 meses na estação", "alface por 400 dias") | Biografias de personagens fictícios | | **ficção declarada** |
 | `travel.difficultyLine` | "Dificuldade **calculada**" | Nada era calculado; agora diz "Dificuldade: Iniciante" | **corrigido** |
 | `menu.disclaimer` | "Dados ... NASA" | Agora: "NASA DONKI e NOAA/SWPC; imagens NASA APOD", o que de fato é consultado | **corrigido** |
-| `credits.ts` | NASA EPIC listada como fonte | Nenhum código chamava a EPIC. Removida dos créditos e do cache do service worker | **corrigido** |
+| `credits.ts` | NASA EPIC listada como fonte | Nenhum código chamava a EPIC. Removida dos créditos e do cache do service worker | **corrigido** (ver nota abaixo) |
+
+> **Nota de 15/11/2026:** a EPIC voltou a ser usada depois desta auditoria: `src/app/services/nasa.ts` (`tryEpic`) é o 2º provedor da janela "olhar o espaço". Ela foi recolocada nos créditos (`src/app/data/credits.ts` e `CREDITS.md`).
 | `credits.ts` | "Seu nome aqui", `voce@exemplo.com` | Pessoas inventadas. A lista agora está vazia e a seção fica oculta | **pendente do dono** |
 | `credits.ts` | "NASA Education Hackathon" | | **pendente do dono** |
 

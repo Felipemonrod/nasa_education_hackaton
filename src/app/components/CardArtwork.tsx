@@ -285,8 +285,12 @@ export function NasaCardPhoto({
         className={`pointer-events-none absolute hidden text-center [@container_(min-width:96px)]:block ${
           isCommander ? 'inset-x-[18%] bottom-[12%]' : 'inset-x-[14%] bottom-[4%]'
         }`}
-        // Fonte proporcional a largura da janela (cqw), entre 6px e 10px.
-        style={{ fontSize: 'clamp(6px, 4.6cqw, 10px)' }}
+        // Fonte proporcional a largura da janela (cqw), entre 6px e 11px.
+        // 5.2cqw: nas cartas medias (celular em pe, carta ampliada) a legenda
+        // sobe para 8-11px. O piso fica em 6px: na janela de ~100 px (celular
+        // deitado) 7px quebrava em 4 linhas e o line-clamp cortava justamente
+        // "personagem ficticio".
+        style={{ fontSize: 'clamp(6px, 5.2cqw, 11px)' }}
       >
         <span className="line-clamp-3 rounded-md bg-black/65 px-[0.5em] py-[0.2em] font-semibold leading-[1.2] text-white">
           {caption}

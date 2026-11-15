@@ -81,6 +81,11 @@ export function Credits(): JSX.Element {
           <h2 className={`mt-5 ${HEADING}`}>{t('credits.images')}</h2>
           <p className="mt-2 text-[0.8rem] leading-relaxed text-slate-300">{t('credits.imagesBody')}</p>
 
+          {/* Declaracao de uso de IA exigida pelo guia do Space Apps. So fatos
+              confirmados pela equipe; detalhes em README.md e docs/ASSETS.md. */}
+          <h2 className={`mt-5 ${HEADING}`}>{t('credits.aiTitle')}</h2>
+          <p className="mt-2 text-[0.8rem] leading-relaxed text-slate-300">{t('credits.aiBody')}</p>
+
           <h2 className={`mt-5 ${HEADING}`}>{t('credits.software')}</h2>
           <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1.5 text-[0.76rem] leading-snug text-slate-300">
             {SOFTWARE.map((item) => (

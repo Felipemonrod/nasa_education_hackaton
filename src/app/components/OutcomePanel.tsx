@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, CheckCircle2, ChevronDown, CircleAlert, Info, MinusCircle } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CheckCircle2, ChevronDown, CircleAlert, Info, MinusCircle, Telescope } from 'lucide-react';
 import { ALL_STATS } from '../../engine/types.js';
-import type { Stat, Stats, Verdict } from '../../engine/types.js';
+import type { Card, Stat, Stats, Verdict } from '../../engine/types.js';
 import { GlossaryText } from './GlossaryText.js';
 import { joinSpoken } from '../a11y/speech.js';
 import { SpeakButton } from './SpeakButton.js';
@@ -86,6 +86,42 @@ function DeltaRow({ title, from, to, help }: { title: string; from: Stats; to: S
   );
 }
 
+/**
+ * Linha "Fato real · Fonte" do card (content/cardSources.ts + chave
+ * source.<cardId>.fact). Card sem fonte conferida nao mostra nada. Usada
+ * aqui e no detalhe do baralho (Deck.tsx).
+ */
+export function CardSourceLine({ card, className }: { card: Card; className?: string }): JSX.Element | null {
+  const t = useT();
+  const content = useContent();
+  const source = content.cardSource(card);
+  if (source === undefined) return null;
+  return (
+    <p
+      data-card-source={card.id}
+      className={`flex min-w-0 items-start gap-2 rounded-2xl border border-sky-300/20 bg-sky-400/[.07] px-3 py-2 text-[0.76rem] leading-snug text-slate-200 ${className ?? ''}`}
+    >
+      <Telescope size={14} className="mt-0.5 shrink-0 text-sky-300" aria-hidden />
+      <span className="min-w-0 break-words">
+        <span className="font-extrabold text-sky-200">{t('source.factLabel')}</span>{' '}
+        {source.fact}{' '}
+        <span className="whitespace-nowrap text-slate-300">
+          <span aria-hidden>· </span>{t('source.sourceLabel')}{' '}
+          <a
+            href={source.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t('source.linkAria', { org: source.org })}
+            className="inline-flex items-center gap-0.5 rounded font-extrabold text-sky-300 underline underline-offset-2 hover:text-sky-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/60"
+          >
+            {source.org}<ArrowUpRight size={12} className="shrink-0" aria-hidden />
+          </a>
+        </span>
+      </span>
+    </p>
+  );
+}
+
 export function OutcomePanel({
   outcome, onContinue, showWhyByDefault,
 }: {
@@ -104,6 +140,8 @@ export function OutcomePanel({
   const line = content.outcomeLine(outcome.card, outcome.option);
   const why = content.outcomeWhy(outcome.card, outcome.option);
   const mistake = content.outcomeMistake(outcome.card, outcome.option);
+  const source = content.cardSource(outcome.card);
+  const sourceSpoken = source === undefined ? undefined : t('source.spoken', { fact: source.fact, org: source.org });
 
   useEffect(() => {
     // preventScroll: no celular deitado o painel rola; focar "Continuar" sem
@@ -150,7 +188,7 @@ export function OutcomePanel({
               {line}
             </p>
           </div>
-          <SpeakButton text={joinSpoken([line, why, mistake])} label={t('outcome.listenAria')} />
+          <SpeakButton text={joinSpoken([line, why, mistake, sourceSpoken])} label={t('outcome.listenAria')} />
         </div>
 
         <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
@@ -191,6 +229,8 @@ export function OutcomePanel({
             </div>
           ) : null}
         </div>
+
+        <CardSourceLine card={outcome.card} className="mt-2.5" />
 
         <div className="mt-4 flex justify-end">
           <button ref={continueRef} type="button" className="btn-primary w-full sm:w-auto sm:min-w-[12rem]" onClick={onContinue}>

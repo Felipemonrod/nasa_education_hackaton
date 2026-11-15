@@ -105,11 +105,17 @@ function CardFace({
         }`}
       >
         {/* Cargo/categoria: antes ia no rodape hexagonal, que nao existe mais. */}
+        {/* Comandante em tela baixa (celular deitado): o painel abaixo da
+            elipse tem ~45 px e so cabe o efeito; com o cargo junto, o texto
+            transbordava e o cargo ficava pintado por baixo do efeito. O cargo
+            continua na lista de comandantes e na carta ampliada. */}
         <span
-          className={`w-full truncate text-center font-display font-extrabold uppercase leading-none tracking-wider text-sky-300 ${
+          className={`w-full shrink-0 truncate text-center font-display font-extrabold uppercase leading-none tracking-wider text-sky-300 ${
             isModal
               ? 'text-[10px]'
-              : 'text-[9px] sm:text-[10px] [@media(max-height:560px)]:text-[6.5px] lg:text-[10px]'
+              : `text-[9px] sm:text-[10px] [@media(max-height:560px)]:text-[6.5px] lg:text-[10px] ${
+                card.kind === 'commander' ? '[@media(max-height:560px)]:hidden lg:block' : ''
+              }`
           }`}
         >
           {role}
@@ -130,7 +136,10 @@ function CardFace({
             isModal
               ? `text-[11.5px] ${card.kind === 'commander' ? 'hidden' : ''}`
               : `text-[10.5px] sm:text-[11.5px] [@media(max-height:560px)]:line-clamp-2 [@media(max-height:560px)]:text-[9.5px] lg:line-clamp-3 lg:text-[11.5px] ${
-                card.kind === 'commander' ? '[@media(max-height:560px)]:hidden lg:block' : ''
+                // Comandante abaixo de lg: o painel sob a elipse nao comporta
+                // cargo + descricao + efeito (o cargo ficava por baixo do
+                // texto). A descricao inteira esta na lista e na carta ampliada.
+                card.kind === 'commander' ? 'hidden lg:[display:-webkit-box]' : ''
               }`
           }`}
         >

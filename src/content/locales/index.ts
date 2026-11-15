@@ -19,6 +19,10 @@ import { CONTENT_PT } from './pt.js';
  *   loadout.<cardId>.name | .role | .blurb | .effect
  *   site.<siteId>.name | .region | .blurb | .why | .note
  *   weather.<weatherId>.label            (clima espacial historico verificado)
+ *   source.<cardId>.fact                 (fato real do card; so para ids que
+ *                                         estao em content/cardSources.ts, que
+ *                                         guarda a URL e o rotulo da fonte.
+ *                                         <= 25 palavras, sem [[glossario]])
  *
  * A marcacao de palavra do glossario usa o ID ESTAVEL em qualquer idioma:
  * "[[oxygen]]", nunca "[[oxigenio]]". O termo exibido vem do dicionario.
@@ -46,3 +50,4 @@ export const glossaryKey = (termId: string, field: 'term' | 'short'): string => 
 export const loadoutKey = (id: string, field: 'name' | 'role' | 'blurb' | 'effect'): string => `loadout.${id}.${field}`;
 export const weatherKey = (id: string): string => `weather.${id}.label`;
 export const siteKey =(id: string, field: 'name' | 'region' | 'blurb' | 'why' | 'note'): string => `site.${id}.${field}`;
+export const sourceKey = (cardId: string): string => `source.${cardId}.fact`;

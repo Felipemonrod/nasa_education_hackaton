@@ -1023,6 +1023,9 @@ export const CARDS: readonly Card[] = [
     role: 'extra',
     track: 'science',
     phase: 'day',
+    // Gelo em sombra permanente: crateras do polo sul (LRO/LCROSS). No
+    // equador nao ha cratera de sombra permanente com gelo por perto.
+    sites: ['shackleton'],
     requires: [{ stat: 'power', op: 'gte', value: 40 }],
     title: 'Gelo em sombra permanente',
     text: 'Uma sonda detectou gelo de agua no fundo de uma [[permanent_shadow]], onde a temperatura fica abaixo de 200 °C negativos. Esse gelo pode guardar [[volatiles]] de bilhoes de anos e virar agua e [[oxygen]] para a base.',
@@ -1383,6 +1386,9 @@ export const CARDS: readonly Card[] = [
     role: 'extra',
     track: 'science',
     phase: 'day',
+    // Pocos de teto desabado de tubo de lava conhecidos (LRO/SELENE): Marius
+    // Hills e Mare Tranquillitatis. Na borda de Shackleton nao ha nenhum.
+    sites: ['marius', 'tranquillitatis'],
     title: 'Tubo de lava',
     text: 'A 3 km da base, o teto de um [[lava_tube]] desabou e abriu uma entrada. La dentro, a rocha bloqueia a [[radiation]] e a temperatura quase nao muda: um otimo lugar para futuras bases.',
     options: [
@@ -1623,6 +1629,8 @@ export const CARDS: readonly Card[] = [
     kind: 'unique',
     role: 'basic',
     phase: 'night',
+    // Blocos de gelo trazidos para a base: so faz sentido onde ha gelo polar.
+    sites: ['shackleton'],
     title: 'Degelo das amostras',
     text: 'Blocos de gelo trazidos para a base precisam virar agua. Se esquentarem rapido demais, os [[volatiles]] presos no gelo escapam antes de serem medidos e aproveitados.',
     options: [

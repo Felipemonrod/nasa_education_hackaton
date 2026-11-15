@@ -7,6 +7,7 @@ import { CARDS } from '../../content/cards.js';
 import type { Card, Phase, Stat, Threshold } from '../../engine/types.js';
 import { CardShell, getCardFrameMeta } from '../components/CardArtwork.js';
 import { GlossaryText } from '../components/GlossaryText.js';
+import { CardSourceLine } from '../components/OutcomePanel.js';
 import { useContent } from '../i18n/useContent.js';
 import { useT } from '../i18n/useI18n.js';
 import { SpeakButton } from '../components/SpeakButton.js';
@@ -237,72 +238,78 @@ function DeckDecisionsColumn({ card, known, knownOutcomes }: {
       className="animate-card-in flex flex-col gap-3 lg:sticky lg:top-5"
     >
       {known ? (
-        <ul className="flex flex-col gap-3">
-          {card.options.map((option) => {
-            const seen = knownOutcomes.includes(`${card.id}:${option.id}`);
-            const changes: { stat: Stat; isUp: boolean }[] = [
-              ...option.effects
-                .filter((eff) => eff.delta !== 0)
-                .map((eff) => ({ stat: eff.stat, isUp: eff.delta > 0 })),
-              ...(option.modifiers ?? [])
-                .filter((mod) => mod.perSlot !== 0)
-                .map((mod) => ({ stat: mod.stat, isUp: mod.perSlot > 0 })),
-            ];
+        <>
+          <ul className="flex flex-col gap-3">
+            {card.options.map((option) => {
+              const seen = knownOutcomes.includes(`${card.id}:${option.id}`);
+              const changes: { stat: Stat; isUp: boolean }[] = [
+                ...option.effects
+                  .filter((eff) => eff.delta !== 0)
+                  .map((eff) => ({ stat: eff.stat, isUp: eff.delta > 0 })),
+                ...(option.modifiers ?? [])
+                  .filter((mod) => mod.perSlot !== 0)
+                  .map((mod) => ({ stat: mod.stat, isUp: mod.perSlot > 0 })),
+              ];
 
-            return (
-              <li
-                key={option.id}
-                data-deck-keep-open
-                className="rounded-2xl glass border border-white/10 p-4 transition-colors hover:border-sky-300/30"
-              >
-                {/* Título da decisão */}
-                <p className="font-display text-[0.92rem] font-extrabold text-white">
-                  {content.optionLabel(card, option)}
-                </p>
-
-                {seen ? (
-                  <>
-                    {/* Resultado de recursos simplificado: seta para cima verde / seta para baixo vermelha + nome do recurso */}
-                    {changes.length > 0 ? (
-                      <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                        {changes.map((chg, idx) => {
-                          const statLabel = t(`stat.${chg.stat}`);
-                          const Arrow = chg.isUp ? ArrowUp : ArrowDown;
-                          return (
-                            <span
-                              key={`${chg.stat}-${idx}`}
-                              className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/[.05] px-2.5 py-1 text-xs font-bold text-slate-100"
-                              role="img"
-                              aria-label={t(chg.isUp ? 'card.effectUp' : 'card.effectDown', { stat: statLabel })}
-                            >
-                              <Arrow
-                                size={14}
-                                strokeWidth={2.7}
-                                className={chg.isUp ? 'text-emerald-400' : 'text-rose-400'}
-                                aria-hidden
-                              />
-                              <span>{statLabel}</span>
-                            </span>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-
-                    {/* Resultado de texto direto e limpo */}
-                    <p className="mt-2.5 text-[0.84rem] font-semibold leading-snug text-slate-200">
-                      {content.outcomeLine(card, option)}
-                    </p>
-                  </>
-                ) : (
-                  <p className="mt-2 flex items-center gap-1.5 text-[0.78rem] font-semibold text-slate-400">
-                    <HelpCircle size={14} className="shrink-0 text-sky-300" aria-hidden />
-                    {t('deck.unknownOutcome')}
+              return (
+                <li
+                  key={option.id}
+                  data-deck-keep-open
+                  className="rounded-2xl glass border border-white/10 p-4 transition-colors hover:border-sky-300/30"
+                >
+                  {/* Título da decisão */}
+                  <p className="font-display text-[0.92rem] font-extrabold text-white">
+                    {content.optionLabel(card, option)}
                   </p>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+
+                  {seen ? (
+                    <>
+                      {/* Resultado de recursos simplificado: seta para cima verde / seta para baixo vermelha + nome do recurso */}
+                      {changes.length > 0 ? (
+                        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                          {changes.map((chg, idx) => {
+                            const statLabel = t(`stat.${chg.stat}`);
+                            const Arrow = chg.isUp ? ArrowUp : ArrowDown;
+                            return (
+                              <span
+                                key={`${chg.stat}-${idx}`}
+                                className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/[.05] px-2.5 py-1 text-xs font-bold text-slate-100"
+                                role="img"
+                                aria-label={t(chg.isUp ? 'card.effectUp' : 'card.effectDown', { stat: statLabel })}
+                              >
+                                <Arrow
+                                  size={14}
+                                  strokeWidth={2.7}
+                                  className={chg.isUp ? 'text-emerald-400' : 'text-rose-400'}
+                                  aria-hidden
+                                />
+                                <span>{statLabel}</span>
+                              </span>
+                            );
+                          })}
+                        </div>
+                      ) : null}
+
+                      {/* Resultado de texto direto e limpo */}
+                      <p className="mt-2.5 text-[0.84rem] font-semibold leading-snug text-slate-200">
+                        {content.outcomeLine(card, option)}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="mt-2 flex items-center gap-1.5 text-[0.78rem] font-semibold text-slate-400">
+                      <HelpCircle size={14} className="shrink-0 text-sky-300" aria-hidden />
+                      {t('deck.unknownOutcome')}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          {/* Fato real + fonte: aparece para todo card ja visto que tenha fonte. */}
+          <div data-deck-keep-open className="empty:hidden">
+            <CardSourceLine card={card} />
+          </div>
+        </>
       ) : (
         <div
           data-deck-keep-open

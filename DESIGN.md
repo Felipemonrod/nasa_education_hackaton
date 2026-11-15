@@ -101,6 +101,41 @@ Cada uso de 2–4 incrementa `state.fallbackUses`. **Isso é telemetria, não
 conveniência:** `fallbackUses` alto significa que faltam cards, e o simulador
 mede isso em cada rodada.
 
+### Recorte por local de pouso
+
+O local escolhido entra na partida como `config.site` (id de `LUNAR_SITE_IDS`
+em `engine/types.ts`, igual aos ids de `app/data/sites.ts` — coberto por
+teste). Card com `sites` só é sorteado quando o local da partida está na lista;
+card sem `sites` é universal. O filtro (`siteAllows` em `deck.ts`) vale nas
+**quatro camadas** do sorteio, nas duas metades do par, na cápsula e nos
+sequenciais pendentes: nenhum fallback pode trazer gelo polar para o equador.
+
+Por quê: a checagem contra dados da NASA achou cards que contradiziam o local.
+
+- `ice_sample` (gelo no fundo de cratera de sombra permanente) e `water_thaw`
+  (degelo de blocos trazidos para a base) → só `shackleton`. Gelo de água em
+  regiões de sombra permanente é fenômeno polar (LRO, LCROSS); perto de Mare
+  Tranquillitatis ou Marius Hills não há cratera assim.
+- `lava_tube` (teto de tubo de lava desabado a 3 km) → só `marius` e
+  `tranquillitatis`, onde a LRO e a SELENE fotografaram poços de tubo de lava.
+  Na borda de Shackleton não há nenhum conhecido.
+
+Save: o campo é **opcional** no schema Zod, sem subir a versão. Save anterior
+ao recorte carrega sem `site` e joga com todos os cards liberados, como antes.
+`validateCards` exige id de local conhecido e, **para cada local**, fallback
+por fase × papel, a cápsula e pool acima do piso (`POOL_FLOOR`: 20 básicos,
+4 extras por fase). O noturno básico do equador ficou exatamente no piso (20).
+
+Custo medido (`npm run sim 3000`, 2026-11-15, antes → depois): `survival`,
+`adaptive` e `random` mudam menos de 1 p.p.; fallback por partida sobe ~0,3
+(noturno básico mais magro no equador: `survival` 1,6 → 2,0 em Tranquillitatis
+e Marius, Shackleton igual). O ponto fora da curva é `objective` em ciência:
+86,6% → 50,9% (Tranquillitatis 83 → 39, Marius 85 → 45, Shackleton 92 → 68).
+Cada local perdeu 1 dos 4 extras diurnos de ciência (`ice_sample` no equador,
+`lava_tube` no polo) e o jogador que corre só atrás do trilho morre de O₂
+antes de fechar 100. Repor um extra diurno de ciência por local é a correção
+natural (conteúdo novo, ainda não feito).
+
 ---
 
 ## 3. Ordem de resolução de uma decisão
@@ -195,6 +230,8 @@ serverless (escopo novo).
 - todo `[[termo]]` tem verbete no glossário
 - todo verbete cabe em **10 palavras**
 - existe fallback para cada par (fase × papel)
+- `sites` só cita locais conhecidos; cada local tem fallback, cápsula e pool
+  acima do piso por fase × papel; filho sequencial vale onde o pai sai
 
 Mais um teste de capacidade de pool: ≥20 saques possíveis por fase em 10 dias.
 

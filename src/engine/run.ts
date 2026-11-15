@@ -33,6 +33,11 @@ export interface CreateRunOptions {
   readonly startingModifiers?: readonly Modifier[];
   /** Amortecimento de perdas concedido pelos cards iniciais. */
   readonly mitigation?: Readonly<Partial<Record<Stat, number>>>;
+  /**
+   * Local de pouso (id de LUNAR_SITE_IDS). Corta do sorteio os cards cujo
+   * `sites` nao inclui este local. Omitido = todos os cards liberados.
+   */
+  readonly site?: string;
 }
 
 const NO_LOADOUT: Loadout = { commanderId: 'none', structureId: 'none', equipmentId: 'none' };
@@ -59,6 +64,7 @@ export function createRun(engine: Engine, options: CreateRunOptions): RunState {
     tutorial: options.tutorial ?? false,
     loadout: options.loadout ?? NO_LOADOUT,
     spaceWeather: options.spaceWeather,
+    ...(options.site === undefined ? {} : { site: options.site }),
   };
 
   let cursor = 0;

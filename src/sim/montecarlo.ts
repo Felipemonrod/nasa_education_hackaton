@@ -27,22 +27,33 @@ function pick<T>(items: readonly T[], seed: number, cursor: number): T {
 /** So o que um jogador novo tem: cards sem `unlockedBy`. */
 const starter = (pool: readonly LoadoutCard[]): readonly LoadoutCard[] => pool.filter((c) => c.unlockedBy === undefined);
 
+/** Setup da partida + o id do local, que vai para `createRun` (recorte de cards). */
+export interface SeedSetup extends MissionSetup {
+  readonly site: string;
+}
+
 /**
  * Toda partida REAL tem local de pouso e 3 cards levados (o app nao deixa
  * comecar sem). Antes, a simulacao jogava sem nenhum dos dois e media um jogo
  * que nao existe. Aqui o sorteio e uniforme e deterministico pela seed.
+ * O local tambem entra na config da partida, como no app: o Monte Carlo mede
+ * o baralho JA recortado por local (gelo so no polo, tubo de lava so no mare).
  */
-export function setupForSeed(seed: number): MissionSetup {
+export function setupForSeed(seed: number): SeedSetup {
   const site = pick(LUNAR_SITES, seed, 0);
-  return missionSetup(site, [
-    pick(starter(COMMANDERS), seed, 1),
-    pick(starter(STRUCTURES), seed, 2),
-    pick(starter(EQUIPMENT), seed, 3),
-  ]);
+  return {
+    ...missionSetup(site, [
+      pick(starter(COMMANDERS), seed, 1),
+      pick(starter(STRUCTURES), seed, 2),
+      pick(starter(EQUIPMENT), seed, 3),
+    ]),
+    site: site.id,
+  };
 }
 
 export interface RunOutcome {
   readonly seed: number;
+  readonly site: string;
   readonly status: 'won' | 'lost';
   readonly reason: string;
   readonly day: number;
@@ -58,8 +69,9 @@ export function playOnce(
   policy: Policy,
 ): RunOutcome {
   // Mesmo caminho do app offline: clima historico verificado escolhido pela seed.
+  const setup = setupForSeed(seed);
   let state = createRun(engine, {
-    seed, objective, spaceWeather: historicalForSeed(seed), ...setupForSeed(seed),
+    seed, objective, spaceWeather: historicalForSeed(seed), ...setup,
   });
   let slots = 0;
   while (state.status === 'running' && slots < MAX_SLOTS) {
@@ -72,6 +84,7 @@ export function playOnce(
   if (state.result === null) throw new Error(`Partida nao terminou em ${MAX_SLOTS} slots (seed ${seed})`);
   return {
     seed,
+    site: setup.site,
     status: state.result.kind,
     reason: state.result.reason,
     day: state.result.day,
@@ -79,6 +92,12 @@ export function playOnce(
     fallbackUses: state.fallbackUses,
     slotsPlayed: slots,
   };
+}
+
+export interface SiteReport {
+  readonly runs: number;
+  readonly winRate: number;
+  readonly avgFallbackUses: number;
 }
 
 export interface PolicyReport {
@@ -94,6 +113,8 @@ export interface PolicyReport {
   readonly avgFinalTrack: number;
   readonly avgFinalDose: number;
   readonly avgLowestBasic: number;
+  /** Mesmas partidas, quebradas por local de pouso (ordem de LUNAR_SITES). */
+  readonly bySite: Readonly<Record<string, SiteReport>>;
 }
 
 export function evaluate(
@@ -114,10 +135,19 @@ export function evaluate(
   let doseSum = 0;
   let lowestSum = 0;
   const trackKey = objective === 'science' ? 'science' : 'lifeSupport';
+  const siteAcc = new Map<string, { runs: number; wins: number; fallback: number }>(
+    LUNAR_SITES.map((s) => [s.id, { runs: 0, wins: 0, fallback: 0 }]),
+  );
 
   for (let i = 0; i < runs; i += 1) {
     const outcome = playOnce(engine, 1000 + i * 7919, objective, policy);
     fallbackSum += outcome.fallbackUses;
+    const acc = siteAcc.get(outcome.site);
+    if (acc !== undefined) {
+      acc.runs += 1;
+      acc.fallback += outcome.fallbackUses;
+      if (outcome.status === 'won') acc.wins += 1;
+    }
     trackSum += outcome.finalStats[trackKey];
     doseSum += outcome.finalStats.dose;
     lowestSum += Math.min(outcome.finalStats.oxygen, outcome.finalStats.power, outcome.finalStats.food);
@@ -145,5 +175,10 @@ export function evaluate(
     avgFinalTrack: trackSum / runs,
     avgFinalDose: doseSum / runs,
     avgLowestBasic: lowestSum / runs,
+    bySite: Object.fromEntries([...siteAcc].map(([id, a]) => [id, {
+      runs: a.runs,
+      winRate: a.runs === 0 ? 0 : a.wins / a.runs,
+      avgFallbackUses: a.runs === 0 ? 0 : a.fallback / a.runs,
+    }])),
   };
 }
