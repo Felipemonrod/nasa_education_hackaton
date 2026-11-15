@@ -17,12 +17,19 @@ export function ImageInfoBadge({
   kind = 'info',
   className = 'bottom-2 left-2',
   align = 'left',
+  tooltipMaxWidth = 'max-w-[15rem]',
 }: {
   text: string;
   kind?: 'info' | 'ai';
   className?: string;
   /** Lado para onde o balao abre (para nao sair da carta/tela). */
   align?: 'left' | 'right';
+  /**
+   * Largura maxima do balao (classe Tailwind). Dentro de janela recortada
+   * (ex.: o oval da foto do comandante, com overflow-hidden), use uma largura
+   * relativa ao container (cqw) para o texto quebrar e nao ser cortado.
+   */
+  tooltipMaxWidth?: string;
 }): JSX.Element {
   const [open, setOpen] = useState(false);
   const toggle = (e: MouseEvent | KeyboardEvent): void => {
@@ -51,7 +58,7 @@ export function ImageInfoBadge({
       {open ? (
         <span
           role="tooltip"
-          className={`absolute bottom-full mb-1.5 w-max max-w-[15rem] rounded-lg bg-black/85 px-2.5 py-1.5 text-[11px] font-semibold leading-snug text-white shadow-lg ${
+          className={`absolute bottom-full mb-1.5 w-max ${tooltipMaxWidth} rounded-lg bg-black/85 px-2.5 py-1.5 text-[11px] font-semibold leading-snug text-white shadow-lg ${
             align === 'left' ? 'left-0' : 'right-0'
           }`}
         >

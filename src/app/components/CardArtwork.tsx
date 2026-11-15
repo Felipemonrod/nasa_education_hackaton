@@ -226,7 +226,14 @@ export function NasaCardPhoto({
       <span className="relative block h-full w-full [container-type:inline-size]">
         <img src={art.path} alt={art.alt} title={t('cardArt.aiFictional')} className={className} />
         <span className="hidden [@container_(min-width:96px)]:contents">
-          <ImageInfoBadge text={t('cardArt.aiFictional')} className="bottom-[14%] right-[17%]" align="right" />
+          {/* O oval da janela corta o que passa da borda (overflow-hidden): o
+              balao fica com no maximo 60% da largura da janela e quebra linha. */}
+          <ImageInfoBadge
+            text={t('cardArt.aiFictional')}
+            className="bottom-[14%] right-[17%]"
+            align="right"
+            tooltipMaxWidth="max-w-[60cqw]"
+          />
         </span>
       </span>
     );
