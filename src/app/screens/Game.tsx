@@ -16,6 +16,7 @@ import { useContent } from '../i18n/useContent.js';
 import { useI18n, useT } from '../i18n/useI18n.js';
 import { useAccount } from '../store/useAccount.js';
 import { useGame } from '../store/useGame.js';
+import { MusicIcon } from '../components/MusicIcon.js';
 
 /** Breakpoint `lg` do Tailwind (padrao): a partir dele a mesa de decisoes fica sempre visivel. */
 const DESKTOP_MIN_WIDTH = 1024;
@@ -50,6 +51,8 @@ export function Game(): JSX.Element {
   const autoRead = useAccount((s) => s.settings.autoRead);
   const speechRate = useAccount((s) => s.settings.speechRate);
   const speechVolume = useAccount((s) => s.settings.speechVolume);
+  const musicMuted = useAccount((s) => s.settings.musicMuted);
+  const setSetting = useAccount((s) => s.setSetting);
   const sfxVolume = useAccount((s) => s.settings.sfxVolume);
   const locale = useI18n((s) => s.locale);
   const content = useContent();
@@ -249,6 +252,15 @@ export function Game(): JSX.Element {
             className="grid h-11 w-11 place-items-center rounded-2xl glass transition-colors hover:border-sky-300/40 hover:bg-white/10 [@media(max-height:540px)]:h-9 [@media(max-height:540px)]:w-9 [@media(max-height:540px)]:rounded-xl lg:h-11 lg:w-11 lg:rounded-2xl"
           >
             <Telescope size={18} className="text-sky-300" aria-hidden />
+          </button>
+          <button
+            type="button"
+            onClick={() => { setSetting('musicMuted', !musicMuted); }}
+            aria-label={t(musicMuted ? 'game.musicOnAria' : 'game.musicOffAria')}
+            aria-pressed={musicMuted}
+            className="grid h-11 w-11 place-items-center rounded-2xl glass transition-colors hover:border-sky-300/40 hover:bg-white/10 [@media(max-height:540px)]:h-9 [@media(max-height:540px)]:w-9 [@media(max-height:540px)]:rounded-xl lg:h-11 lg:w-11 lg:rounded-2xl"
+          >
+            <MusicIcon off={musicMuted} className={musicMuted ? 'text-slate-400' : 'text-sky-300'} />
           </button>
           <button
             type="button"

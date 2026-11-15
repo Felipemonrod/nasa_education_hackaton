@@ -160,4 +160,31 @@ describe('conta (progresso duravel)', () => {
     reopened.useGame.getState().enterGame();
     expect(reopened.useGame.getState().tutorialStep).toBe(0);
   });
+
+  it('tutorial de planejamento abre automaticamente para novos usuarios, persiste ao pular e pode ser revisitado', async () => {
+    const first = await reopenBrowser();
+    expect(first.useAccount.getState().planningTutorialSeen).toBe(false);
+
+    first.useGame.getState().newMission();
+    expect(first.useGame.getState().planningTutorialStep).toBe(1);
+    expect(first.useGame.getState().destinationStep).toBe(1);
+
+    first.useGame.getState().advancePlanningTutorial();
+    expect(first.useGame.getState().planningTutorialStep).toBe(2);
+    expect(first.useGame.getState().destinationStep).toBe(2);
+
+    first.useGame.getState().skipPlanningTutorial();
+    expect(first.useGame.getState().planningTutorialStep).toBe(0);
+    expect(first.useAccount.getState().planningTutorialSeen).toBe(true);
+
+    const reopened = await reopenBrowser();
+    expect(reopened.useAccount.getState().planningTutorialSeen).toBe(true);
+    reopened.useGame.getState().newMission();
+    expect(reopened.useGame.getState().planningTutorialStep).toBe(0);
+
+    reopened.useGame.getState().startPlanningTutorial();
+    expect(reopened.useGame.getState().screen).toBe('destination');
+    expect(reopened.useGame.getState().destinationStep).toBe(1);
+    expect(reopened.useGame.getState().planningTutorialStep).toBe(1);
+  });
 });

@@ -3,6 +3,7 @@ import {
   ArrowRight, CheckCircle2, CircleHelp, Clock, Gauge, HeartPulse, Lock, MapPin, Microscope, X,
 } from 'lucide-react';
 import { TopNavbar } from '../components/TopNavbar.js';
+import { PLANNING_TUTORIAL_STEP_COUNT, PlanningTutorialOverlay } from '../components/TutorialOverlay.js';
 import { LUNAR_SITES } from '../data/sites.js';
 import type { Effect, MissionObjective, Stat } from '../../engine/types.js';
 import { useContent } from '../i18n/useContent.js';
@@ -132,8 +133,13 @@ function EffectChips({ effects, positive }: { effects: readonly Effect[]; positi
 }
 
 export function Destination(): JSX.Element {
-  const { go, draft, setObjective, setSite } = useGame();
-  const [step, setStep] = useState<PlanningStep>(1);
+  const {
+    go, draft, setObjective, setSite,
+    destinationStep, setDestinationStep,
+    planningTutorialStep, advancePlanningTutorial, prevPlanningTutorial,
+    goToPlanningTutorialStep, skipPlanningTutorial,
+  } = useGame();
+  const step: PlanningStep = destinationStep;
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [difficultyModalOpen, setDifficultyModalOpen] = useState(false);
   const [mapModalOpen, setMapModalOpen] = useState(false);
@@ -164,7 +170,10 @@ export function Destination(): JSX.Element {
   const goToStep = (target: PlanningStep): void => {
     if (target === step) return;
     setDirection(target > step ? 'forward' : 'backward');
-    setStep(target);
+    setDestinationStep(target);
+    if (planningTutorialStep > 0 && planningTutorialStep <= 3 && planningTutorialStep !== target) {
+      goToPlanningTutorialStep(target);
+    }
   };
 
   const handleBack = (): void => {
@@ -182,6 +191,8 @@ export function Destination(): JSX.Element {
       goToStep(2);
     } else if (step === 2) {
       goToStep(3);
+    } else if (planningTutorialStep > 0) {
+      goToPlanningTutorialStep(4);
     } else {
       go('loadout');
     }
@@ -287,7 +298,7 @@ export function Destination(): JSX.Element {
               ETAPA 1: DESTINO (Lua e Marte ocupando a tela com destaque)
              ================================================================= */}
           {step === 1 ? (
-            <div className="grid h-full min-h-0 max-h-full grid-cols-1 grid-rows-2 gap-2.5 sm:grid-cols-2 sm:grid-rows-1 sm:gap-4 [@media(max-height:540px)]:gap-3 lg:max-h-[540px] lg:gap-6">
+            <div data-tutorial="plan-destination" className="grid h-full min-h-0 max-h-full grid-cols-1 grid-rows-2 gap-2.5 sm:grid-cols-2 sm:grid-rows-1 sm:gap-4 [@media(max-height:540px)]:gap-3 lg:max-h-[540px] lg:gap-6">
               {/* Lua */}
               <div className="group flex min-h-0 flex-col justify-between overflow-hidden rounded-3xl border-2 border-sky-400/75 glass shadow-[0_0_32px_-10px_rgba(56,189,248,0.4)]">
                 <div className="relative min-h-0 flex-1 overflow-hidden bg-space-950 lg:min-h-[190px]">
@@ -343,7 +354,7 @@ export function Destination(): JSX.Element {
               ETAPA 2: LOCAL DE POUSO + MAPA SELENOGRAFICO (Ocupando a tela)
              ================================================================= */}
           {step === 2 ? (
-            <div className="flex h-full min-h-0 flex-col gap-2 [@media(max-height:540px)]:gap-1.5 lg:grid lg:max-h-[540px] lg:grid-cols-12 lg:items-stretch lg:gap-6">
+            <div data-tutorial="plan-sites" className="flex h-full min-h-0 flex-col gap-2 [@media(max-height:540px)]:gap-1.5 lg:grid lg:max-h-[540px] lg:grid-cols-12 lg:items-stretch lg:gap-6">
               {/* Mobile/Tablet: botao compacto para abrir Mapa Lunar em modal + abas no modo retrato */}
               <div className="flex shrink-0 flex-col gap-1.5 lg:hidden">
                 <button
@@ -548,7 +559,7 @@ export function Destination(): JSX.Element {
               ETAPA 3: OBJETIVO DA MISSAO + DURACAO EM CICLOS
              ================================================================= */}
           {step === 3 ? (
-            <div className="flex h-full min-h-0 flex-col justify-between gap-2.5 [@media(max-height:540px)]:gap-1.5 lg:max-h-[540px] lg:gap-5">
+            <div data-tutorial="plan-objectives" className="flex h-full min-h-0 flex-col justify-between gap-2.5 [@media(max-height:540px)]:gap-1.5 lg:max-h-[540px] lg:gap-5">
               {/* Objetivos da Missao */}
               <div className="flex min-h-0 flex-1 flex-col">
                 <div className="mb-1.5 flex shrink-0 flex-wrap items-baseline justify-between gap-2 lg:mb-2.5">
@@ -820,6 +831,18 @@ export function Destination(): JSX.Element {
           </div>
         </div>
       ) : null}
+
+      <PlanningTutorialOverlay
+        step={planningTutorialStep}
+        paused={difficultyModalOpen || mapModalOpen}
+        onNext={() => {
+          if (planningTutorialStep >= PLANNING_TUTORIAL_STEP_COUNT) skipPlanningTutorial();
+          else advancePlanningTutorial();
+        }}
+        onPrev={prevPlanningTutorial}
+        onStep={goToPlanningTutorialStep}
+        onSkip={skipPlanningTutorial}
+      />
     </div>
   );
 }

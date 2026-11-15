@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useApplyA11y } from './a11y/useA11y.js';
 import { useSpeech } from './a11y/speech.js';
+import { syncMusic } from './audio/music.js';
 import { Cutscene } from './screens/Cutscene.js';
 import { Credits } from './screens/Credits.js';
 import { Deck } from './screens/Deck.js';
@@ -26,6 +27,14 @@ export function App(): JSX.Element {
   const stopSpeech = useSpeech((s) => s.stop);
 
   useApplyA11y();
+
+  // Musica: toca em toda tela menos o menu e abaixa enquanto a narracao fala.
+  const musicMuted = useAccount((s) => s.settings.musicMuted);
+  const musicVolume = useAccount((s) => s.settings.musicVolume);
+  const speaking = useSpeech((s) => s.speaking);
+  useEffect(() => {
+    syncMusic({ onMenu: screen === 'menu', muted: musicMuted, volume: musicVolume, speaking });
+  }, [screen, musicMuted, musicVolume, speaking]);
 
   // Valida o idioma do navegador antes da cutscene iniciar.
   useEffect(() => {

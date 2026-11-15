@@ -16,6 +16,7 @@ export interface AccountState {
   version: number;
   cutsceneSeen: boolean;
   tutorialSeen: boolean;
+  planningTutorialSeen: boolean;
   /** Cards que o jogador ja viu em partida (entram no baralho). */
   knownCards: string[];
   /** Desfechos experimentados, no formato "cardId:optionId". */
@@ -35,6 +36,9 @@ export interface AccountState {
     speechRate: number;
     speechVolume: number;
     sfxVolume: number;
+    /** Musica de fundo. Mudo separado do volume: desmutar volta ao nivel escolhido. */
+    musicMuted: boolean;
+    musicVolume: number;
     /** Exige um segundo toque para fechar a decisao. */
     confirmDecisions: boolean;
   };
@@ -45,6 +49,7 @@ const EMPTY: AccountState = {
   version: ACCOUNT_VERSION,
   cutsceneSeen: false,
   tutorialSeen: false,
+  planningTutorialSeen: false,
   knownCards: [],
   knownOutcomes: [],
   unlocks: [],
@@ -63,6 +68,9 @@ const EMPTY: AccountState = {
     speechRate: 1,
     speechVolume: 1,
     sfxVolume: 1,
+    musicMuted: false,
+    // Metade: musica de fundo nao pode competir com a narracao.
+    musicVolume: 0.5,
     // Ligada de fabrica: a decisao e irreversivel e o publico tem 10 anos.
     // Um toque acidental nao deve martelar a escolha final.
     confirmDecisions: true,
@@ -113,6 +121,7 @@ export function parseAccount(raw: string | null): AccountState {
       version: ACCOUNT_VERSION,
       cutsceneSeen: false,
       tutorialSeen: typeof data['tutorialSeen'] === 'boolean' ? data['tutorialSeen'] : EMPTY.tutorialSeen,
+      planningTutorialSeen: typeof data['planningTutorialSeen'] === 'boolean' ? data['planningTutorialSeen'] : EMPTY.planningTutorialSeen,
       knownCards: stringList(data['knownCards']),
       knownOutcomes: stringList(data['knownOutcomes']),
       unlocks: stringList(data['unlocks']),
@@ -135,6 +144,7 @@ function load(): AccountState {
 interface AccountActions {
   markCutsceneSeen(): void;
   markTutorialSeen(): void;
+  markPlanningTutorialSeen(): void;
   seeCard(cardId: string): void;
   experienceOutcome(cardId: string, optionId: string): void;
   recordRunEnd(input: {
@@ -160,6 +170,15 @@ export const useAccount = create<AccountState & AccountActions>()((set, get) => 
     if (get().tutorialSeen) return;
     set((s) => {
       const next = { ...s, tutorialSeen: true };
+      persist(next);
+      return next;
+    });
+  },
+
+  markPlanningTutorialSeen() {
+    if (get().planningTutorialSeen) return;
+    set((s) => {
+      const next = { ...s, planningTutorialSeen: true };
       persist(next);
       return next;
     });

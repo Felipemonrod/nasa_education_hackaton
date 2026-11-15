@@ -15,6 +15,7 @@ import { SpeakButton } from './SpeakButton.js';
  */
 
 export const TUTORIAL_STEP_COUNT = 8;
+export const PLANNING_TUTORIAL_STEP_COUNT = 6;
 
 const STEP_TARGETS: readonly string[] = [
   'clock',
@@ -25,6 +26,15 @@ const STEP_TARGETS: readonly string[] = [
   'hud-tracks',
   'card-header',
   'card-options',
+];
+
+const PLANNING_STEP_TARGETS: readonly string[] = [
+  'plan-destination',
+  'plan-sites',
+  'plan-objectives',
+  'plan-commander',
+  'plan-extras',
+  'plan-launch',
 ];
 
 interface SpotlightRect {
@@ -66,13 +76,27 @@ function TutorialRobot({ side }: { side: 'left' | 'right' }): JSX.Element {
 }
 
 export function TutorialOverlay({
-  step, onNext, onPrev, onStep, onSkip,
+  step,
+  onNext,
+  onPrev,
+  onStep,
+  onSkip,
+  targets = STEP_TARGETS,
+  keyPrefix = 'tutorial',
+  paused = false,
+  allowSpotlightInteraction = false,
+  nextDisabled = false,
 }: {
   step: number;
   onNext: () => void;
   onPrev: () => void;
   onStep: (step: number) => void;
   onSkip: () => void;
+  targets?: readonly string[];
+  keyPrefix?: string;
+  paused?: boolean;
+  allowSpotlightInteraction?: boolean;
+  nextDisabled?: boolean;
 }): JSX.Element | null {
   const t = useT();
   const locale = useI18n((s) => s.locale);
@@ -85,14 +109,15 @@ export function TutorialOverlay({
   const [placeTop, setPlaceTop] = useState(false);
   const [placeLeft, setPlaceLeft] = useState(false);
 
-  const active = step > 0 && step <= TUTORIAL_STEP_COUNT;
-  const target = active ? STEP_TARGETS[step - 1] : undefined;
+  const totalSteps = targets.length;
+  const active = !paused && step > 0 && step <= totalSteps;
+  const target = active ? targets[step - 1] : undefined;
 
-  const area = active ? t(`tutorial.step${step}.area`) : '';
-  const title = active ? t(`tutorial.step${step}.title`) : '';
-  const body = active ? t(`tutorial.step${step}.body`) : '';
-  const how = active ? t(`tutorial.step${step}.how`) : '';
-  const isLast = step >= TUTORIAL_STEP_COUNT;
+  const area = active ? t(`${keyPrefix}.step${step}.area`) : '';
+  const title = active ? t(`${keyPrefix}.step${step}.title`) : '';
+  const body = active ? t(`${keyPrefix}.step${step}.body`) : '';
+  const how = active ? t(`${keyPrefix}.step${step}.how`) : '';
+  const isLast = step >= totalSteps;
 
   // Toca o audio automaticamente assim que o passo do tutorial abre ou muda.
   // E o UNICO lugar que narra o passo: os botoes so trocam o passo. Falar
@@ -182,8 +207,45 @@ export function TutorialOverlay({
     onStep(targetStep);
   };
 
+  const blockClick = (e: React.MouseEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   const overlay = (
     <div className="pointer-events-none fixed inset-0 z-[60]">
+      {/* Bloqueia cliques fora do escopo permitido pelo tutorial */}
+      {allowSpotlightInteraction && rect !== null ? (
+        <>
+          <div
+            aria-hidden
+            onClick={blockClick}
+            className="pointer-events-auto fixed left-0 right-0 top-0"
+            style={{ height: rect.top }}
+          />
+          <div
+            aria-hidden
+            onClick={blockClick}
+            className="pointer-events-auto fixed bottom-0 left-0 right-0"
+            style={{ top: rect.top + rect.height }}
+          />
+          <div
+            aria-hidden
+            onClick={blockClick}
+            className="pointer-events-auto fixed left-0"
+            style={{ top: rect.top, width: rect.left, height: rect.height }}
+          />
+          <div
+            aria-hidden
+            onClick={blockClick}
+            className="pointer-events-auto fixed right-0"
+            style={{ top: rect.top, left: rect.left + rect.width, height: rect.height }}
+          />
+        </>
+      ) : (
+        <div aria-hidden onClick={blockClick} className="pointer-events-auto fixed inset-0" />
+      )}
+
       {rect !== null ? (
         <div
           aria-hidden
@@ -218,7 +280,7 @@ export function TutorialOverlay({
                     <Compass size={11} aria-hidden /> {area}
                   </span>
                   <p className="text-[0.65rem] font-extrabold uppercase tracking-widest text-slate-300">
-                    {t('tutorial.progress', { step, total: TUTORIAL_STEP_COUNT })}
+                    {t('tutorial.progress', { step, total: totalSteps })}
                   </p>
                 </div>
                 <h3 className="mt-1 font-display text-base font-extrabold text-white">{title}</h3>
@@ -248,9 +310,9 @@ export function TutorialOverlay({
             <div
               className="mt-2.5 flex items-center gap-1"
               role="group"
-              aria-label={t('tutorial.progress', { step, total: TUTORIAL_STEP_COUNT })}
+              aria-label={t('tutorial.progress', { step, total: totalSteps })}
             >
-              {Array.from({ length: TUTORIAL_STEP_COUNT }).map((_, i) => {
+              {Array.from({ length: totalSteps }).map((_, i) => {
                 const n = i + 1;
                 const isCurrent = n === step;
                 const isDone = n < step;
@@ -258,10 +320,11 @@ export function TutorialOverlay({
                   <button
                     key={n}
                     type="button"
+                    disabled={nextDisabled && n > step}
                     onClick={() => { handleStep(n); }}
-                    aria-label={t('tutorial.stepAria', { step: n, total: TUTORIAL_STEP_COUNT })}
+                    aria-label={t('tutorial.stepAria', { step: n, total: totalSteps })}
                     aria-current={isCurrent ? 'step' : undefined}
-                    className="group flex h-6 flex-1 items-center"
+                    className="group flex h-6 flex-1 items-center disabled:cursor-not-allowed disabled:opacity-45"
                   >
                     <span
                       className={`block h-1.5 w-full rounded-full transition-all
@@ -289,7 +352,12 @@ export function TutorialOverlay({
               >
                 {t('common.skip')}
               </button>
-              <button type="button" onClick={handleNext} className="btn-primary ml-auto min-h-[38px] px-4 py-1.5 text-sm">
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={nextDisabled}
+                className="btn-primary ml-auto min-h-[38px] px-4 py-1.5 text-sm"
+              >
                 {t(isLast ? 'tutorial.gotIt' : 'tutorial.next')} <ArrowRight size={15} aria-hidden />
               </button>
             </div>
@@ -302,4 +370,39 @@ export function TutorialOverlay({
   );
 
   return typeof document !== 'undefined' ? createPortal(overlay, document.body) : overlay;
+}
+
+export function PlanningTutorialOverlay({
+  step,
+  onNext,
+  onPrev,
+  onStep,
+  onSkip,
+  paused = false,
+  allowSpotlightInteraction = true,
+  nextDisabled = false,
+}: {
+  step: number;
+  onNext: () => void;
+  onPrev: () => void;
+  onStep: (step: number) => void;
+  onSkip: () => void;
+  paused?: boolean;
+  allowSpotlightInteraction?: boolean;
+  nextDisabled?: boolean;
+}): JSX.Element | null {
+  return (
+    <TutorialOverlay
+      step={step}
+      onNext={onNext}
+      onPrev={onPrev}
+      onStep={onStep}
+      onSkip={onSkip}
+      targets={PLANNING_STEP_TARGETS}
+      keyPrefix="planTutorial"
+      paused={paused}
+      allowSpotlightInteraction={allowSpotlightInteraction}
+      nextDisabled={nextDisabled}
+    />
+  );
 }
