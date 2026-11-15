@@ -51,28 +51,36 @@ export function Result(): JSX.Element {
     : t('result.narrationLost', { title: lossTitle, why: lossWhy, tip: lossTip });
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col justify-center px-5 py-6 sm:px-8 lg:px-10">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Coluna esquerda: Banner de Vitoria/Derrota + O que aconteceu + Acoes */}
-        <div className="flex flex-col justify-between gap-4 lg:col-span-7">
-          <div className={`flex items-center gap-4 rounded-3xl p-5 sm:p-6 ${won ? 'bg-food/12 border border-food/35' : 'bg-radiation/12 border border-radiation/35'}`}>
-            <span className={`grid h-16 w-16 shrink-0 place-items-center rounded-3xl ${won ? 'bg-food/20' : 'bg-radiation/20'}`}>
-              {won ? <Trophy size={30} className="text-food" aria-hidden />
-                   : <TriangleAlert size={30} className="text-radiation" aria-hidden />}
-            </span>
-            <div>
-              <h1 className="font-display text-2xl font-extrabold leading-tight text-white sm:text-3xl">
-                {won ? t('result.won') : lossTitle}
-              </h1>
-              <p className="mt-1 text-sm font-semibold text-slate-200">
-                {won
-                  ? byObjective ? t('result.wonObjective') : t('result.wonSurvived', { days: config.days })
-                  : t('result.lost', { day: result.day, total: config.days })}
-              </p>
-            </div>
+    <div className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col justify-center px-4 py-6 sm:px-8">
+      {/* Um unico painel: cabecalho, miolo em duas colunas e rodape com as acoes. */}
+      <article
+        className={`overflow-hidden rounded-3xl border bg-space-900/90 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.9)]
+          ${won ? 'border-food/35' : 'border-radiation/35'}`}
+      >
+        {/* Cabecalho: vitoria ou derrota */}
+        <header
+          className={`flex items-center gap-4 border-b px-5 py-5 sm:px-7
+            ${won ? 'border-food/25 bg-food/10' : 'border-radiation/25 bg-radiation/10'}`}
+        >
+          <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl ${won ? 'bg-food/20' : 'bg-radiation/20'}`}>
+            {won ? <Trophy size={28} className="text-food" aria-hidden />
+                 : <TriangleAlert size={28} className="text-radiation" aria-hidden />}
+          </span>
+          <div className="min-w-0">
+            <h1 className="font-display text-2xl font-extrabold leading-tight text-white sm:text-3xl">
+              {won ? t('result.won') : lossTitle}
+            </h1>
+            <p className="mt-1 text-sm font-semibold text-slate-200">
+              {won
+                ? byObjective ? t('result.wonObjective') : t('result.wonSurvived', { days: config.days })
+                : t('result.lost', { day: result.day, total: config.days })}
+            </p>
           </div>
+        </header>
 
-          <section className="rounded-3xl glass p-5">
+        {/* Miolo: explicacao a esquerda, numeros a direita */}
+        <div className="grid grid-cols-1 lg:grid-cols-12">
+          <section className="px-5 py-5 sm:px-7 lg:col-span-7">
             <div className="flex items-start justify-between gap-2">
               <h2 className="font-display text-base font-extrabold text-white">{t('result.whatHappened')}</h2>
               <SpeakButton text={narration} label={t('result.listenAria')} />
@@ -96,19 +104,7 @@ export function Result(): JSX.Element {
             ) : null}
           </section>
 
-          <div className="grid grid-cols-2 gap-3">
-            <button type="button" className="btn-ghost w-full" onClick={() => { go('menu'); }}>
-              <Home size={17} aria-hidden /> {t('common.menu')}
-            </button>
-            <button type="button" className="btn-primary w-full" onClick={newMission}>
-              <RotateCcw size={17} aria-hidden /> {t('menu.newMission')}
-            </button>
-          </div>
-        </div>
-
-        {/* Coluna direita: Resumo da Missao + Recompensas */}
-        <div className="flex flex-col gap-4 lg:col-span-5">
-          <section className="rounded-3xl glass p-5">
+          <section className="border-t border-white/10 px-5 py-5 sm:px-7 lg:col-span-5 lg:border-l lg:border-t-0">
             <h2 className="font-display text-base font-extrabold text-white">{t('result.summaryTitle')}</h2>
             <div className="mt-3 grid grid-cols-3 gap-2.5 text-center">
               {([
@@ -130,59 +126,69 @@ export function Result(): JSX.Element {
                 </div>
               ))}
             </div>
-          </section>
 
-          {rewardsGranted !== null && (rewardsGranted.badges.length > 0 || rewardsGranted.unlocked.length > 0) ? (
-            <section className="rounded-3xl border border-power/35 bg-power/10 p-5">
-              <h2 className="flex items-center gap-2 font-display text-base font-extrabold text-white">
-                <Sparkles size={16} className="text-power" aria-hidden /> {t('result.rewardsTitle')}
-              </h2>
-              <div className="mt-3 flex flex-col gap-2.5">
-                {rewardsGranted.badges.map((id) => (
-                  <div key={id} className="flex items-center gap-3">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-power/20">
-                      <Award size={17} className="text-power" aria-hidden />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-[0.86rem] font-extrabold text-white">{t(`result.badge.${id}.name`)}</p>
-                      <p className="text-[0.74rem] text-slate-300">{t(`result.badge.${id}.why`)}</p>
+            {rewardsGranted !== null && (rewardsGranted.badges.length > 0 || rewardsGranted.unlocked.length > 0) ? (
+              <div className="mt-4 rounded-2xl border border-power/35 bg-power/10 p-4">
+                <h3 className="flex items-center gap-2 font-display text-sm font-extrabold text-white">
+                  <Sparkles size={15} className="text-power" aria-hidden /> {t('result.rewardsTitle')}
+                </h3>
+                <div className="mt-2.5 flex flex-col gap-2.5">
+                  {rewardsGranted.badges.map((id) => (
+                    <div key={id} className="flex items-center gap-3">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-power/20">
+                        <Award size={16} className="text-power" aria-hidden />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-[0.84rem] font-extrabold text-white">{t(`result.badge.${id}.name`)}</p>
+                        <p className="text-[0.72rem] text-slate-300">{t(`result.badge.${id}.why`)}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {rewardsGranted.unlocked
-                  .filter((u) => Object.values(THEME_UNLOCK).includes(u))
-                  .map((id) => {
-                    const theme = (Object.keys(THEME_UNLOCK) as HudTheme[])
-                      .find((k) => THEME_UNLOCK[k] === id) ?? 'mission';
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        onClick={() => { setTheme(theme); }}
-                        className="flex min-h-[44px] items-center gap-3 rounded-2xl bg-white/5 p-2.5 text-left hover:bg-white/10"
-                      >
-                        <span className="h-9 w-9 shrink-0 rounded-xl bg-gradient-to-br from-sky-400 to-life" />
-                        <span className="min-w-0">
-                          <span className="block text-[0.85rem] font-extrabold text-white">
-                            {t('result.themeReward', { theme: t(`settings.theme.${theme}`) })}
+                  ))}
+                  {rewardsGranted.unlocked
+                    .filter((u) => Object.values(THEME_UNLOCK).includes(u))
+                    .map((id) => {
+                      const theme = (Object.keys(THEME_UNLOCK) as HudTheme[])
+                        .find((k) => THEME_UNLOCK[k] === id) ?? 'mission';
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          onClick={() => { setTheme(theme); }}
+                          className="flex min-h-[44px] items-center gap-3 rounded-2xl bg-white/5 p-2.5 text-left hover:bg-white/10"
+                        >
+                          <span className="h-9 w-9 shrink-0 rounded-xl bg-gradient-to-br from-sky-400 to-life" />
+                          <span className="min-w-0">
+                            <span className="block text-[0.84rem] font-extrabold text-white">
+                              {t('result.themeReward', { theme: t(`settings.theme.${theme}`) })}
+                            </span>
+                            <span className="block text-[0.72rem] text-slate-300">
+                              {t(hudTheme === theme ? 'result.themeInUse' : 'result.themeTapToUse')}
+                            </span>
                           </span>
-                          <span className="block text-[0.72rem] text-slate-300">
-                            {t(hudTheme === theme ? 'result.themeInUse' : 'result.themeTapToUse')}
-                          </span>
-                        </span>
-                      </button>
-                    );
-                  })}
-                {rewardsGranted.unlocked.includes('first_win') ? (
-                  <p className="rounded-2xl bg-white/5 px-3.5 py-2.5 text-[0.8rem] leading-snug text-slate-200">
-                    {t('result.newCommander')}
-                  </p>
-                ) : null}
+                        </button>
+                      );
+                    })}
+                  {rewardsGranted.unlocked.includes('first_win') ? (
+                    <p className="rounded-2xl bg-white/5 px-3.5 py-2.5 text-[0.8rem] leading-snug text-slate-200">
+                      {t('result.newCommander')}
+                    </p>
+                  ) : null}
+                </div>
               </div>
-            </section>
-          ) : null}
+            ) : null}
+          </section>
         </div>
-      </div>
+
+        {/* Rodape: acoes */}
+        <footer className="grid grid-cols-2 gap-3 border-t border-white/10 px-5 py-4 sm:px-7">
+          <button type="button" className="btn-ghost w-full" onClick={() => { go('menu'); }}>
+            <Home size={17} aria-hidden /> {t('common.menu')}
+          </button>
+          <button type="button" className="btn-primary w-full" onClick={newMission}>
+            <RotateCcw size={17} aria-hidden /> {t('menu.newMission')}
+          </button>
+        </footer>
+      </article>
     </div>
   );
 }
