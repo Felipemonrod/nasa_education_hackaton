@@ -32,10 +32,11 @@ export const CARDS: readonly Card[] = [
           { stat: 'power', delta: 7 },
           { stat: 'oxygen', delta: -4 },
           { stat: 'dose', delta: 3 },
+          { stat: 'science', delta: 1 },
         ],
         outcome: {
           line: 'Paineis limpos. A geracao voltou ao normal.',
-          why: 'Cada ciclo da [[airlock]] joga ar fora, e la nao existe a [[shielding]] da base: a [[dose]] sobe. Limpar funciona, mas voce paga em ar e em radiacao.',
+          why: 'Cada ciclo da [[airlock]] joga ar fora, e la nao existe a [[shielding]] da base: a [[dose]] sobe. Limpar funciona, mas voce paga em ar e em radiacao. De quebra, a poeira que voce raspou virou amostra para analise.',
           verdict: 'mixed',
         },
       },
@@ -56,7 +57,7 @@ export const CARDS: readonly Card[] = [
       {
         id: 'postpone',
         label: 'Deixar para outro dia',
-        effects: [{ stat: 'power', delta: -6 }],
+        effects: [{ stat: 'power', delta: -5 }, { stat: 'oxygen', delta: -1 }],
         outcome: {
           line: 'A geracao continuou caindo.',
           why: 'Sem chuva e sem vento, nada limpa um painel na Lua. Poeira nao sai sozinha: adiar e escolher perder [[power]] todos os dias.',
@@ -92,8 +93,9 @@ export const CARDS: readonly Card[] = [
         id: 'reboot',
         label: 'Reiniciar o software e esperar',
         effects: [
-          { stat: 'power', delta: -4 },
+          { stat: 'power', delta: -3 },
           { stat: 'science', delta: -3 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Voltou sozinho, mas tarde.',
@@ -106,8 +108,9 @@ export const CARDS: readonly Card[] = [
         label: 'Ligar a antena de reserva',
         requires: [{ stat: 'power', op: 'gte', value: 50 }],
         effects: [
-          { stat: 'power', delta: -10 },
+          { stat: 'power', delta: -9 },
           { stat: 'science', delta: 2 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Reserva no ar, consumindo muito.',
@@ -178,8 +181,8 @@ export const CARDS: readonly Card[] = [
         label: 'Manutencao completa',
         effects: [
           { stat: 'lifeSupport', delta: 4 },
-          { stat: 'power', delta: -5 },
-          { stat: 'oxygen', delta: 5 },
+          { stat: 'power', delta: -4 },
+          { stat: 'oxygen', delta: 4 },
         ],
         outcome: {
           line: 'Reciclador em plena eficiencia.',
@@ -242,7 +245,7 @@ export const CARDS: readonly Card[] = [
         label: 'Seguir as operacoes',
         effects: [
           { stat: 'dose', delta: 6 },
-          { stat: 'science', delta: 3 },
+          { stat: 'science', delta: 1 },
         ],
         outcome: {
           line: 'Trabalho adiantado, exposicao maior.',
@@ -255,9 +258,10 @@ export const CARDS: readonly Card[] = [
         label: 'Reforcar o teto com regolito',
         requires: [{ stat: 'power', op: 'gte', value: 40 }],
         effects: [
-          { stat: 'power', delta: -8 },
+          { stat: 'power', delta: -7 },
           { stat: 'shielding', delta: 5 },
           { stat: 'dose', delta: 2 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Blindagem melhor para as proximas.',
@@ -302,7 +306,7 @@ export const CARDS: readonly Card[] = [
         label: 'Operar em turnos curtos',
         effects: [
           { stat: 'dose', delta: 7 },
-          { stat: 'science', delta: 4 },
+          { stat: 'science', delta: 1 },
         ],
         outcome: {
           line: 'Trabalho feito, exposicao alta.',
@@ -315,7 +319,7 @@ export const CARDS: readonly Card[] = [
         id: 'rover_shelter',
         label: 'Abrigar a tripulacao no rover blindado',
         requires: [{ stat: 'power', op: 'gte', value: 35 }],
-        effects: [{ stat: 'power', delta: -10 }],
+        effects: [{ stat: 'power', delta: -9 }, { stat: 'oxygen', delta: -1 }],
         outcome: {
           line: 'Protegidos, com custo alto de energia.',
           why: 'O [[rover]] tem paredes de agua: hidrogenio para particulas melhor que metal. Manter suporte de vida nele por um turno custa muita [[power]].',
@@ -354,10 +358,11 @@ export const CARDS: readonly Card[] = [
           { stat: 'shielding', delta: 6 },
           { stat: 'oxygen', delta: -2 },
           { stat: 'dose', delta: 2 },
+          { stat: 'science', delta: 1 },
         ],
         outcome: {
           line: 'Protecao onde a tripulacao passa mais tempo.',
-          why: 'Proteger onde se dorme cobre um terco do dia com um terco do esforco. Priorizar por tempo de permanencia e a decisao certa quando falta gente.',
+          why: 'Proteger onde se dorme cobre um terco do dia com um terco do esforco. Priorizar por tempo de permanencia e a decisao certa quando falta gente. Medir a [[dose]] dentro e fora dos dormitorios tambem gera dados sobre blindagem.',
           verdict: 'good',
         },
       },
@@ -386,8 +391,9 @@ export const CARDS: readonly Card[] = [
         id: 'more_light',
         label: 'Aumentar as horas de luz',
         effects: [
-          { stat: 'power', delta: -9 },
+          { stat: 'power', delta: -8 },
           { stat: 'food', delta: 10 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Colheita adiantada.',
@@ -412,9 +418,10 @@ export const CARDS: readonly Card[] = [
         id: 'leafy_only',
         label: 'LED so nas folhosas',
         effects: [
-          { stat: 'power', delta: -4 },
+          { stat: 'power', delta: -3 },
           { stat: 'food', delta: 4 },
           { stat: 'science', delta: -2 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Meio caminho, com dados perdidos.',
@@ -435,7 +442,7 @@ export const CARDS: readonly Card[] = [
       {
         id: 'diagnose',
         label: 'Rodar diagnostico completo',
-        effects: [{ stat: 'power', delta: -4 }],
+        effects: [{ stat: 'power', delta: -3 }, { stat: 'oxygen', delta: -1 }],
         chains: 'rover_battery_fix',
         outcome: {
           line: 'Diagnostico rodando. Resultado em seguida.',
@@ -447,8 +454,9 @@ export const CARDS: readonly Card[] = [
         id: 'swap',
         label: 'Trocar pela celula reserva',
         effects: [
-          { stat: 'power', delta: -8 },
+          { stat: 'power', delta: -7 },
           { stat: 'food', delta: -1 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Rover de volta, reserva gasta.',
@@ -497,8 +505,9 @@ export const CARDS: readonly Card[] = [
         id: 'replace_pack',
         label: 'Substituir o pacote inteiro',
         effects: [
-          { stat: 'power', delta: -10 },
+          { stat: 'power', delta: -9 },
           { stat: 'science', delta: 6 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Rover com autonomia total.',
@@ -522,8 +531,8 @@ export const CARDS: readonly Card[] = [
         label: 'Checagem completa',
         effects: [
           { stat: 'lifeSupport', delta: 2 },
-          { stat: 'power', delta: -4 },
-          { stat: 'oxygen', delta: -1 },
+          { stat: 'power', delta: -3 },
+          { stat: 'oxygen', delta: -2 },
         ],
         outcome: {
           line: 'Todos os trajes aprovados.',
@@ -564,8 +573,9 @@ export const CARDS: readonly Card[] = [
         label: 'Acordar a tripulacao e inspecionar',
         effects: [
           { stat: 'lifeSupport', delta: 3 },
-          { stat: 'power', delta: -4 },
+          { stat: 'power', delta: -3 },
           { stat: 'food', delta: -1 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Falso positivo confirmado em 40 minutos.',
@@ -589,8 +599,8 @@ export const CARDS: readonly Card[] = [
         label: 'Checar os sensores remotamente',
         requires: [{ stat: 'power', op: 'gte', value: 30 }],
         effects: [
-          { stat: 'power', delta: -6 },
-          { stat: 'oxygen', delta: -2 },
+          { stat: 'power', delta: -5 },
+          { stat: 'oxygen', delta: -3 },
         ],
         outcome: {
           line: 'Diagnostico sem acordar ninguem.',
@@ -628,8 +638,8 @@ export const CARDS: readonly Card[] = [
         label: 'Regenerar o cartucho velho',
         effects: [
           { stat: 'lifeSupport', delta: 1 },
-          { stat: 'power', delta: -7 },
-          { stat: 'oxygen', delta: 3 },
+          { stat: 'power', delta: -6 },
+          { stat: 'oxygen', delta: 2 },
           { stat: 'science', delta: 1 },
         ],
         outcome: {
@@ -667,10 +677,11 @@ export const CARDS: readonly Card[] = [
           { stat: 'oxygen', delta: -4 },
           { stat: 'power', delta: -3 },
           { stat: 'dose', delta: 2 },
+          { stat: 'science', delta: 2 },
         ],
         outcome: {
           line: 'Furo fechado na mesma noite.',
-          why: 'A Lua nao tem atmosfera para queimar pedrinhas: elas chegam inteiras a 20 km/s ou mais. Remendar no escuro custa [[dose]], mas limita o dano a [[shielding]].',
+          why: 'A Lua nao tem atmosfera para queimar pedrinhas: elas chegam inteiras a 20 km/s ou mais. Remendar no escuro custa [[dose]], mas limita o dano a [[shielding]]. E o furo virou dado: tamanho e angulo do impacto contam quantas pedras chegam aqui.',
           verdict: 'good',
         },
       },
@@ -693,7 +704,8 @@ export const CARDS: readonly Card[] = [
         requires: [{ stat: 'power', op: 'gte', value: 40 }],
         effects: [
           { stat: 'shielding', delta: -3 },
-          { stat: 'power', delta: -8 },
+          { stat: 'power', delta: -7 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Vedacao feita sem ninguem sair.',
@@ -714,7 +726,7 @@ export const CARDS: readonly Card[] = [
       {
         id: 'heat_all',
         label: 'Aquecer todos os modulos',
-        effects: [{ stat: 'power', delta: -10 }],
+        effects: [{ stat: 'power', delta: -9 }, { stat: 'oxygen', delta: -1 }],
         outcome: {
           line: 'Base inteira em temperatura segura.',
           why: 'Os turnos seguem o relogio [[utc]] da base, nao o Sol: a tripulacao fecha as escotilhas para dormir mesmo com o Sol la fora. Mas o frio real vem do equipamento parado e da sombra.',
@@ -725,9 +737,10 @@ export const CARDS: readonly Card[] = [
         id: 'central_only',
         label: 'Aquecer so o modulo central',
         effects: [
-          { stat: 'power', delta: -5 },
+          { stat: 'power', delta: -4 },
           { stat: 'food', delta: -3 },
           { stat: 'science', delta: -2 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Energia salva, estufa e laboratorio frios.',
@@ -742,10 +755,11 @@ export const CARDS: readonly Card[] = [
         effects: [
           { stat: 'power', delta: -3 },
           { stat: 'shielding', delta: -3 },
+          { stat: 'science', delta: 2 },
         ],
         outcome: {
           line: 'Aquecimento quase gratis.',
-          why: 'Calor residual e energia que voce ja pagou uma vez. O preco foi abrir dutos na parede, e cada duto e um caminho a menos de [[shielding]].',
+          why: 'Calor residual e energia que voce ja pagou uma vez. O preco foi abrir dutos na parede, e cada duto e um caminho a menos de [[shielding]]. Medir para onde o calor vai tambem e ciencia: engenharia termica se aprende assim.',
           verdict: 'good',
         },
       },
@@ -813,8 +827,8 @@ export const CARDS: readonly Card[] = [
         label: 'Limpeza completa das vedacoes',
         effects: [
           { stat: 'lifeSupport', delta: 3 },
-          { stat: 'power', delta: -4 },
-          { stat: 'oxygen', delta: -1 },
+          { stat: 'power', delta: -3 },
+          { stat: 'oxygen', delta: -2 },
           { stat: 'shielding', delta: 2 },
         ],
         outcome: {
@@ -878,7 +892,7 @@ export const CARDS: readonly Card[] = [
         label: 'Manter o ritmo da missao',
         effects: [
           { stat: 'dose', delta: 5 },
-          { stat: 'science', delta: 3 },
+          { stat: 'science', delta: 1 },
         ],
         outcome: {
           line: 'Cronograma mantido, risco maior.',
@@ -892,8 +906,9 @@ export const CARDS: readonly Card[] = [
         requires: [{ stat: 'shielding', op: 'gte', value: 55 }],
         effects: [
           { stat: 'science', delta: -3 },
-          { stat: 'power', delta: -4 },
+          { stat: 'power', delta: -3 },
           { stat: 'food', delta: -1 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Mais horas protegidas, sem parar tudo.',
@@ -921,7 +936,7 @@ export const CARDS: readonly Card[] = [
         label: 'Ir com o rover',
         effects: [
           { stat: 'science', delta: 11 },
-          { stat: 'power', delta: -8 },
+          { stat: 'power', delta: -6 },
           { stat: 'food', delta: -2 },
           { stat: 'oxygen', delta: -3 },
           { stat: 'dose', delta: 3 },
@@ -978,7 +993,7 @@ export const CARDS: readonly Card[] = [
           { stat: 'science', delta: 10 },
           { stat: 'oxygen', delta: -4 },
           { stat: 'dose', delta: 2 },
-          { stat: 'power', delta: -3 },
+          { stat: 'power', delta: -1 },
           { stat: 'food', delta: -1 },
         ],
         outcome: {
@@ -1017,7 +1032,7 @@ export const CARDS: readonly Card[] = [
         label: 'Descer ate o gelo',
         effects: [
           { stat: 'science', delta: 12 },
-          { stat: 'power', delta: -9 },
+          { stat: 'power', delta: -7 },
           { stat: 'food', delta: -2 },
           { stat: 'oxygen', delta: -2 },
           { stat: 'dose', delta: 2 },
@@ -1057,7 +1072,7 @@ export const CARDS: readonly Card[] = [
         label: 'Instalar quatro pontos',
         effects: [
           { stat: 'science', delta: 10 },
-          { stat: 'power', delta: -6 },
+          { stat: 'power', delta: -4 },
           { stat: 'food', delta: -2 },
           { stat: 'oxygen', delta: -3 },
           { stat: 'dose', delta: 2 },
@@ -1098,7 +1113,7 @@ export const CARDS: readonly Card[] = [
         label: 'Rodar a analise longa',
         effects: [
           { stat: 'science', delta: 9 },
-          { stat: 'power', delta: -8 },
+          { stat: 'power', delta: -6 },
         ],
         outcome: {
           line: 'Espectro limpo, elementos raros identificados.',
@@ -1314,7 +1329,7 @@ export const CARDS: readonly Card[] = [
         effects: [
           { stat: 'oxygen', delta: 15 },
           { stat: 'food', delta: 15 },
-          { stat: 'power', delta: -12 },
+          { stat: 'power', delta: -2 },
         ],
         outcome: {
           line: 'Tanques e despensa reabastecidos.',
@@ -1416,7 +1431,7 @@ export const CARDS: readonly Card[] = [
         label: 'Observacao longa',
         effects: [
           { stat: 'science', delta: 10 },
-          { stat: 'power', delta: -7 },
+          { stat: 'power', delta: -5 },
           { stat: 'food', delta: -1 },
         ],
         outcome: {
@@ -1594,7 +1609,7 @@ export const CARDS: readonly Card[] = [
       {
         id: 'skip',
         label: 'Pular o ciclo',
-        effects: [{ stat: 'power', delta: -4 }],
+        effects: [{ stat: 'power', delta: -3 }, { stat: 'oxygen', delta: -1 }],
         outcome: {
           line: 'Capacidade util continuou caindo.',
           why: 'Bateria que nunca equaliza envelhece rapido e de forma irreversivel. Essa perda nao volta com manutencao depois.',
@@ -1616,8 +1631,8 @@ export const CARDS: readonly Card[] = [
         label: 'Degelo controlado, lento',
         effects: [
           { stat: 'lifeSupport', delta: 3 },
-          { stat: 'power', delta: -4 },
-          { stat: 'oxygen', delta: 5 },
+          { stat: 'power', delta: -3 },
+          { stat: 'oxygen', delta: 4 },
         ],
         outcome: {
           line: 'Agua recuperada e gases capturados.',
@@ -1629,8 +1644,8 @@ export const CARDS: readonly Card[] = [
         id: 'fast',
         label: 'Degelo rapido',
         effects: [
-          { stat: 'power', delta: -7 },
-          { stat: 'oxygen', delta: 3 },
+          { stat: 'power', delta: -6 },
+          { stat: 'oxygen', delta: 2 },
           { stat: 'science', delta: -2 },
         ],
         outcome: {
@@ -1734,8 +1749,8 @@ export const CARDS: readonly Card[] = [
         effects: [
           { stat: 'lifeSupport', delta: 2 },
           { stat: 'food', delta: 6 },
-          { stat: 'power', delta: -4 },
-          { stat: 'oxygen', delta: -1 },
+          { stat: 'power', delta: -3 },
+          { stat: 'oxygen', delta: -2 },
         ],
         outcome: {
           line: 'Plantas saudaveis, colheita no prazo.',
@@ -1890,8 +1905,9 @@ export const CARDS: readonly Card[] = [
         label: 'Rodar checagens extras',
         effects: [
           { stat: 'lifeSupport', delta: 2 },
-          { stat: 'power', delta: -4 },
+          { stat: 'power', delta: -3 },
           { stat: 'food', delta: -1 },
+          { stat: 'oxygen', delta: -1 },
         ],
         outcome: {
           line: 'Tudo conferido antes do amanhecer.',

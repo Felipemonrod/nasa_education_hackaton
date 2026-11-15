@@ -33,9 +33,12 @@ export const COMMANDERS: readonly LoadoutCard[] = [
     name: 'Cmdr. Okonkwo',
     role: 'Engenheira de sistemas',
     blurb: 'Passou 11 meses na estação consertando o que ninguém queria consertar.',
-    effectLabel: 'Perdas de energia nas decisões reduzidas em 1',
+    effectLabel: '+1 de energia por turno nos 3 primeiros ciclos',
     icon: 'wrench',
-    mitigation: { power: 1 },
+    // Bonus fixo, no formato da estufa. Antes era "-1 em toda perda de energia":
+    // como 70% das opcoes custam energia, valia +20 p.p. de sobrevivencia e
+    // nenhum outro comandante competia (docs/balanceamento-analise.md §3, C4).
+    modifiers: [{ stat: 'power', perSlot: 1, slots: 12, label: 'Cmdr. Okonkwo' }],
   },
   {
     id: 'cmd_medic',
@@ -43,7 +46,7 @@ export const COMMANDERS: readonly LoadoutCard[] = [
     name: 'Cmdr. Haddad',
     role: 'Médica de voo',
     blurb: 'Acompanha dose de radiação e sono da tripulação como quem lê um instrumento.',
-    effectLabel: 'Ganhos de dose de radiação nas decisões reduzidos em 1',
+    effectLabel: 'Dose de radiação: −1 nas decisões e −2 por ciclo',
     icon: 'heart-pulse',
     mitigation: { dose: 1 },
   },
