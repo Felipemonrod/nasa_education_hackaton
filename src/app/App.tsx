@@ -4,6 +4,7 @@ import { useSpeech } from './a11y/speech.js';
 import { syncMusic } from './audio/music.js';
 import { Cutscene } from './screens/Cutscene.js';
 import { Credits } from './screens/Credits.js';
+import { BaseExplorer } from './components/BaseExplorer.js';
 import { Deck } from './screens/Deck.js';
 import { Destination } from './screens/Destination.js';
 import { Game } from './screens/Game.js';
@@ -67,6 +68,7 @@ export function App(): JSX.Element {
         : screen === 'deck' ? <Deck />
         : screen === 'settings' ? <Settings />
         : screen === 'credits' ? <Credits />
+        : screen === 'base' ? <BaseExplorer />
         : <Menu />}
     </>
   );

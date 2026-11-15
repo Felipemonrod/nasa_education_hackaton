@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { BookOpen, Info, Play, RotateCcw, Settings2, Trophy, Rocket, Award } from 'lucide-react';
+import { BookOpen, Info, Orbit, Play, RotateCcw, Settings2, Trophy, Rocket, Award } from 'lucide-react';
 import { useT } from '../i18n/useI18n.js';
 import { useAccount } from '../store/useAccount.js';
 import { useGame } from '../store/useGame.js';
@@ -121,6 +121,9 @@ export function Menu(): JSX.Element {
             )}
             <button type="button" className="btn-ghost w-full py-3" onClick={() => { go('deck'); }}>
               <BookOpen size={18} aria-hidden /> {t('menu.deck')}
+            </button>
+            <button type="button" className="btn-ghost w-full py-3" onClick={() => { go('base'); }}>
+              <Orbit size={18} aria-hidden /> {t('menu.explore')}
             </button>
             <div className="grid grid-cols-2 gap-3 pt-1">
               <button type="button" className="btn-ghost py-3" onClick={() => { go('settings'); }}>

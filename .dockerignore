@@ -1,0 +1,17 @@
+# Nao copiar para a imagem (e nao poluir o contexto de build):
+node_modules
+dist
+dev-dist
+coverage
+.git
+.gitignore
+.local-instance
+.claude
+.ai-jail
+.vscode
+.idea
+*.log
+.DS_Store
+Dockerfile
+docker-compose.yml
+.dockerignore
