@@ -101,6 +101,18 @@ export default defineConfig({
             },
           },
           {
+            // Base 3D: modelos .glb (meshopt) e texturas. CacheFirst: depois da
+            // primeira visita a cena abre sem rede. v1 = arquivos otimizados
+            // (~1 MB no total); trocar o nome se os arquivos mudarem de novo.
+            urlPattern: /\/(models\/.+\.glb|textures\/.+\.(jpe?g|webp|png))$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'base-3d-v1',
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: 'CacheFirst',
             options: {

@@ -2,6 +2,7 @@ import { PerspectiveCamera } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { AiTexturesBadge } from './AiTexturesBadge.js';
 import { useBaseSceneGL } from './useBaseSceneGL.js';
+import type { SceneEvents } from './useBaseSceneGL.js';
 
 /**
  * Explorador da base em TELA CHEIA, controlado por mouse/toque (OrbitControls:
@@ -14,7 +15,7 @@ import { useBaseSceneGL } from './useBaseSceneGL.js';
  *    update por frame); pausa so com a aba oculta (sem pauseWhenOffscreen).
  */
 export function BaseExplorerGL(
-  { phase, label, autoRotate }: { phase: 'day' | 'night'; label: string; autoRotate: boolean },
+  { phase, label, autoRotate, onReady, onError }: { phase: 'day' | 'night'; label: string; autoRotate: boolean } & SceneEvents,
 ): JSX.Element {
   const hostRef = useBaseSceneGL(phase, ({ renderer, host, base }) => {
     const canvas = renderer.domElement;
@@ -53,7 +54,7 @@ export function BaseExplorerGL(
       },
       dispose: () => { controls.dispose(); },
     };
-  });
+  }, { onReady, onError });
 
   return (
     <>

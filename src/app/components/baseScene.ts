@@ -29,7 +29,7 @@ import {
   Vector3,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { maxTextureSize } from '../webgl.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 
 /**
  * Construcao do grafo da base lunar, compartilhada entre a cena de painel
@@ -152,7 +152,15 @@ export interface BaseScene {
   readonly radius: number;
 }
 
-export function buildBaseScene(scene: Scene): BaseScene {
+/** Avisos de carga para quem monta a cena (fallback para o SVG). */
+export interface BaseSceneEvents {
+  /** O modelo principal (base.glb) entrou na cena. */
+  readonly onModelReady?: () => void;
+  /** O modelo principal falhou (rede, arquivo invalido, decodificador). */
+  readonly onModelError?: () => void;
+}
+
+export function buildBaseScene(scene: Scene, events: BaseSceneEvents = {}): BaseScene {
   // PRNG local deterministico: layout de estrelas e pedras estavel entre
   // recarregamentos, sem depender de Math.random (que tremeluziria a cada
   // montagem). Nao e o engine -- aqui aleatoriedade so decora.
@@ -458,9 +466,9 @@ export function buildBaseScene(scene: Scene): BaseScene {
   // --- Ceu: panorama 360 do universo (equiretangular) como fundo ---
   // 8K onde a GPU aguenta, 4K onde nao (evita "textura grande demais -> ceu
   // preto"). Fallback escuro ate a imagem carregar (ou se falhar).
-  const skyUrl = maxTextureSize() >= 8192
-    ? '/textures/stars_milky_way_8k.jpg'
-    : '/textures/stars_milky_way_4k.jpg';
+  // Um so arquivo 4K (~90 KB): o 8K pesava 1,9 MB e nao mudava nada visivel
+  // num ceu de estrelas; 4096 px cabe no limite de textura de qualquer GPU alvo.
+  const skyUrl = '/textures/stars_milky_way_4k.jpg';
   scene.background = new Color(0x05070c);
   const sky = loader.load(skyUrl, (tex) => {
     tex.mapping = EquirectangularReflectionMapping;
@@ -501,6 +509,9 @@ export function buildBaseScene(scene: Scene): BaseScene {
   // isso acontecer, o modelo recem-carregado e liberado na hora.
   let disposed = false;
   const gltfLoader = new GLTFLoader();
+  // Modelos comprimidos com meshopt (gltf-transform): ~1,5 MB -> ~240 KB. O
+  // decodificador vem no pacote three (WASM embutido), sem rede.
+  gltfLoader.setMeshoptDecoder(MeshoptDecoder);
   // Carrega um glTF, deixa `place` posiciona-lo, registra seus recursos para o
   // dispose() e o adiciona a cena. Em falha, fica so o que ja esta na tela.
   const loadModel = (url: string, place: (model: Group) => void, onError?: () => void): void => {
@@ -592,7 +603,8 @@ export function buildBaseScene(scene: Scene): BaseScene {
         obj.material = c;
       }
     });
-  }, () => { built.visible = true; }); // base.glb falhou -> habitat/antena procedural
+    events.onModelReady?.();
+  }, () => { built.visible = true; events.onModelError?.(); }); // base.glb falhou -> procedural + aviso (SVG)
 
   // Rover: fit pela largura, apoiado no chao, posicionado e orientado ao lado
   // da base.

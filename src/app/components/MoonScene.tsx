@@ -4,14 +4,16 @@ import { useAccount } from '../store/useAccount.js';
 import { prefersReducedMotion, supportsWebGL } from '../webgl.js';
 import { MoonSceneSVG } from './MoonSceneSVG.js';
 import { SceneErrorBoundary } from './SceneErrorBoundary.js';
+import { useSceneStatus } from './useSceneStatus.js';
 
 export interface MoonSceneProps {
   readonly phase: 'day' | 'night';
+  /** 'backdrop' = fundo de tela cheia (Menu): camera mais longe. Padrao: painel. */
+  readonly framing?: 'panel' | 'backdrop';
 }
 
 // Carregamento tardio: o three.js vira um chunk a parte, fora do bundle
-// inicial. Quem cai no SVG nem baixa; quem usa o GL ve um placeholder vazio
-// enquanto o chunk carrega (nao o SVG, para nao piscar antes da cena 3D).
+// inicial. Quem cai no SVG nem baixa.
 const MoonSceneGL = lazy(() =>
   import('./MoonSceneGL.js').then((m) => ({ default: m.MoonSceneGL })),
 );
@@ -20,36 +22,42 @@ const MoonSceneGL = lazy(() =>
  * Dispatcher da cena da base. A interface { phase } e estavel: Menu e Game
  * consomem este componente sem saber qual renderizacao esta por tras.
  *
- * Escolhe o SVG (fallback de primeira classe) quando:
+ * Usa so o SVG (fallback de primeira classe) quando:
  *  - nao ha WebGL (Chromebook antigo, driver bloqueado);
- *  - alto contraste esta ligado -- um canvas WebGL nao respeita o tema de
- *    alto contraste do CSS, mas o SVG respeita;
- *  - movimento reduzido (preferencia do app OU do sistema) -- cena 3D parada
- *    nao justifica carregar o three.js.
+ *  - alto contraste esta ligado (canvas WebGL nao respeita o tema do CSS);
+ *  - movimento reduzido (do app OU do sistema);
+ *  - a cena 3D FALHOU: chunk do three.js, WebGL, contexto perdido, base.glb
+ *    com erro ou demora acima do limite (ver useSceneStatus).
  *
- * O rotulo acessivel e resolvido aqui uma vez e repassado aos dois caminhos.
+ * Com 3D: o SVG aparece na hora e o canvas carrega por baixo, invisivel; quando
+ * o modelo principal entra, o 3D aparece com fade. Nunca ha tela vazia.
  */
-export function MoonScene({ phase }: MoonSceneProps): JSX.Element {
+export function MoonScene({ phase, framing = 'panel' }: MoonSceneProps): JSX.Element {
   const t = useT();
   const label = t('scene.base');
   const highContrast = useAccount((s) => s.settings.highContrast);
   const reducedMotion = useAccount((s) => s.settings.reducedMotion);
   // Capacidade do dispositivo nao muda em runtime: decide uma vez.
   const [capable] = useState(() => supportsWebGL() && !prefersReducedMotion());
+  const wantsGL = capable && !highContrast && !reducedMotion;
+  const { status, onReady, onError } = useSceneStatus(wantsGL);
 
   const svg = <MoonSceneSVG phase={phase} label={label} />;
-  if (!capable || highContrast || reducedMotion) return svg;
+  if (!wantsGL || status === 'failed') return svg;
 
-  // Placeholder vazio enquanto o chunk do three.js carrega -- evita o flash do SVG
-  // antes da cena 3D. O SVG segue como fallback REAL: sem WebGL/acessibilidade
-  // (return acima) e se o chunk ou o WebGL falharem (error boundary).
-  const loading = <div className="h-full w-full" role="img" aria-label={label} />;
-
+  const ready = status === 'ready';
   return (
-    <SceneErrorBoundary fallback={svg}>
-      <Suspense fallback={loading}>
-        <MoonSceneGL phase={phase} label={label} />
-      </Suspense>
-    </SceneErrorBoundary>
+    <div className="relative h-full w-full">
+      <div className={`absolute inset-0 transition-opacity duration-700 ${ready ? 'opacity-0' : 'opacity-100'}`} aria-hidden={ready}>
+        {svg}
+      </div>
+      <div className={`absolute inset-0 transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'}`} aria-hidden={!ready}>
+        <SceneErrorBoundary fallback={null} onError={onError}>
+          <Suspense fallback={null}>
+            <MoonSceneGL phase={phase} label={label} framing={framing} onReady={onReady} onError={onError} />
+          </Suspense>
+        </SceneErrorBoundary>
+      </div>
+    </div>
   );
 }

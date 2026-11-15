@@ -40,9 +40,18 @@ const FRAME_MS = 1000 / 30;
  * aplicado sem reconstruir a cena. `setup` roda uma vez na montagem e constroi a
  * parte especifica do componente.
  */
+/** Avisos para o componente decidir entre a cena 3D e o SVG. */
+export interface SceneEvents {
+  /** Modelo principal carregado e primeiro quadro com ele desenhado. */
+  readonly onReady?: (() => void) | undefined;
+  /** WebGL indisponivel, contexto perdido ou modelo principal com erro. */
+  readonly onError?: (() => void) | undefined;
+}
+
 export function useBaseSceneGL(
   phase: 'day' | 'night',
   setup: (ctx: SceneSetupContext) => SceneHandle,
+  events: SceneEvents = {},
 ): RefObject<HTMLDivElement> {
   // useRef<T>(null) devolve RefObject<T> nos tipos do React 18 deste projeto,
   // que e o que a prop `ref` aceita.
@@ -54,12 +63,21 @@ export function useBaseSceneGL(
   setupRef.current = setup;
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
+  const eventsRef = useRef(events);
+  eventsRef.current = events;
 
   useEffect(() => {
     const host = hostRef.current;
     if (host === null) return undefined;
 
-    const renderer = new WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'low-power' });
+    let renderer: WebGLRenderer;
+    try {
+      renderer = new WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'low-power' });
+    } catch {
+      // Sem contexto WebGL (driver bloqueado, GPU sem memoria): o componente cai no SVG.
+      eventsRef.current.onError?.();
+      return undefined;
+    }
     const canvas = renderer.domElement;
     canvas.style.display = 'block';
     canvas.style.width = '100%';
@@ -67,7 +85,14 @@ export function useBaseSceneGL(
     host.appendChild(canvas);
 
     const scene = new Scene();
-    const base = buildBaseScene(scene);
+    let alive = true;
+    const base = buildBaseScene(scene, {
+      // Espera um quadro para o modelo ja estar desenhado antes do fade-in.
+      onModelReady: () => {
+        window.requestAnimationFrame(() => { if (alive) eventsRef.current.onReady?.(); });
+      },
+      onModelError: () => { if (alive) eventsRef.current.onError?.(); },
+    });
     base.applyPhase(phaseRef.current);
     baseRef.current = base;
 
@@ -127,7 +152,11 @@ export function useBaseSceneGL(
 
     // Perda de contexto WebGL (GPU fraca, aba suspensa): evita a tela preta.
     // preventDefault permite a restauracao; o three reconstroi no primeiro render.
-    const onContextLost = (e: Event): void => { e.preventDefault(); stop(); };
+    const onContextLost = (e: Event): void => {
+      e.preventDefault();
+      stop();
+      eventsRef.current.onError?.(); // o componente troca para o SVG
+    };
     const onContextRestored = (): void => { resize(); sync(); };
     canvas.addEventListener('webglcontextlost', onContextLost, false);
     canvas.addEventListener('webglcontextrestored', onContextRestored, false);
@@ -169,6 +198,7 @@ export function useBaseSceneGL(
     sync();
 
     return () => {
+      alive = false;
       stop();
       document.removeEventListener('visibilitychange', onVisibility);
       canvas.removeEventListener('webglcontextlost', onContextLost);

@@ -29,22 +29,32 @@ export function Menu(): JSX.Element {
   ] as const;
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col justify-between px-5 py-6 sm:px-8 lg:px-12">
+    <div className="relative min-h-dvh w-full overflow-hidden bg-space-950">
+      {/* Base lunar em TELA CHEIA, por tras do menu. Os veus ficam no mesmo
+          container fixo, depois da cena: escurecem o lado do titulo e o rodape
+          para o texto ficar legivel, e o selo de IA (z-10, dentro da cena) segue
+          por cima deles. */}
+      <div className="fixed inset-0">
+        <MoonScene phase="day" framing="backdrop" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-space-950/75 via-space-950/10 to-space-950/55 md:bg-gradient-to-r md:from-space-950/85 md:via-space-950/15 md:to-space-950/55" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-space-950/80 to-transparent" />
+      </div>
+
+      <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col justify-between px-5 py-6 sm:px-8 lg:px-12">
       <div className="my-auto grid grid-cols-1 items-center gap-6 md:grid-cols-12 lg:gap-10">
         {/* Lado esquerdo: Identidade visual do jogo + Panorama da Base Lunar */}
         <div className="flex flex-col gap-5 md:col-span-7">
           <div>
-            <h1 className="font-display text-4xl font-extrabold leading-none tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="font-display text-4xl font-extrabold leading-none tracking-tight text-white drop-shadow-[0_2px_18px_rgba(5,10,20,0.9)] sm:text-5xl lg:text-7xl">
               Lunar<span className="text-power"> Outpost</span>
             </h1>
-            <p className="mt-2.5 max-w-xl text-base font-semibold text-slate-300 sm:text-lg">
+            <p className="mt-2.5 max-w-xl text-base font-semibold text-slate-200 drop-shadow-[0_1px_10px_rgba(5,10,20,0.95)] sm:text-lg">
               {t('menu.tagline')}
             </p>
           </div>
 
-          <div className="h-44 overflow-hidden rounded-3xl border border-white/15 bg-space-950 shadow-2xl sm:h-56 lg:h-64 animate-drift">
-            <MoonScene phase="day" />
-          </div>
+          {/* Espaco livre para a base aparecer entre o titulo e as estatisticas. */}
+          <div className="h-24 sm:h-40 lg:h-56" aria-hidden />
 
           {totals.runs > 0 ? (
             <div className="grid grid-cols-3 gap-3">
@@ -137,9 +147,10 @@ export function Menu(): JSX.Element {
         </div>
       </div>
 
-      <p className="pt-4 text-center text-[0.72rem] leading-snug text-slate-500">
+      <p className="pt-4 text-center text-[0.72rem] leading-snug text-slate-400">
         {t('menu.disclaimer')}
       </p>
+      </div>
     </div>
   );
 }

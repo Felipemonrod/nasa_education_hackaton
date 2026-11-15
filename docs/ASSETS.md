@@ -85,12 +85,17 @@ I/O v4.5.47" in each file).
 | `public/textures/solarPanel.jpg` | Solar panel texture | Same Google C2PA manifest (`trainedAlgorithmicMedia`, SynthID) | Same | **Yes** (proven by metadata). Same badge |
 | `public/textures/world.topo.200401.3x5400x2700.jpg` | Earth texture | File name matches NASA's **Blue Marble Next Generation** (January 2004, with topography), NASA Earth Observatory / Visible Earth. `TODO(team)`: confirm download page | NASA, public domain | No |
 | `public/textures/2k_moon.jpg` | Moon surface texture | Name and size (2048×1024) match the **Solar System Scope** texture set, which is based on NASA data. `TODO(team)`: confirm | Solar System Scope textures are CC BY 4.0 (credit required) | No |
-| `public/textures/stars_milky_way_4k.jpg`, `stars_milky_way_8k.jpg` | Star field / Milky Way sky | Probably Solar System Scope ("stars_milky_way") or ESO's Milky Way panorama (eso0932a, ESO/S. Brunier). `TODO(team)`: confirm which | Both are CC BY 4.0 (credit required) | No |
+| `public/textures/stars_milky_way_4k.jpg` | Star field / Milky Way sky | Probably Solar System Scope ("stars_milky_way") or ESO's Milky Way panorama (eso0932a, ESO/S. Brunier). `TODO(team)`: confirm which | Both are CC BY 4.0 (credit required) | No |
 | `public/textures/white_metal.jpg` | Metal texture (1000×1000) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
-| `public/textures/black-road-texture.jpg` | Ground texture (5616×3744, **13.6 MB**) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
+| `public/textures/black-road-texture.jpg` | Rover tire texture (original 5616×3744, 13.6 MB; now 512 px) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
 
-Size note: the textures add about 25 MB to the site (13.6 MB from `black-road-texture.jpg` alone). Re-exporting
-it at 2048 px would cut most of that without a visible difference in the small scene.
+**Optimization (15/11/2026).** Textures were resized to the size they are shown at and re-encoded (mozjpeg,
+progressive): 25.3 MB → 0.83 MB (ground 2048 px, sky 4096 px from the former 8K file, which was removed;
+Earth 1024 px; door 1024 px; solar panel 768 px; tire and metal 512 px). Models were compressed with
+gltf-transform (`EXT_meshopt_compression` + quantization, node and material names kept): 1.51 MB → 0.24 MB;
+the decoder ships with three.js. Re-encoding drops the C2PA block of the two AI textures, so each now carries
+a JPEG comment stating it is AI-generated; the originals with the C2PA manifest are kept by the team. Scene
+files are cached by the service worker after the first visit.
 
 ## 2. Audio
 

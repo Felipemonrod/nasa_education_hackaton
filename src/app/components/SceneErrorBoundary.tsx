@@ -4,6 +4,8 @@ import type { ReactNode } from 'react';
 interface Props {
   readonly fallback: ReactNode;
   readonly children: ReactNode;
+  /** Avisa o pai (que troca para o SVG e libera o WebGL). */
+  readonly onError?: () => void;
 }
 
 interface State {
@@ -21,6 +23,7 @@ export class SceneErrorBoundary extends Component<Props, State> {
 
   override componentDidCatch(): void {
     this.setState({ failed: true });
+    this.props.onError?.();
   }
 
   override render(): ReactNode {
