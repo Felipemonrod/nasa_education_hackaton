@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import {
-  ArrowLeft, ArrowRight, CheckCircle2, CircleHelp, Clock, Gauge, HeartPulse, Lock, MapPin, Microscope, Settings, X,
+  ArrowRight, CheckCircle2, CircleHelp, Clock, Gauge, HeartPulse, Lock, MapPin, Microscope, X,
 } from 'lucide-react';
+import { TopNavbar } from '../components/TopNavbar.js';
 import { LUNAR_SITES } from '../data/sites.js';
 import type { Effect, MissionObjective, Stat } from '../../engine/types.js';
 import { useContent } from '../i18n/useContent.js';
@@ -191,19 +192,12 @@ export function Destination(): JSX.Element {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col justify-between px-4 py-3 sm:px-6 sm:py-4 lg:h-dvh lg:overflow-hidden lg:px-8">
-      {/* Barra superior no mesmo estilo amigavel e arredondado da tela de Gameplay */}
-      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-        {/* Esquerda: Unico botao de retorno + capsula glass com Etapa e Titulo */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <button
-            type="button"
-            onClick={handleBack}
-            className="btn-ghost min-h-[44px] rounded-2xl px-4 py-2 text-sm"
-          >
-            <ArrowLeft size={16} aria-hidden />
-            {step === 1 ? t('common.menu') : t('common.back')}
-          </button>
-
+      {/* Barra superior padronizada com voltar '<-' na esquerda, itens distribuidos ao centro e engrenagem na direita */}
+      <TopNavbar
+        onBack={handleBack}
+        backLabel={step === 1 ? t('common.menu') : t('common.back')}
+      >
+        <div className="flex flex-1 justify-center">
           <div className="flex items-center gap-3 rounded-2xl glass px-4 py-2">
             <div>
               <p className="text-[0.62rem] font-extrabold uppercase tracking-widest text-sky-300">
@@ -216,39 +210,39 @@ export function Destination(): JSX.Element {
           </div>
         </div>
 
-        {/* Centro: Seletor das 3 etapas arredondado com glass */}
-        <nav
-          aria-label={t('destination.title')}
-          className="order-3 flex w-full items-center gap-1.5 rounded-2xl glass p-1.5 sm:order-2 sm:w-auto"
-        >
-          {steps.map((s) => {
-            const active = step === s.id;
-            return (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => { goToStep(s.id); }}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-xs font-extrabold transition-all sm:flex-initial ${
-                  active
-                    ? 'border border-sky-400/70 bg-sky-400/20 text-white shadow-[0_0_20px_-6px_rgba(56,189,248,0.5)]'
-                    : 'border border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200'
-                }`}
-              >
-                <span
-                  className={`grid h-5 w-5 place-items-center rounded-full text-[0.65rem] font-black ${
-                    active ? 'bg-sky-400 text-space-950' : 'bg-white/10 text-slate-300'
+        <div className="flex flex-1 justify-center">
+          <nav
+            aria-label={t('destination.title')}
+            className="flex w-full items-center gap-1.5 rounded-2xl glass p-1.5 sm:w-auto"
+          >
+            {steps.map((s) => {
+              const active = step === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => { goToStep(s.id); }}
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-xs font-extrabold transition-all sm:flex-initial ${
+                    active
+                      ? 'border border-sky-400/70 bg-sky-400/20 text-white shadow-[0_0_20px_-6px_rgba(56,189,248,0.5)]'
+                      : 'border border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200'
                   }`}
                 >
-                  {s.id}
-                </span>
-                <span className="truncate">{t(s.labelKey)}</span>
-              </button>
-            );
-          })}
-        </nav>
+                  <span
+                    className={`grid h-5 w-5 place-items-center rounded-full text-[0.65rem] font-black ${
+                      active ? 'bg-sky-400 text-space-950' : 'bg-white/10 text-slate-300'
+                    }`}
+                  >
+                    {s.id}
+                  </span>
+                  <span className="truncate">{t(s.labelKey)}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
 
-        {/* Direita Superior: Capsula glass de Dificuldade com cursor '?' (cursor-help) + Engrenagem de Settings */}
-        <div className="order-2 flex items-center gap-2 sm:order-3">
+        <div className="flex flex-1 justify-center">
           <button
             type="button"
             onClick={() => { setDifficultyModalOpen(true); }}
@@ -268,18 +262,8 @@ export function Destination(): JSX.Element {
             </div>
             <CircleHelp size={15} className="ml-0.5 text-slate-400" aria-hidden />
           </button>
-
-          <button
-            type="button"
-            onClick={() => { go('settings'); }}
-            aria-label={t('common.options')}
-            title={t('common.options')}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl glass text-slate-200 transition-colors hover:border-sky-300/40 hover:bg-white/10 hover:text-white"
-          >
-            <Settings size={18} aria-hidden />
-          </button>
         </div>
-      </header>
+      </TopNavbar>
 
       {/* Area central ocupando todo o espaco disponivel da pagina */}
       <main className="my-auto flex min-h-0 flex-1 flex-col justify-center py-3 sm:py-4">
@@ -390,18 +374,35 @@ export function Destination(): JSX.Element {
                           title={`${siteName} (${meta.coords})`}
                           aria-label={`${siteName} (${meta.coords})`}
                           style={{ left: `${meta.pinX}%`, top: `${meta.pinY}%` }}
-                          className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
+                          className="group absolute -translate-x-1/2 -translate-y-full focus:outline-none"
                         >
-                          {isSelected ? (
-                            <span className="pointer-events-none absolute -inset-3 animate-ping rounded-full bg-sky-400/55" />
-                          ) : null}
-                          <span
-                            className={`relative block rounded-full transition-all duration-300 ${
-                              isSelected
-                                ? 'h-4 w-4 border-2 border-white bg-sky-400 shadow-[0_0_12px_rgba(56,189,248,1)] scale-110'
-                                : 'h-3.5 w-3.5 border border-white/80 bg-slate-800/90 hover:scale-125 hover:bg-sky-300'
-                            }`}
-                          />
+                          <span className="relative flex flex-col items-center">
+                            {/* Cabeça do alfinete */}
+                            <span className="relative flex items-center justify-center">
+                              {isSelected ? (
+                                <span className="pointer-events-none absolute -inset-2.5 animate-ping rounded-full bg-sky-400/65" />
+                              ) : null}
+                              <span
+                                className={`relative block rounded-full border-2 border-black transition-all duration-300 ${
+                                  isSelected
+                                    ? 'h-4 w-4 bg-sky-400 shadow-[0_0_12px_rgba(56,189,248,1)] scale-110'
+                                    : 'h-3.5 w-3.5 bg-slate-700 group-hover:scale-125 group-hover:bg-sky-300'
+                                }`}
+                              />
+                            </span>
+                            {/* Cabo do alfinete em preto para destacar sobre a superficie clara da Lua */}
+                            <span
+                              aria-hidden
+                              className={`w-[2.5px] rounded-b-full bg-black shadow-[0_1px_2px_rgba(0,0,0,0.9)] transition-all duration-300 ${
+                                isSelected ? 'h-3.5' : 'h-2.5 group-hover:h-3'
+                              }`}
+                            />
+                            {/* Sombra no ponto exato de contato na Lua */}
+                            <span
+                              aria-hidden
+                              className=" -mt-0.5 h-1.5 w-2.5 rounded-full bg-black/75 blur-[0.5px]"
+                            />
+                          </span>
                         </button>
                       );
                     })}

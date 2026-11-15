@@ -91,12 +91,16 @@ export function OutcomePanel({
   }, [onContinue]);
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-space-950/75 p-4 backdrop-blur-sm animate-fade-in">
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center bg-space-950/75 p-4 backdrop-blur-sm animate-fade-in"
+      onClick={onContinue}
+    >
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="outcome-line"
+        onClick={(e) => { e.stopPropagation(); }}
         className="card-surface max-h-[90dvh] w-full max-w-2xl overflow-y-auto p-5 scroll-thin sm:p-6"
       >
         <div className="flex items-start gap-3.5">

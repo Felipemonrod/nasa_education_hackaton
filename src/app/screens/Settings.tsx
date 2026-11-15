@@ -184,7 +184,7 @@ function GameMeter({
 
 export function Settings(): JSX.Element {
   const t = useT();
-  const { go, run, prevScreen } = useGame();
+  const { go, prevScreen } = useGame();
   const locale = useI18n((s) => s.locale);
   const setLocale = useI18n((s) => s.setLocale);
   const settings = useAccount((s) => s.settings);
@@ -221,15 +221,14 @@ export function Settings(): JSX.Element {
         <button
           type="button"
           onClick={() => {
-            if (prevScreen === 'destination' || prevScreen === 'loadout') {
-              go(prevScreen);
-              return;
-            }
-            go(run !== null && run.status === 'running' ? 'game' : 'menu');
+            const target = prevScreen !== 'settings' && prevScreen !== 'cutscene' ? prevScreen : 'menu';
+            go(target);
           }}
-          className={`${ACTION_BTN} min-h-[42px] bg-space-850 px-4 py-2 text-sm text-slate-100 hover:bg-space-800`}
+          aria-label={t('common.back')}
+          title={t('common.back')}
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl glass text-slate-200 transition-colors hover:border-sky-300/40 hover:bg-white/10 hover:text-white"
         >
-          <ArrowLeft size={16} aria-hidden /> {t('common.back')}
+          <ArrowLeft size={18} aria-hidden />
         </button>
         <h1 className="font-display text-2xl font-extrabold text-white sm:text-3xl">
           {t('settings.title')}

@@ -1,25 +1,33 @@
 import { useEffect, useState } from 'react';
 import { Loader2, Telescope, X, WifiOff } from 'lucide-react';
 import { loadSpaceView, offlineView } from '../services/nasa.js';
-import type { SpaceView } from '../services/nasa.js';
+import type { SpacePhotoSource, SpaceView } from '../services/nasa.js';
 import { LEGACY_V2_WEATHER } from '../../engine/save.js';
 import type { SpaceWeather } from '../../engine/types.js';
 import { useI18n, useT } from '../i18n/useI18n.js';
 import { useGame } from '../store/useGame.js';
 import { weatherSentence } from './WeatherNote.js';
 
+function formatCoords(lat: number, lon: number): string {
+  const ns = lat >= 0 ? 'N' : 'S';
+  const ew = lon >= 0 ? 'E' : 'W';
+  return `${Math.abs(lat).toFixed(1)}° ${ns}, ${Math.abs(lon).toFixed(1)}° ${ew}`;
+}
+
 export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
   const t = useT();
   const locale = useI18n((s) => s.locale);
   const runWeather = useGame((s) => s.run?.config.spaceWeather ?? null);
   const [view, setView] = useState<SpaceView | null>(null);
-  const [imageFailed, setImageFailed] = useState(false);
+  const [failedSources, setFailedSources] = useState<readonly SpacePhotoSource[]>([]);
 
   useEffect(() => {
     let alive = true;
-    void loadSpaceView().then((result) => { if (alive) setView(result); });
+    setView(null);
+    void loadSpaceView(failedSources.length > 0 ? { skipSources: failedSources } : undefined)
+      .then((result) => { if (alive) setView(result); });
     return () => { alive = false; };
-  }, []);
+  }, [failedSources]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => { if (e.key === 'Escape') onClose(); };
@@ -28,24 +36,43 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
   }, [onClose]);
 
   const resolved = view;
-  const photo = resolved?.kind === 'photo' && !imageFailed ? resolved : null;
+  const photo = resolved?.kind === 'photo' ? resolved : null;
   const fallback: SpaceWeather | null = resolved === null || photo !== null
     ? null
     : runWeather !== null && runWeather.id !== LEGACY_V2_WEATHER.id
       ? runWeather
       : resolved.kind === 'offline' ? resolved.weather : offlineView().weather;
-  const title = photo !== null ? photo.title : t('space.offlineTitle');
-  const caption = photo !== null ? photo.caption : fallback === null ? '' : weatherSentence(fallback, locale, t);
+
+  const title = photo !== null
+    ? (photo.titleKey !== undefined ? t(photo.titleKey) : photo.title)
+    : t('space.offlineTitle');
+
+  const caption = photo !== null
+    ? (photo.captionKey === 'space.epicCaption'
+      ? (photo.coords !== undefined
+        ? t('space.epicCaptionCoords', { coords: formatCoords(photo.coords.lat, photo.coords.lon) })
+        : t('space.epicCaption'))
+      : photo.captionKey !== undefined
+        ? t(photo.captionKey)
+        : photo.caption)
+    : fallback === null ? '' : weatherSentence(fallback, locale, t);
+
   const source = photo !== null ? photo.source : fallback?.source ?? '';
   const date = photo !== null ? photo.date : fallback?.date ?? '';
+  const isFullDisk = photo !== null && (photo.source === 'NASA EPIC / DSCOVR' || photo.source === 'NOAA GOES-19');
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/80 p-4 backdrop-blur-sm animate-fade-in"
       role="dialog"
+      aria-modal="true"
       aria-label={t('space.dialogAria')}
+      onClick={onClose}
     >
-      <div className="card-surface w-full max-w-3xl overflow-hidden p-4 sm:p-5">
+      <div
+        className="card-surface w-full max-w-3xl overflow-hidden p-4 sm:p-5"
+        onClick={(e) => { e.stopPropagation(); }}
+      >
         <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="flex items-center gap-2 font-display text-lg font-extrabold text-white">
             <Telescope size={18} className="text-sky-300" aria-hidden /> {t('space.title')}
@@ -70,9 +97,11 @@ export function SpaceWindow({ onClose }: { onClose: () => void }): JSX.Element {
             ) : photo !== null ? (
               <img
                 src={photo.imageUrl}
-                alt={photo.title}
-                className="h-full w-full object-cover"
-                onError={() => { setImageFailed(true); }}
+                alt={title}
+                className={`h-full w-full ${isFullDisk ? 'bg-black object-contain' : 'object-cover'}`}
+                onError={() => {
+                  setFailedSources((prev) => (prev.includes(photo.source) ? prev : [...prev, photo.source]));
+                }}
               />
             ) : (
               <div className="relative h-full w-full bg-gradient-to-b from-space-950 to-space-850">

@@ -15,6 +15,7 @@ export type HudTheme = 'mission' | 'amber' | 'mint' | 'rose';
 export interface AccountState {
   version: number;
   cutsceneSeen: boolean;
+  tutorialSeen: boolean;
   /** Cards que o jogador ja viu em partida (entram no baralho). */
   knownCards: string[];
   /** Desfechos experimentados, no formato "cardId:optionId". */
@@ -42,6 +43,7 @@ export interface AccountState {
 const EMPTY: AccountState = {
   version: ACCOUNT_VERSION,
   cutsceneSeen: false,
+  tutorialSeen: false,
   knownCards: [],
   knownOutcomes: [],
   unlocks: [],
@@ -108,6 +110,7 @@ export function parseAccount(raw: string | null): AccountState {
     return {
       version: ACCOUNT_VERSION,
       cutsceneSeen: false,
+      tutorialSeen: typeof data['tutorialSeen'] === 'boolean' ? data['tutorialSeen'] : EMPTY.tutorialSeen,
       knownCards: stringList(data['knownCards']),
       knownOutcomes: stringList(data['knownOutcomes']),
       unlocks: stringList(data['unlocks']),
@@ -129,6 +132,7 @@ function load(): AccountState {
 
 interface AccountActions {
   markCutsceneSeen(): void;
+  markTutorialSeen(): void;
   seeCard(cardId: string): void;
   experienceOutcome(cardId: string, optionId: string): void;
   recordRunEnd(input: {
@@ -148,6 +152,15 @@ export const useAccount = create<AccountState & AccountActions>()((set, get) => 
 
   markCutsceneSeen() {
     set({ cutsceneSeen: true });
+  },
+
+  markTutorialSeen() {
+    if (get().tutorialSeen) return;
+    set((s) => {
+      const next = { ...s, tutorialSeen: true };
+      persist(next);
+      return next;
+    });
   },
 
   seeCard(cardId) {

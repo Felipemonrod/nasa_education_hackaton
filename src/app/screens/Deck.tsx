@@ -218,8 +218,14 @@ export function Deck(): JSX.Element {
       {/* Cabecalho horizontal */}
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <button type="button" onClick={() => { go('menu'); }} className="btn-ghost px-3.5 py-2 text-sm">
-            <ArrowLeft size={16} aria-hidden /> {t('common.menu')}
+          <button
+            type="button"
+            onClick={() => { go('menu'); }}
+            aria-label={t('common.menu')}
+            title={t('common.menu')}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl glass text-slate-200 transition-colors hover:border-sky-300/40 hover:bg-white/10 hover:text-white"
+          >
+            <ArrowLeft size={18} aria-hidden />
           </button>
           <div>
             <h1 className="font-display text-2xl font-extrabold leading-tight text-white sm:text-3xl">

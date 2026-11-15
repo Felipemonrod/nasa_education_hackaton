@@ -110,10 +110,29 @@ function CommanderPicker({
   const unlocks = useAccount((s) => s.unlocks);
   const t = useT();
   const content = useContent();
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('keydown', onKey); };
+  }, [open, onClose]);
+
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/80 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="card-surface max-h-[85dvh] w-full max-w-3xl overflow-y-auto scroll-thin">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-space-950/80 p-4 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('loadout.chooseCommander')}
+        onClick={(e) => { e.stopPropagation(); }}
+        className="card-surface max-h-[85dvh] w-full max-w-3xl overflow-y-auto scroll-thin"
+      >
         <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-white/10 bg-space-900/95 px-5 py-3.5 backdrop-blur">
           <h2 className="font-display text-lg font-extrabold text-white">{t('loadout.chooseCommander')}</h2>
           <button
