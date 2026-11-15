@@ -22,21 +22,19 @@ const KIND_BADGE: Record<Card['kind'], { key: string; icon: typeof Repeat } | nu
 interface TiltState {
   readonly rotateX: number;
   readonly rotateY: number;
-  readonly skewX: number;
+  readonly skewY: number;
   readonly shiftX: number;
   readonly shineX: number;
   readonly shineY: number;
-  readonly active: boolean;
 }
 
 const REST_TILT: TiltState = {
   rotateX: 0,
   rotateY: 0,
-  skewX: 0,
+  skewY: 0,
   shiftX: 0,
   shineX: 50,
-  shineY: 35,
-  active: false,
+  shineY: 50,
 };
 
 function clamp(v: number, min: number, max: number): number {
@@ -80,33 +78,25 @@ export function CardView({
     dragOriginRef.current = null;
   }, [card.id]);
 
-  const updateFromPointer = (clientX: number, clientY: number, isDrag: boolean): void => {
+  const updateFromDrag = (clientX: number, clientY: number): void => {
     const el = cardRef.current;
-    if (el === null) return;
+    const origin = dragOriginRef.current;
+    if (el === null || origin === null) return;
     const rect = el.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return;
 
-    let nx: number;
-    let ny: number;
-    if (isDrag && dragOriginRef.current !== null) {
-      const dx = clientX - dragOriginRef.current.x;
-      const dy = clientY - dragOriginRef.current.y;
-      nx = clamp(dx / (rect.width * 0.45), -1, 1);
-      ny = clamp(dy / (rect.height * 0.45), -1, 1);
-    } else {
-      nx = clamp(((clientX - rect.left) / rect.width) * 2 - 1, -1, 1);
-      ny = clamp(((clientY - rect.top) / rect.height) * 2 - 1, -1, 1);
-    }
+    const dx = clientX - origin.x;
+    const dy = clientY - origin.y;
+    const nx = clamp(dx / (rect.width * 0.42), -1, 1);
+    const ny = clamp(dy / (rect.height * 0.45), -1, 1);
 
-    const intensity = isDrag ? 1 : 0.55;
     setTilt({
-      rotateY: nx * 11 * intensity,
-      rotateX: -ny * 7.5 * intensity,
-      skewX: nx * 1.5 * intensity,
-      shiftX: isDrag ? nx * 8 : 0,
-      shineX: clamp(50 + nx * 48, 2, 98),
-      shineY: clamp(50 + ny * 42, 4, 96),
-      active: true,
+      rotateY: nx * 18,
+      rotateX: -ny * 8,
+      skewY: nx * 2,
+      shiftX: nx * 10,
+      shineX: clamp(50 + nx * 55, -10, 110),
+      shineY: clamp(50 + ny * 40, 5, 95),
     });
   };
 
@@ -189,10 +179,11 @@ export function CardView({
           dragOriginRef.current = { x: e.clientX, y: e.clientY };
           setDragging(true);
           e.currentTarget.setPointerCapture(e.pointerId);
-          updateFromPointer(e.clientX, e.clientY, true);
+          updateFromDrag(e.clientX, e.clientY);
         }}
         onPointerMove={(e) => {
-          updateFromPointer(e.clientX, e.clientY, dragging);
+          if (!dragging) return;
+          updateFromDrag(e.clientX, e.clientY);
         }}
         onPointerUp={(e) => {
           if (e.currentTarget.hasPointerCapture(e.pointerId)) {
@@ -207,49 +198,43 @@ export function CardView({
           setDragging(false);
           setTilt(REST_TILT);
         }}
-        onPointerLeave={() => {
-          if (!dragging) setTilt(REST_TILT);
-        }}
         style={{
-          transform: `perspective(1050px) translate3d(${tilt.shiftX}px, 0, 0) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) skewX(${tilt.skewX}deg) scale3d(${dragging ? 1.015 : 1}, ${dragging ? 1.015 : 1}, 1)`,
+          transform: `perspective(950px) translate3d(${tilt.shiftX}px, 0, 0) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) skewY(${tilt.skewY}deg) scale3d(${dragging ? 1.02 : 1}, ${dragging ? 1.02 : 1}, 1)`,
           transition: dragging
-            ? 'transform 55ms ease-out'
+            ? 'transform 45ms ease-out'
             : 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)',
           transformStyle: 'preserve-3d',
         }}
         className={`relative mx-auto flex w-full ${compact === true ? 'max-w-[32rem]' : 'max-w-[23rem]'} cursor-grab select-none flex-col overflow-hidden animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)] active:cursor-grabbing
                     ${dimmed === true ? 'opacity-70' : ''}`}
       >
-        {/* Camada de Shine (brilho interativo que corre de um lado para o outro + brilho moderado contínuo) */}
+        {/* Camada de Shine recortada na moldura da carta:
+            - Sem agarrar: brilho estático e suave
+            - Com agarrão (onPress/drag): o brilho corre de um lado para o outro conforme vira a carta */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-[2rem]"
+          className="pointer-events-none absolute bottom-[2%] left-[4.8%] right-[4.8%] top-[9.3%] z-10 overflow-hidden rounded-2xl"
         >
           <div
-            className={`absolute inset-y-0 -left-1/4 w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent mix-blend-screen ${
-              tilt.active ? 'opacity-0' : 'animate-card-shine'
-            }`}
-          />
-          <div
             style={{
-              background: `linear-gradient(112deg, transparent ${tilt.shineX - 28}%, rgba(255, 255, 255, 0.06) ${tilt.shineX - 14}%, rgba(186, 230, 253, 0.32) ${tilt.shineX - 3}%, rgba(255, 255, 255, 0.48) ${tilt.shineX}%, rgba(186, 230, 253, 0.32) ${tilt.shineX + 3}%, rgba(255, 255, 255, 0.06) ${tilt.shineX + 14}%, transparent ${tilt.shineX + 28}%)`,
-              opacity: tilt.active ? 0.92 : 0.28,
-              transition: dragging ? 'opacity 80ms ease-out' : 'opacity 320ms ease-out',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 38%, transparent 65%)',
+              opacity: dragging ? 0 : 1,
+              transition: 'opacity 250ms ease-out',
             }}
             className="absolute inset-0 mix-blend-screen"
           />
           <div
             style={{
-              background: `radial-gradient(circle at ${tilt.shineX}% ${tilt.shineY}%, rgba(255, 255, 255, 0.24), rgba(56, 189, 248, 0.08) 36%, transparent 68%)`,
-              opacity: tilt.active ? 0.85 : 0.2,
-              transition: dragging ? 'opacity 80ms ease-out' : 'opacity 320ms ease-out',
+              background: `linear-gradient(110deg, transparent ${tilt.shineX - 24}%, rgba(255, 255, 255, 0.05) ${tilt.shineX - 12}%, rgba(186, 230, 253, 0.28) ${tilt.shineX - 3}%, rgba(255, 255, 255, 0.46) ${tilt.shineX}%, rgba(186, 230, 253, 0.28) ${tilt.shineX + 3}%, rgba(255, 255, 255, 0.05) ${tilt.shineX + 12}%, transparent ${tilt.shineX + 24}%)`,
+              opacity: dragging ? 1 : 0,
+              transition: dragging ? 'opacity 70ms ease-out' : 'opacity 280ms ease-out',
             }}
             className="absolute inset-0 mix-blend-screen"
           />
         </div>
 
-        {/* Ícone de áudio alinhado no canto superior direito */}
-        <div className="absolute right-2 top-2 z-20">
+        {/* Ícone de áudio posicionado na borda diagonal superior direita da carta */}
+        <div className="absolute right-[3%] top-[8.2%] z-20">
           <SpeakButton
             text={`${title}. ${text}. ${options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option)).join('. ')}`}
             label={t('card.listenAria', { title })}

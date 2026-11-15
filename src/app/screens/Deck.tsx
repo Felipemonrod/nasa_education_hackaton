@@ -51,6 +51,7 @@ function CardEntry({ card, known, knownOutcomes, selected, onSelect }: {
 
   return (
     <li
+      data-deck-keep-open
       className={`rounded-3xl glass overflow-hidden transition-all duration-150 ${
         selected
           ? 'border-sky-400 bg-sky-400/15 shadow-[0_0_24px_-6px_rgba(56,189,248,0.45)]'
@@ -113,21 +114,19 @@ function CardEntry({ card, known, knownOutcomes, selected, onSelect }: {
 interface TiltState {
   readonly rotateX: number;
   readonly rotateY: number;
-  readonly skewX: number;
+  readonly skewY: number;
   readonly shiftX: number;
   readonly shineX: number;
   readonly shineY: number;
-  readonly active: boolean;
 }
 
 const REST_TILT: TiltState = {
   rotateX: 0,
   rotateY: 0,
-  skewX: 0,
+  skewY: 0,
   shiftX: 0,
   shineX: 50,
-  shineY: 35,
-  active: false,
+  shineY: 50,
 };
 
 function DeckCardPreview({ card, known }: {
@@ -162,33 +161,25 @@ function DeckCardPreview({ card, known }: {
       }))
       .join(t('card.requiresAnd'));
 
-  const updateFromPointer = (clientX: number, clientY: number, isDrag: boolean): void => {
+  const updateFromDrag = (clientX: number, clientY: number): void => {
     const el = cardRef.current;
-    if (el === null) return;
+    const origin = dragOriginRef.current;
+    if (el === null || origin === null) return;
     const rect = el.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return;
 
-    let nx: number;
-    let ny: number;
-    if (isDrag && dragOriginRef.current !== null) {
-      const dx = clientX - dragOriginRef.current.x;
-      const dy = clientY - dragOriginRef.current.y;
-      nx = clamp(dx / (rect.width * 0.45), -1, 1);
-      ny = clamp(dy / (rect.height * 0.45), -1, 1);
-    } else {
-      nx = clamp(((clientX - rect.left) / rect.width) * 2 - 1, -1, 1);
-      ny = clamp(((clientY - rect.top) / rect.height) * 2 - 1, -1, 1);
-    }
+    const dx = clientX - origin.x;
+    const dy = clientY - origin.y;
+    const nx = clamp(dx / (rect.width * 0.42), -1, 1);
+    const ny = clamp(dy / (rect.height * 0.45), -1, 1);
 
-    const intensity = isDrag ? 1 : 0.65;
     setTilt({
-      rotateY: nx * 13 * intensity,
-      rotateX: -ny * 9 * intensity,
-      skewX: nx * 1.8 * intensity,
-      shiftX: isDrag ? nx * 10 : 0,
-      shineX: clamp(50 + nx * 48, 2, 98),
-      shineY: clamp(50 + ny * 42, 4, 96),
-      active: true,
+      rotateY: nx * 22,
+      rotateX: -ny * 9,
+      skewY: nx * 2.4,
+      shiftX: nx * 12,
+      shineX: clamp(50 + nx * 55, -10, 110),
+      shineY: clamp(50 + ny * 40, 5, 95),
     });
   };
 
@@ -196,25 +187,21 @@ function DeckCardPreview({ card, known }: {
     <div
       aria-label={t('deck.cardPreviewTitle')}
       className="relative flex items-center justify-center py-2 lg:sticky lg:top-5"
-      style={{ perspective: '1050px' }}
+      style={{ perspective: '950px' }}
     >
-      {/* Leve blur direto atrás da carta, sem fundo de caixa modal */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-6 inset-y-4 -z-10 rounded-[2.75rem] bg-space-950/30 backdrop-blur-md"
-      />
-
       <article
         ref={cardRef}
+        data-deck-keep-open
         onPointerDown={(e) => {
           if ((e.target as HTMLElement).closest('button') !== null) return;
           dragOriginRef.current = { x: e.clientX, y: e.clientY };
           setDragging(true);
           e.currentTarget.setPointerCapture(e.pointerId);
-          updateFromPointer(e.clientX, e.clientY, true);
+          updateFromDrag(e.clientX, e.clientY);
         }}
         onPointerMove={(e) => {
-          updateFromPointer(e.clientX, e.clientY, dragging);
+          if (!dragging) return;
+          updateFromDrag(e.clientX, e.clientY);
         }}
         onPointerUp={(e) => {
           if (e.currentTarget.hasPointerCapture(e.pointerId)) {
@@ -229,13 +216,10 @@ function DeckCardPreview({ card, known }: {
           setDragging(false);
           setTilt(REST_TILT);
         }}
-        onPointerLeave={() => {
-          if (!dragging) setTilt(REST_TILT);
-        }}
         style={{
-          transform: `perspective(1050px) translate3d(${tilt.shiftX}px, 0, 0) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) skewX(${tilt.skewX}deg) scale3d(${dragging ? 1.02 : 1}, ${dragging ? 1.02 : 1}, 1)`,
+          transform: `perspective(950px) translate3d(${tilt.shiftX}px, 0, 0) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) skewY(${tilt.skewY}deg) scale3d(${dragging ? 1.025 : 1}, ${dragging ? 1.025 : 1}, 1)`,
           transition: dragging
-            ? 'transform 55ms ease-out'
+            ? 'transform 45ms ease-out'
             : 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)',
           transformStyle: 'preserve-3d',
         }}
@@ -243,41 +227,43 @@ function DeckCardPreview({ card, known }: {
           known ? '' : 'opacity-80'
         }`}
       >
-        {/* Camada de Shine (brilho interativo que corre de um lado para o outro + brilho moderado contínuo) */}
+        {/* Leve blur direto atrás apenas do corpo da carta (sem criar caixa no topo transparente) */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-[2rem]"
-        >
-          {/* Brilho ambiente suave quando em repouso */}
-          <div
-            className={`absolute inset-y-0 -left-1/4 w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent mix-blend-screen ${
-              tilt.active ? 'opacity-0' : 'animate-card-shine'
-            }`}
-          />
+          className="pointer-events-none absolute bottom-[2%] left-[5%] right-[5%] top-[9.5%] -z-10 rounded-2xl bg-space-950/25 backdrop-blur-md"
+        />
 
-          {/* Faixa de brilho diagonal controlada pelo arraste/movimento (vai de um lado para o outro) */}
+        {/* Camada de Shine recortada exatamente na moldura da carta:
+            - Sem agarrar: brilho estático e bem suave, sem faixa central forte
+            - Com agarrão (onPress/drag): o brilho corre de um lado para o outro conforme vira a carta */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute bottom-[2%] left-[4.8%] right-[4.8%] top-[9.3%] z-10 overflow-hidden rounded-2xl"
+        >
+          {/* Brilho estático e suave quando em repouso */}
           <div
             style={{
-              background: `linear-gradient(112deg, transparent ${tilt.shineX - 28}%, rgba(255, 255, 255, 0.06) ${tilt.shineX - 14}%, rgba(186, 230, 253, 0.34) ${tilt.shineX - 3}%, rgba(255, 255, 255, 0.52) ${tilt.shineX}%, rgba(186, 230, 253, 0.34) ${tilt.shineX + 3}%, rgba(255, 255, 255, 0.06) ${tilt.shineX + 14}%, transparent ${tilt.shineX + 28}%)`,
-              opacity: tilt.active ? 0.95 : 0.32,
-              transition: dragging ? 'opacity 80ms ease-out' : 'opacity 320ms ease-out',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 38%, transparent 65%)',
+              opacity: dragging ? 0 : 1,
+              transition: 'opacity 250ms ease-out',
             }}
             className="absolute inset-0 mix-blend-screen"
           />
 
-          {/* Reflexo radial acompanhando o ponto de arraste */}
+          {/* Brilho dinâmico que passa de um lado para o outro apenas durante o agarrão/giro da carta */}
           <div
             style={{
-              background: `radial-gradient(circle at ${tilt.shineX}% ${tilt.shineY}%, rgba(255, 255, 255, 0.26), rgba(56, 189, 248, 0.1) 36%, transparent 68%)`,
-              opacity: tilt.active ? 0.9 : 0.25,
-              transition: dragging ? 'opacity 80ms ease-out' : 'opacity 320ms ease-out',
+              background: `linear-gradient(110deg, transparent ${tilt.shineX - 24}%, rgba(255, 255, 255, 0.05) ${tilt.shineX - 12}%, rgba(186, 230, 253, 0.28) ${tilt.shineX - 3}%, rgba(255, 255, 255, 0.46) ${tilt.shineX}%, rgba(186, 230, 253, 0.28) ${tilt.shineX + 3}%, rgba(255, 255, 255, 0.05) ${tilt.shineX + 12}%, transparent ${tilt.shineX + 24}%)`,
+              opacity: dragging ? 1 : 0,
+              transition: dragging ? 'opacity 70ms ease-out' : 'opacity 280ms ease-out',
             }}
             className="absolute inset-0 mix-blend-screen"
           />
         </div>
 
+        {/* Ícone de text-to-speech posicionado exatamente na borda diagonal superior direita da carta */}
         {known ? (
-          <div className="absolute right-2 top-2 z-20">
+          <div className="absolute right-[3%] top-[8.2%] z-20">
             <SpeakButton
               text={`${title}. ${text}. ${card.options.map((o) => content.optionLabel(card, o)).join('. ')}`}
               label={t('card.listenAria', { title })}
@@ -409,11 +395,10 @@ function DeckCardPreview({ card, known }: {
   );
 }
 
-function DeckDecisionsColumn({ card, known, knownOutcomes, onClose }: {
+function DeckDecisionsColumn({ card, known, knownOutcomes }: {
   card: Card;
   known: boolean;
   knownOutcomes: readonly string[];
-  onClose: () => void;
 }): JSX.Element {
   const t = useT();
   const content = useContent();
@@ -423,17 +408,6 @@ function DeckDecisionsColumn({ card, known, knownOutcomes, onClose }: {
       aria-label={t('deck.explanationTitle')}
       className="animate-card-in flex flex-col gap-3 lg:sticky lg:top-5"
     >
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t('common.close')}
-          className="btn-ghost h-8 w-8 rounded-xl p-0"
-        >
-          <X size={15} aria-hidden />
-        </button>
-      </div>
-
       {known ? (
         <ul className="flex flex-col gap-3">
           {card.options.map((option) => {
@@ -450,6 +424,7 @@ function DeckDecisionsColumn({ card, known, knownOutcomes, onClose }: {
             return (
               <li
                 key={option.id}
+                data-deck-keep-open
                 className="rounded-2xl glass border border-white/10 p-4 transition-colors hover:border-sky-300/30"
               >
                 {/* Título da decisão */}
@@ -501,7 +476,10 @@ function DeckDecisionsColumn({ card, known, knownOutcomes, onClose }: {
           })}
         </ul>
       ) : (
-        <div className="flex flex-col items-center gap-3 rounded-2xl glass border border-white/10 p-6 text-center">
+        <div
+          data-deck-keep-open
+          className="flex flex-col items-center gap-3 rounded-2xl glass border border-white/10 p-6 text-center"
+        >
           <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10">
             <Lock size={20} className="text-slate-400" aria-hidden />
           </span>
@@ -562,8 +540,24 @@ export function Deck(): JSX.Element {
     const onKey = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') setSelectedCardId(null);
     };
+    const onDocClick = (e: MouseEvent): void => {
+      const target = e.target as HTMLElement | null;
+      if (target === null) return;
+      if (
+        target.closest('[data-deck-keep-open]') !== null
+        || target.closest('[data-glossary]') !== null
+        || target.closest('[role="dialog"]') !== null
+      ) {
+        return;
+      }
+      setSelectedCardId(null);
+    };
     document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('keydown', onKey); };
+    document.addEventListener('click', onDocClick);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('click', onDocClick);
+    };
   }, [selectedCard]);
 
   const playable = CARDS.filter((c) => c.isFallback !== true);
@@ -574,6 +568,7 @@ export function Deck(): JSX.Element {
 
   const paginationControls = totalPages > 1 ? (
     <nav
+      data-deck-keep-open
       aria-label={t('deck.pageOf', { page: safePage, total: totalPages })}
       className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl glass px-4 py-2.5"
     >
@@ -653,7 +648,7 @@ export function Deck(): JSX.Element {
       </header>
 
       {/* Barra horizontal de busca + filtros + dicas de desbloqueio */}
-      <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-12">
+      <div data-deck-keep-open className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-12">
         <div className="flex flex-col justify-between gap-3 rounded-3xl glass p-4 lg:col-span-8">
           <label className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-space-950/60 px-3.5 py-2.5 focus-within:border-sky-400/60">
             <Search size={16} className="shrink-0 text-slate-400" aria-hidden />
@@ -801,7 +796,6 @@ export function Deck(): JSX.Element {
               card={selectedCard}
               known={knownCards.includes(selectedCard.id)}
               knownOutcomes={knownOutcomes}
-              onClose={() => { setSelectedCardId(null); }}
             />
           </div>
         </div>
