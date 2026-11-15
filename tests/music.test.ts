@@ -74,7 +74,7 @@ describe('musica: rampas e playlist', () => {
     expect(nextTrackIndex(1)).toBe(0);
   });
 
-  it('o silencio entre as faixas e de 5 minutos', () => {
-    expect(GAP_MS).toBe(300_000);
+  it('o silencio entre as faixas e de 3 segundos', () => {
+    expect(GAP_MS).toBe(3_000);
   });
 });

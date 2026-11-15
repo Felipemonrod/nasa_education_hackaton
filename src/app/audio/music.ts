@@ -24,7 +24,7 @@ export const FADE_OUT_MS = 5_000;
 /** Subida gradual no comeco de cada faixa. */
 export const FADE_IN_MS = 5_000;
 /** Silencio entre uma faixa e a proxima. */
-export const GAP_MS = 5 * 60 * 1_000;
+export const GAP_MS = 3_000;
 /** Volume maximo da musica enquanto a narracao fala (2%). */
 export const DUCK_LEVEL = 0.02;
 /** Tempo para abaixar/voltar quando a narracao comeca/termina. */
