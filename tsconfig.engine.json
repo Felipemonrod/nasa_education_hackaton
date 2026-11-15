@@ -16,6 +16,7 @@
     "tests/persistence.test.ts",
     "tests/spaceView.test.ts",
     "tests/speech.test.ts",
+    "tests/music.test.ts",
     "tests/weather.test.ts"
   ],
   "//exclude": [

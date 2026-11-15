@@ -35,6 +35,9 @@ export interface AccountState {
     speechRate: number;
     speechVolume: number;
     sfxVolume: number;
+    /** Musica de fundo. Mudo separado do volume: desmutar volta ao nivel escolhido. */
+    musicMuted: boolean;
+    musicVolume: number;
     /** Exige um segundo toque para fechar a decisao. */
     confirmDecisions: boolean;
   };
@@ -63,6 +66,9 @@ const EMPTY: AccountState = {
     speechRate: 1,
     speechVolume: 1,
     sfxVolume: 1,
+    musicMuted: false,
+    // Metade: musica de fundo nao pode competir com a narracao.
+    musicVolume: 0.5,
     // Ligada de fabrica: a decisao e irreversivel e o publico tem 10 anos.
     // Um toque acidental nao deve martelar a escolha final.
     confirmDecisions: true,

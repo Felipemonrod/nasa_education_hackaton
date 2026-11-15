@@ -11,6 +11,7 @@ import { THEME_UNLOCK, useAccount } from '../store/useAccount.js';
 import type { HudTheme } from '../store/useAccount.js';
 import { useI18n, useT } from '../i18n/useI18n.js';
 import { useGame } from '../store/useGame.js';
+import { MusicIcon } from '../components/MusicIcon.js';
 
 type SettingsTab = 'game' | 'visual' | 'speech';
 
@@ -203,6 +204,8 @@ export function Settings(): JSX.Element {
   const isMuted = settings.speechVolume <= 0;
   const VolumeIcon = isMuted ? VolumeX : settings.speechVolume < 0.5 ? Volume1 : Volume2;
 
+  const musicVolumePct = Math.round(settings.musicVolume * 100);
+
   const sfxVolumePct = Math.round(settings.sfxVolume * 100);
   const isSfxMuted = settings.sfxVolume <= 0;
   const SfxVolumeIcon = isSfxMuted ? VolumeX : settings.sfxVolume < 0.5 ? Volume1 : Volume2;
@@ -217,6 +220,13 @@ export function Settings(): JSX.Element {
     const clamped = Math.round(Math.min(VOLUME_MAX, Math.max(VOLUME_MIN, next)) * 100) / 100;
     setSetting('speechVolume', clamped);
     if (clamped <= 0) stop();
+  };
+
+  // Mexer no volume com a musica muda tambem a desmuta: e o que o gesto pede.
+  const setMusicVolume = (next: number): void => {
+    const clamped = Math.round(Math.min(VOLUME_MAX, Math.max(VOLUME_MIN, next)) * 100) / 100;
+    setSetting('musicVolume', clamped);
+    if (clamped > 0 && settings.musicMuted) setSetting('musicMuted', false);
   };
 
   const setSfxVolume = (next: number): void => {
@@ -389,6 +399,33 @@ export function Settings(): JSX.Element {
                 checked={settings.autoRead}
                 onChange={(v) => { setSetting('autoRead', v); }}
               />
+            </SettingRow>
+
+            <SettingRow label={t('settings.music')} hint={t('settings.musicHint')}>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label={t(settings.musicMuted ? 'game.musicOnAria' : 'game.musicOffAria')}
+                  aria-pressed={settings.musicMuted}
+                  onClick={() => { setSetting('musicMuted', !settings.musicMuted); }}
+                  className={`${ACTION_BTN} h-9 w-9 rounded-xl
+                    ${settings.musicMuted
+                      ? 'bg-radiation/20 text-radiation hover:bg-radiation/30'
+                      : 'bg-space-900 text-sky-300 hover:bg-space-800'}`}
+                >
+                  <MusicIcon off={settings.musicMuted} size={15} />
+                </button>
+                <GameMeter
+                  id="music-volume"
+                  value={settings.musicVolume}
+                  min={VOLUME_MIN}
+                  max={VOLUME_MAX}
+                  step={0.1}
+                  display={settings.musicMuted ? t('settings.speechMute') : t('settings.speechVolumeValue', { volume: musicVolumePct })}
+                  ariaLabel={t('settings.musicAria')}
+                  onChange={setMusicVolume}
+                />
+              </div>
             </SettingRow>
 
             <SettingRow label={t('settings.sfxVolume')} hint={t('settings.sfxVolumeHint')}>
