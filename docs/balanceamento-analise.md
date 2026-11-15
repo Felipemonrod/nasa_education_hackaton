@@ -276,3 +276,52 @@ Ressalvas:
 - **Não** subi `doseBaseDaily`; precisa de um teste próprio. Sem isso, a folga de dose continua e a blindagem segue fraca. Esse é o próximo experimento que eu faria.
 
 Os scripts dos experimentos não foram versionados. São scripts temporários de análise e podem ser movidos para `src/sim/` se o time quiser repetir as medições.
+
+## 7. Projeção do plano em 5 passos (medido em cópia, **não aplicado**)
+
+Data: 2026-11-15, branch `feat/balanceamento-marcos-pressao`. N = 3000 por célula.
+
+**Estratégias medidas:**
+- "erra X%": o jogador adaptativo que escolhe ao acaso em X% das decisões. É a proxy de uma criança atenta que erra às vezes.
+- "aleatório": escolhe tudo ao acaso.
+- "cuidadoso": prioriza sobreviver.
+- "objetivo": persegue só o trilho declarado.
+- "adaptativo": persegue o objetivo enquanto há folga e recua para sobreviver quando aperta.
+
+Cada célula mostra ciência / habitat.
+
+**Passos, cumulativos:**
+1. Bugs de regra: C7 (tempestade X só em dia X e tempestade fraca fora dos dias calmos), A1, A3, B1.
+2. Radiação: as 3 opções pagas só em dose passam a dar +1 de ciência; as 6 extras de ciência "completas" custam 2 a menos de energia.
+3. Comandantes e energia:
+   - engenheira: +1 de energia por turno nos 12 primeiros turnos, em vez de reduzir toda perda;
+   - médica: −2 de dose por ciclo;
+   - opções básicas que custam 4 ou mais de energia passam 1 ponto do custo para O₂.
+4. Dificuldade (A + E): ciclos 7–10 drenam +1 de energia por turno; marcos devolvem energia (ciência 2/2/2, habitat 2/1/1); energia inicial +10; cápsula `basics` sem custo de energia.
+5. Simetria dos trilhos: ciência em 4 opções básicas de manutenção (`eva_clean` +1, `patch_now` +2, `waste_heat` +2, `sleeping_only` +1).
+
+| passo | aleatório | erra 40% | erra 20% | cuidadoso | objetivo | adaptativo | média sem o aleatório |
+|---|---|---|---|---|---|---|---|
+| hoje | 0 / 0 | 12 / 9 | 28 / 23 | 84 / 86 | 73 / 34 | 51 / 55 | 46 |
+| 1 | 0 / 0 | 15 / 14 | 32 / 32 | 89 / 90 | 46 / 44 | 58 / 64 | 48 |
+| 2 | 1 / 1 | 17 / 14 | 37 / 33 | 89 / 90 | 43 / 44 | 64 / 65 | 50 |
+| 3 | 0 / 0 | 16 / 13 | 34 / 31 | 89 / 88 | 46 / 51 | 60 / 65 | 49 |
+| 4 | 2 / 1 | 39 / 36 | 64 / 62 | 92 / 93 | 70 / 90 | 88 / 89 | 72 |
+| 5 | 2 / 2 | 42 / 37 | **67 / 62** | **92 / 93** | **87 / 90** | **89 / 89** | **75** |
+
+Indicadores de equilíbrio. Colunas:
+- **dif. ciência × habitat**: média, entre as 5 estratégias, da diferença entre os dois objetivos;
+- **dispersão entre estratégias**: maior menos menor taxa entre cuidadoso, objetivo e adaptativo;
+- **derrotas por energia** e **calmo × X**: medidos no jogador "erra 20%";
+- **dispersão do loadout**: maior menos menor taxa do "erra 20%" dentro de cada categoria (comandante / estrutura / equipamento / local).
+
+| passo | dif. ciência × habitat | dispersão entre estratégias | derrotas por energia | calmo × X | dispersão do loadout |
+|---|---|---|---|---|---|
+| hoje | 11 | 33 / 52 | 63% / 88% | 28 × 24 | 31 / 7 / 10 / 8 |
+| 3 | 4 | 43 / 37 | 54% / 81% | 41 × 23 | 16 / 16 / 23 / 11 |
+| 5 | 3 | **5 / 4** | 51% / 66% | 77 × 50 | 12 / 13 / 21 / 4 |
+
+**Pendências no passo 5:**
+- **Dia classe X ficou 27 p.p. mais difícil.** A meta era 5–10 p.p., e 40% das partidas usam um dia X.
+- **Rover (77%) contra dosímetros (56%).** Os dosímetros continuam fracos.
+- **Derrotas por energia no habitat em 66%.** A meta é ≤ 60%.
