@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import {
-  ArrowDown, ArrowLeft, ArrowUp, ChevronDown, HelpCircle, Lock, Moon, Search, Sparkles, Sun,
+  ArrowDown, ArrowLeft, ArrowUp, ChevronDown, HelpCircle, Lock, Search, Sparkles,
 } from 'lucide-react';
 import { CARDS } from '../../content/cards.js';
-import type { Card, Stat } from '../../engine/types.js';
+import type { Card, Phase, Stat } from '../../engine/types.js';
+import { getCardFrameMeta } from '../components/CardArtwork.js';
 import { GlossaryText } from '../components/GlossaryText.js';
 import { useContent } from '../i18n/useContent.js';
 import { useT } from '../i18n/useI18n.js';
@@ -33,6 +34,8 @@ function CardEntry({ card, known, knownOutcomes }: {
   const content = useContent();
   const discovered = card.options.filter((o) => knownOutcomes.includes(`${card.id}:${o.id}`)).length;
   const title = content.cardTitle(card);
+  const resolvedPhase: Phase = card.phase === 'night' ? 'night' : 'day';
+  const frame = getCardFrameMeta(card, resolvedPhase);
 
   return (
     <li className={`rounded-3xl glass overflow-hidden transition-all ${known ? 'hover:border-sky-300/30' : 'opacity-60'}`}>
@@ -42,11 +45,20 @@ function CardEntry({ card, known, knownOutcomes }: {
         aria-expanded={open}
         className="flex w-full items-center gap-3 p-4 text-left"
       >
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white/10">
-          {!known ? <Lock size={16} className="text-slate-500" aria-hidden />
-            : card.phase === 'night' ? <Moon size={17} className="text-sky-300" aria-hidden />
-            : <Sun size={17} className="text-power" aria-hidden />}
-        </span>
+        {!known ? (
+          <span className="grid h-12 w-10 shrink-0 place-items-center rounded-2xl bg-white/10">
+            <Lock size={16} className="text-slate-500" aria-hidden />
+          </span>
+        ) : (
+          <span className="relative h-14 w-10 shrink-0 overflow-hidden rounded-lg bg-space-950/80 p-0.5 shadow-sm">
+            <img
+              src={frame.image}
+              alt=""
+              aria-hidden
+              className="h-full w-full object-contain"
+            />
+          </span>
+        )}
         <span className="min-w-0 flex-1">
           <span className="block truncate font-display text-base font-extrabold text-white">
             {known ? title : t('deck.unknownCard')}

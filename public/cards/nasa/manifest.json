@@ -1,0 +1,82 @@
+{
+  "cmd_engineer": {
+    "nasaId": "iss065e241981",
+    "title": "iss065e241981",
+    "description": "iss065e241981 (Aug. 12, 2021) --- NASA astronaut and Expedition 65 Flight Engineer Shane Kimbrough conducts maintenance on a miniature electron microscope, called Mochii, to support spectroscopic investigations and analy",
+    "dateCreated": "2021-08-12",
+    "center": "JSC",
+    "thumbUrl": "https://images-assets.nasa.gov/image/iss065e241981/iss065e241981~medium.jpg",
+    "localPath": "/cards/nasa/cmd_engineer.jpg",
+    "sourceUrl": "https://images.nasa.gov/details/iss065e241981"
+  },
+  "cmd_medic": {
+    "nasaId": "iss074e0316047",
+    "title": "NASA astronaut Chris Williams calls down to mission controllers during Crew Medical Officer training ",
+    "description": "iss074e0316047 (Feb. 18, 2026) --- NASA astronaut and Expedition 74 Flight Engineer Chris Williams calls down to mission controllers during Crew Medical Officer training inside the International Space Station’s Destiny l",
+    "dateCreated": "2026-02-18",
+    "center": "JSC",
+    "thumbUrl": "https://images-assets.nasa.gov/image/iss074e0316047/iss074e0316047~large.jpg",
+    "localPath": "/cards/nasa/cmd_medic.jpg",
+    "sourceUrl": "https://images.nasa.gov/details/iss074e0316047"
+  },
+  "cmd_geologist": {
+    "nasaId": "jsc2019e054994",
+    "title": "jsc2019e054994",
+    "description": "jsc2019e054994(09-16-19) --- 2017 NASA astronaut candidates Kayla Barron (left) and Jessica Watkins (right) examine samples during geology training in Arizona. Photo Credit: (NASA/Bill Stafford)",
+    "dateCreated": "2019-09-16",
+    "center": "JSC",
+    "thumbUrl": "https://images-assets.nasa.gov/image/jsc2019e054994/jsc2019e054994~medium.jpg",
+    "localPath": "/cards/nasa/cmd_geologist.jpg",
+    "sourceUrl": "https://images.nasa.gov/details/jsc2019e054994"
+  },
+  "cmd_botanist": {
+    "nasaId": "iss059e035668",
+    "title": "Veggie Ponds experiment Initiation",
+    "description": "iss059e035668 (April 25, 2019) --- NASA astronaut Christina Koch works on space botany research using the Veggie PONDS gear to cultivate and harvest lettuce and mizuna greens for consumption on the International Space St",
+    "dateCreated": "2019-04-25",
+    "center": "JSC",
+    "thumbUrl": "https://images-assets.nasa.gov/image/iss059e035668/iss059e035668~medium.jpg",
+    "localPath": "/cards/nasa/cmd_botanist.jpg",
+    "sourceUrl": "https://images.nasa.gov/details/iss059e035668"
+  },
+  "str_regolith_vault": {
+    "nasaId": "Moon to Mars Transportation and Habitation",
+    "title": "Moon to Mars Transportation and Habitation",
+    "description": "This illustration of Moon to Mars transportation and habitation shows astronauts driving a pressurized rover away from the dome of a translucent lunar habitat. NASA’s Moon to Mars Objectives establish an objectives-based",
+    "dateCreated": "2025-03-12",
+    "center": "HQ",
+    "thumbUrl": "https://images-assets.nasa.gov/image/Moon to Mars Transportation and Habitation/Moon to Mars Transportation and Habitation~medium.jpg",
+    "localPath": "/cards/nasa/str_regolith_vault.jpg",
+    "sourceUrl": "https://images.nasa.gov/details/Moon to Mars Transportation and Habitation"
+  },
+  "str_water_wall": {
+    "nasaId": "KSC-08pd3208",
+    "title": "KSC-08pd3208",
+    "description": "CAPE CANAVERAL, Fla. –    This photo shows the Water Recovery System's rack 1 that will be delivered to the International Space Station aboard space shuttle Endeavour on the STS-126 mission. The two units of the Water Re",
+    "dateCreated": "2008-10-17",
+    "center": "KSC",
+    "thumbUrl": "https://images-assets.nasa.gov/image/KSC-08pd3208/KSC-08pd3208~medium.jpg",
+    "localPath": "/cards/nasa/str_water_wall.jpg",
+    "sourceUrl": "https://images.nasa.gov/details/KSC-08pd3208"
+  },
+  "str_solar_farm": {
+    "nasaId": "0101424",
+    "title": "International Space Station (ISS)",
+    "description": "This concept depicts the International Space Station in orbit following its solar array deployment by the crew of the Space Shuttle STS-97 mission.",
+    "dateCreated": "2000-11-01",
+    "center": "MSFC",
+    "thumbUrl": "https://images-assets.nasa.gov/image/0101424/0101424~medium.jpg",
+    "localPath": "/cards/nasa/str_solar_farm.jpg",
+    "sourceUrl": "https://images.nasa.gov/details/0101424"
+  },
+  "str_greenhouse": {
+    "nasaId": "KSC-20170808-PH_CSH01_0092",
+    "title": "Seed Planting in Veggie Pillows ",
+    "description": "Water and nutrients are being added to plants in the Veggie hardware in NASA Kennedy Space Center's ISS environment simulator chamber. Mizuna mustard, Outredgeous lettuce and Waldmann's green lettuce are growing in Veggi",
+    "dateCreated": "2017-08-08",
+    "center": "KSC",
+    "thumbUrl": "https://images-assets.nasa.gov/image/KSC-20170808-PH_CSH01_0092/KSC-20170808-PH_CSH01_0092~medium.jpg",
+    "localPath": "/cards/nasa/str_greenhouse.jpg",
+    "sourceUrl": "https://images.nasa.gov/details/KSC-20170808-PH_CSH01_0092"
+  }
+}

@@ -51,10 +51,12 @@ export function Game(): JSX.Element {
     .map((entry) => `${content.cardTitle(entry.card)}. ${content.cardText(entry.card)}`)
     .join(' ') ?? '';
 
+  const tutorialActive = tutorialStep > 0 && tutorialStep <= TUTORIAL_STEP_COUNT;
+
   useEffect(() => {
-    if (!autoRead || slotKey === null || outcome !== null || !cardReady || slotText.length === 0) return;
+    if (!autoRead || tutorialActive || slotKey === null || outcome !== null || !cardReady || slotText.length === 0) return;
     speak(slotText, { locale, rate: speechRate, volume: speechVolume });
-  }, [autoRead, slotKey, outcome, cardReady, slotText, speak, locale, speechRate, speechVolume]);
+  }, [autoRead, tutorialActive, slotKey, outcome, cardReady, slotText, speak, locale, speechRate, speechVolume]);
 
   useEffect(() => {
     if (run === null) return;
@@ -74,7 +76,7 @@ export function Game(): JSX.Element {
   const isPair = slot?.shape === 'pair';
 
   return (
-    <div className="mx-auto flex h-dvh w-full max-w-[1440px] flex-col overflow-hidden px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[1440px] flex-col px-4 py-3 sm:px-6 sm:py-4 lg:h-dvh lg:overflow-hidden lg:px-8">
       {/* Barra superior de telemetria */}
       <header className="flex shrink-0 items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 sm:gap-3">
@@ -117,11 +119,11 @@ export function Game(): JSX.Element {
         </div>
       </header>
 
-      {/* Painel horizontal principal: sem scroll */}
-      <main className="mt-3 grid min-h-0 flex-1 grid-cols-12 gap-4 lg:gap-6">
+      {/* Painel horizontal principal */}
+      <main className="mt-2.5 grid min-h-0 flex-1 grid-cols-12 gap-3.5 sm:mt-3 sm:gap-4 lg:gap-6">
         {/* Coluna esquerda: Visor da Base Lunar + Telemetria de Recursos */}
-        <section className="col-span-5 flex min-h-0 flex-col justify-between gap-3 lg:col-span-4">
-          <div className="relative min-h-[96px] flex-1 overflow-hidden rounded-3xl border border-white/12 bg-space-950 shadow-inner">
+        <section className="col-span-5 flex min-h-0 flex-col justify-between gap-2.5 overflow-y-auto scroll-thin lg:col-span-4 lg:gap-3">
+          <div className="relative min-h-[84px] flex-1 overflow-hidden rounded-3xl border border-white/12 bg-space-950 shadow-inner sm:min-h-[110px]">
             <MoonScene phase={phase} />
           </div>
 
@@ -131,7 +133,7 @@ export function Game(): JSX.Element {
         </section>
 
         {/* Coluna direita: Mesa de Decisoes */}
-        <section className="col-span-7 flex min-h-0 flex-col justify-center lg:col-span-8">
+        <section className="col-span-7 flex min-h-0 flex-col justify-start overflow-y-auto scroll-thin lg:col-span-8 lg:justify-center">
           {!cardReady ? (
             <div className="card-surface mx-auto flex h-full max-h-72 w-full max-w-xl flex-col items-center justify-center gap-3 p-6 text-center">
               <span className="grid h-12 w-12 place-items-center rounded-2xl bg-sky-400/15 text-sky-300 animate-pulse">

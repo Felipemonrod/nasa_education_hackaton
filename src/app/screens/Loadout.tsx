@@ -2,47 +2,100 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Lock, Plus, RefreshCw, X } from 'lucide-react';
 import { COMMANDERS, EQUIPMENT, STRUCTURES, findLoadout } from '../data/loadout.js';
 import type { LoadoutCard } from '../data/loadout.js';
+import { NasaCardPhoto, getLoadoutFrameMeta } from '../components/CardArtwork.js';
 import { iconFor } from '../components/icons.js';
 import { useContent } from '../i18n/useContent.js';
 import { useT } from '../i18n/useI18n.js';
 import { useAccount } from '../store/useAccount.js';
 import { useGame } from '../store/useGame.js';
 
-function EffectBadge({ card }: { card: LoadoutCard }): JSX.Element {
-  const content = useContent();
-  return (
-    <p className="mt-auto rounded-2xl border border-sky-400/25 bg-sky-400/12 px-3 py-2 text-[0.76rem] font-extrabold leading-snug text-sky-200">
-      {content.loadout(card.id, 'effect', card.effectLabel)}
-    </p>
-  );
-}
-
-function CardFace({ card, compact }: { card: LoadoutCard; compact?: boolean }): JSX.Element {
+function CardFace({ card }: { card: LoadoutCard; compact?: boolean }): JSX.Element {
   const Icon = iconFor(card.icon);
   const content = useContent();
+  const frame = getLoadoutFrameMeta(card);
+  const name = content.loadout(card.id, 'name', card.name);
+  const role = content.loadout(card.id, 'role', card.role);
+  const blurb = content.loadout(card.id, 'blurb', card.blurb);
+  const effect = content.loadout(card.id, 'effect', card.effectLabel);
+
+  // Coordenadas exatas medidas por pixel em 5-frame.png (Comandante), 6-frame.png (Estrutura) e ItemCard.png (Equipamento)
+  const bannerStyle =
+    card.kind === 'commander'
+      ? 'top-[8.6%] h-[9.1%] left-[26%] right-[24.4%] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]'
+      : card.kind === 'structure'
+        ? 'top-[8.4%] h-[9.2%] left-[25%] right-[25%] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]'
+        : 'top-[17.8%] h-[9.6%] left-[25%] right-[24.2%] text-slate-950';
+
+  const bodyPanelStyle =
+    card.kind === 'commander'
+      ? 'top-[69.2%] bottom-[12.2%] left-[11.5%] right-[11.5%] justify-center gap-1'
+      : card.kind === 'structure'
+        ? 'top-[52%] bottom-[13.2%] left-[11.5%] right-[11.5%] justify-center gap-1.5'
+        : 'top-[33.5%] bottom-[14.5%] left-[11.5%] right-[11.5%] justify-center gap-2';
+
+  const footerStyle =
+    card.kind === 'commander'
+      ? 'top-[88.9%] h-[5.75%] left-[25%] right-[25%] text-slate-950'
+      : card.kind === 'structure'
+        ? 'top-[87.9%] h-[5.85%] left-[25%] right-[25%] text-white'
+        : 'top-[88.1%] h-[6.45%] left-[24%] right-[24%] text-slate-950';
+
   return (
-    <div className="flex h-full flex-col gap-2 p-4 sm:p-5">
-      <div className="flex items-center gap-3">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-sky-400/15">
-          <Icon size={21} className="text-sky-200" aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <p className="font-display text-base font-extrabold leading-tight text-white sm:text-lg">
-            {content.loadout(card.id, 'name', card.name)}
-          </p>
-          {card.kind === 'commander' ? (
-            <p className="text-[0.68rem] font-bold uppercase tracking-wider text-sky-300/80">
-              {content.loadout(card.id, 'role', card.role)}
-            </p>
-          ) : null}
+    <div className="relative mx-auto aspect-[1432/2000] w-full max-w-[16.5rem] select-none overflow-hidden drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)]">
+      {/* Somente as cartas de Capitão (5-frame.png) e de Estrutura (6-frame.png) possuem janela vazada com foto real da NASA */}
+      {card.kind === 'commander' ? (
+        <div className="absolute left-[15.0%] right-[13.5%] top-[20.1%] z-0 h-[48.4%] overflow-hidden rounded-full bg-space-950">
+          <NasaCardPhoto loadoutId={card.id} className="h-full w-full object-cover" />
         </div>
-      </div>
-      {compact !== true ? (
-        <p className="mt-1 text-[0.82rem] leading-relaxed text-slate-300">
-          {content.loadout(card.id, 'blurb', card.blurb)}
-        </p>
       ) : null}
-      <EffectBadge card={card} />
+
+      {card.kind === 'structure' ? (
+        <div
+          className="absolute left-[16.6%] right-[16.6%] top-[13.9%] z-0 h-[36.3%] overflow-hidden bg-space-950"
+          style={{
+            clipPath: 'polygon(16% 0%, 84% 0%, 100% 16%, 100% 84%, 84% 100%, 16% 100%, 0% 84%, 0% 16%)',
+          }}
+        >
+          <NasaCardPhoto loadoutId={card.id} className="h-full w-full object-cover" />
+        </div>
+      ) : null}
+
+      {/* Moldura PNG sobreposta (z-10) para que o anel azul de 5-frame.png e as engrenagens/faixa vermelha de 6-frame.png fiquem sobre a foto */}
+      <img
+        src={frame.image}
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-10 h-full w-full object-contain"
+      />
+
+      {/* Faixa superior do título */}
+      <div className={`absolute z-20 flex items-center justify-center px-1 text-center ${bannerStyle}`}>
+        <p className="line-clamp-2 w-full text-center font-display text-[11px] font-extrabold uppercase leading-tight tracking-tight sm:text-xs">
+          {name}
+        </p>
+      </div>
+
+      {/* Painel inferior de descrição e efeito */}
+      <div className={`absolute z-20 flex flex-col items-center rounded-xl border border-white/10 bg-space-950/95 p-2.5 text-center shadow-md ${bodyPanelStyle}`}>
+        {card.kind === 'equipment' ? (
+          <span className="mx-auto grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-amber-400/20 text-amber-300">
+            <Icon size={20} aria-hidden />
+          </span>
+        ) : null}
+        <p className="line-clamp-3 w-full text-center text-[10.5px] leading-tight text-slate-200 sm:text-[11.5px]">
+          {blurb}
+        </p>
+        <p className="w-full rounded-lg bg-sky-400/15 px-2 py-1 text-center text-[10px] font-extrabold leading-tight text-sky-200 sm:text-[11px]">
+          {effect}
+        </p>
+      </div>
+
+      {/* Hexágono inferior com especialidade / categoria perfeitamente centralizada */}
+      <div className={`absolute z-20 flex items-center justify-center px-1.5 text-center ${footerStyle}`}>
+        <span className="w-full truncate pt-[1.5px] text-center font-display text-[9px] font-extrabold uppercase leading-none tracking-wider sm:text-[10px]">
+          {role}
+        </span>
+      </div>
     </div>
   );
 }
@@ -75,7 +128,6 @@ function CommanderPicker({
         <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 sm:p-5">
           {COMMANDERS.map((cmd) => {
             const locked = cmd.unlockedBy !== undefined && !unlocks.includes(cmd.unlockedBy);
-            const Icon = iconFor(cmd.icon);
             return (
               <button
                 key={cmd.id}
@@ -89,9 +141,12 @@ function CommanderPicker({
               >
                 <div>
                   <div className="flex items-center gap-3">
-                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white/10">
-                      {locked ? <Lock size={17} className="text-slate-500" aria-hidden />
-                              : <Icon size={20} className="text-sky-200" aria-hidden />}
+                    <span className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-sky-400/40 bg-space-950">
+                      {locked ? (
+                        <Lock size={17} className="text-slate-500" aria-hidden />
+                      ) : (
+                        <NasaCardPhoto loadoutId={cmd.id} className="h-full w-full object-cover" />
+                      )}
                     </span>
                     <div className="min-w-0">
                       <span className="block font-display text-base font-extrabold text-white">
@@ -132,8 +187,8 @@ function RolledCard({
 }): JSX.Element {
   const t = useT();
   return (
-    <div className="flex h-full flex-col">
-      <div className="mb-2 flex items-center justify-between gap-2">
+    <div className="flex h-full flex-col items-center">
+      <div className="mb-2 flex w-full max-w-[16.5rem] items-center justify-between gap-2">
         <p className="text-[0.72rem] font-extrabold uppercase tracking-widest text-sky-300">{label}</p>
         <button
           type="button"
@@ -150,7 +205,7 @@ function RolledCard({
       </div>
       <div
         key={card?.id ?? 'empty'}
-        className="min-h-[14rem] flex-1 animate-deal rounded-3xl glass-strong"
+        className="w-full flex-1 animate-deal"
         style={{ animationDelay: `${delay}ms` }}
       >
         {card !== undefined ? <CardFace card={card} /> : null}
@@ -194,18 +249,20 @@ export function Loadout(): JSX.Element {
       </header>
 
       {/* Mesa horizontal de 3 cards: Comandante | Estrutura | Equipamento */}
-      <div className="my-auto grid grid-cols-1 items-stretch gap-5 py-6 md:grid-cols-3">
-        <div className="flex h-full flex-col">
-          <p className="mb-2 text-[0.72rem] font-extrabold uppercase tracking-widest text-sky-300">
-            {t('loadout.commander')}
-          </p>
+      <div className="my-auto grid grid-cols-3 items-stretch gap-3 py-3 sm:gap-5 sm:py-5">
+        <div className="flex h-full flex-col items-center">
+          <div className="mb-2 flex min-h-[28px] w-full max-w-[16.5rem] items-center justify-between">
+            <p className="text-[0.72rem] font-extrabold uppercase tracking-widest text-sky-300">
+              {t('loadout.commander')}
+            </p>
+          </div>
           <button
             type="button"
             onClick={() => { setPickerOpen(true); }}
-            className="relative flex min-h-[14rem] flex-1 flex-col overflow-hidden rounded-3xl text-left transition-all active:scale-[.99]"
+            className="relative flex w-full max-w-[16.5rem] flex-1 flex-col overflow-hidden rounded-3xl text-left transition-all active:scale-[.99]"
           >
             {commander === undefined ? (
-              <span className="flex h-full w-full flex-1 flex-col items-center justify-center gap-3 rounded-3xl
+              <span className="flex aspect-[1432/2000] w-full flex-col items-center justify-center gap-3 rounded-3xl
                                border-2 border-dashed border-sky-400/35 bg-sky-400/[.04] p-6 hover:bg-sky-400/[.08]">
                 <span className="relative grid h-16 w-16 place-items-center rounded-full border-2 border-dashed border-sky-300/60">
                   <span className="absolute inset-0 animate-pulse-ring rounded-full border-2 border-sky-300/40" aria-hidden />
@@ -214,9 +271,9 @@ export function Loadout(): JSX.Element {
                 <span className="font-display text-base font-extrabold text-slate-200">{t('loadout.chooseCommander')}</span>
               </span>
             ) : (
-              <span className="block h-full w-full flex-1 rounded-3xl glass-strong">
+              <span className="relative block w-full">
                 <CardFace card={commander} />
-                <span className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-food/20">
+                <span className="absolute right-4 top-4 z-30 grid h-7 w-7 place-items-center rounded-full bg-food/25 shadow-md backdrop-blur-sm">
                   <Check size={15} className="text-food" aria-hidden />
                 </span>
               </span>

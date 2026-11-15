@@ -87,7 +87,7 @@ function Popover({
   }, [onClose]);
 
   return createPortal(
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-5 animate-fade-in">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 animate-fade-in">
       {/* O vidro mora AQUI: escurece e borra o que esta atras, garantindo
           contraste para o painel, qualquer que seja o conteudo da tela. */}
       <button
@@ -103,7 +103,7 @@ function Popover({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/20
+        className="relative max-h-[88dvh] w-full max-w-sm overflow-y-auto rounded-3xl border border-white/20
                    bg-space-850 shadow-[0_24px_60px_-12px_rgba(0,0,0,.9)]"
       >
         <div className={`flex items-center gap-3 border-b border-white/10 px-5 py-4 ${BADGE_BG[entry.color]}`}>

@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import type { Card, CardOption, Phase, Threshold } from '../../engine/types.js';
 import { useAccount } from '../store/useAccount.js';
+import { getCardFrameMeta } from './CardArtwork.js';
 import { GlossaryText } from './GlossaryText.js';
 import { SpeakButton } from './SpeakButton.js';
 import { useContent } from '../i18n/useContent.js';
@@ -23,7 +24,7 @@ export interface OptionState {
 }
 
 export function CardView({
-  card, options, stage, onChoose, dimmed, compact,
+  card, options, phase, stage, onChoose, dimmed, compact,
 }: {
   card: Card;
   options: readonly OptionState[];
@@ -41,6 +42,7 @@ export function CardView({
 
   const title = content.cardTitle(card);
   const text = content.cardText(card);
+  const frame = getCardFrameMeta(card, phase);
 
   const requirementText = (requires: readonly Threshold[]): string =>
     requires
@@ -54,13 +56,55 @@ export function CardView({
 
   return (
     <article
-      className={`card-surface flex h-full flex-col justify-between overflow-hidden animate-card-in
-                  ${compact === true ? 'p-3.5 sm:p-4' : 'p-4 sm:p-5 lg:p-6'}
+      className={`relative mx-auto flex w-full max-w-[23rem] flex-col overflow-hidden animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
                   ${dimmed === true ? 'opacity-70' : ''}`}
     >
-      <div>
-        <header className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
+      {/* Topo da moldura HeadXimage (emblema superior + faixa do título, y=0..730) */}
+      <header className="relative aspect-[1432/730] w-full select-none overflow-hidden">
+        <img
+          src={frame.image}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[273.973%] w-full max-w-none"
+        />
+
+        <div className="absolute right-[8%] top-[8%] z-10">
+          <SpeakButton
+            text={`${title}. ${text}. ${options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option)).join('. ')}`}
+            label={t('card.listenAria', { title })}
+          />
+        </div>
+
+        <div
+          className="absolute flex items-center justify-center px-2 text-center"
+          style={{
+            top: frame.bannerTopPct,
+            height: frame.bannerHeightPct,
+            left: frame.bannerLeftPct,
+            right: frame.bannerRightPct,
+          }}
+        >
+          <h2
+            className={`line-clamp-2 w-full pt-[1px] text-center font-display font-extrabold uppercase leading-tight tracking-tight ${frame.titleTextClass}
+                        ${compact === true ? 'text-[11px] sm:text-xs' : 'text-xs sm:text-sm'}`}
+          >
+            {title}
+          </h2>
+        </div>
+      </header>
+
+      {/* Corpo central da moldura (expansível conforme texto, opções e confirmação) */}
+      <div
+        className="relative -my-px flex flex-1 flex-col px-[11.5%] py-1.5"
+        style={{
+          backgroundImage: `url(${frame.image})`,
+          backgroundSize: '100% 300%',
+          backgroundPosition: 'center 62%',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="flex flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 p-3 shadow-lg">
+          <div>
             {hasBadges ? (
               <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
                 {card.role === 'extra' ? (
@@ -84,105 +128,113 @@ export function CardView({
                 ) : null}
               </div>
             ) : null}
-            <h2 className={`font-display font-extrabold leading-tight text-white
-                            ${compact === true ? 'text-base sm:text-lg' : 'text-lg sm:text-xl lg:text-2xl'}`}>
-              {title}
-            </h2>
-          </div>
-          <SpeakButton
-            text={`${title}. ${text}. ${options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option)).join('. ')}`}
-            label={t('card.listenAria', { title })}
-          />
-        </header>
 
-        <div className={compact === true ? 'mt-2' : 'mt-3'}>
-          <GlossaryText
-            text={text}
-            className={`block leading-relaxed text-slate-200
-                        ${compact === true ? 'text-[0.82rem] sm:text-[0.86rem]' : 'text-[0.9rem] sm:text-[0.95rem]'}`}
-          />
+            <GlossaryText
+              text={text}
+              className={`block leading-snug text-slate-200
+                          ${compact === true ? 'text-[0.78rem] sm:text-[0.82rem]' : 'text-[0.82rem] sm:text-[0.88rem]'}`}
+            />
+          </div>
+
+          <div className={`flex flex-col ${compact === true ? 'mt-2.5 gap-1.5' : 'mt-3 gap-1.5'}`}>
+            {options.map(({ option, selectable }) => {
+              const label = content.optionLabel(card, option);
+              const openBrief = briefId === option.id;
+              return (
+                <div key={option.id} className="flex flex-col">
+                  <button
+                    type="button"
+                    aria-disabled={!selectable}
+                    aria-expanded={confirmDecisions ? openBrief : undefined}
+                    onClick={() => {
+                      if (!selectable) return;
+                      if (confirmDecisions) setBriefId(openBrief ? null : option.id);
+                      else onChoose(option.id);
+                    }}
+                    className={`group flex min-h-[40px] w-full items-center justify-between gap-2.5 rounded-xl border
+                      text-left transition-all duration-150
+                      ${compact === true ? 'px-3 py-1.5' : 'px-3.5 py-2'}
+                      ${openBrief
+                        ? 'border-sky-400/70 bg-sky-400/15 shadow-[0_0_20px_-6px_rgba(56,189,248,0.4)]'
+                        : selectable
+                          ? 'border-white/12 bg-white/[.06] hover:border-sky-300/40 hover:bg-white/[.12] active:scale-[.99]'
+                          : 'cursor-not-allowed border-white/5 bg-white/[.02] opacity-60'}`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <span className={`flex items-center gap-2 font-bold leading-snug
+                        ${compact === true ? 'text-[0.78rem]' : 'text-[0.82rem] sm:text-[0.86rem]'}
+                        ${selectable ? 'text-slate-100' : 'text-slate-400'}`}>
+                        {!selectable ? <Lock size={13} className="shrink-0 text-slate-400" aria-hidden /> : null}
+                        {label}
+                      </span>
+                      {!selectable && option.requires !== undefined ? (
+                        <span className="mt-0.5 block text-[0.68rem] font-semibold text-slate-300">
+                          {t('card.requires', { requirement: requirementText(option.requires) })}
+                        </span>
+                      ) : null}
+                    </div>
+                    {selectable ? (
+                      <ChevronRight
+                        size={15}
+                        className={`shrink-0 transition-transform duration-150
+                          ${openBrief ? 'rotate-90 text-sky-300' : 'text-slate-400 group-hover:translate-x-0.5 group-hover:text-sky-300'}`}
+                        aria-hidden
+                      />
+                    ) : null}
+                  </button>
+
+                  {openBrief ? (
+                    <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-sky-400/35 bg-sky-950/75 px-3 py-2 animate-fade-in">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[0.65rem] font-extrabold uppercase tracking-wider text-sky-300">
+                          {t('card.briefTitle')}
+                        </p>
+                        <p className="text-[0.68rem] leading-snug text-slate-300">
+                          {t('card.noReturn')}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => { setBriefId(null); }}
+                          className="btn-ghost min-h-[34px] rounded-xl px-2.5 py-1 text-[0.74rem]"
+                        >
+                          <X size={13} aria-hidden /> {t('card.cancel')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setBriefId(null); onChoose(option.id); }}
+                          className="btn-primary min-h-[34px] rounded-xl px-3 py-1 text-[0.74rem]"
+                        >
+                          <Check size={14} aria-hidden /> {t('card.confirm')}
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      <div className={`flex flex-col ${compact === true ? 'mt-3 gap-1.5' : 'mt-4 gap-2'}`}>
-        {options.map(({ option, selectable }) => {
-          const label = content.optionLabel(card, option);
-          const openBrief = briefId === option.id;
-          return (
-            <div key={option.id} className="flex flex-col">
-              <button
-                type="button"
-                aria-disabled={!selectable}
-                aria-expanded={confirmDecisions ? openBrief : undefined}
-                onClick={() => {
-                  if (!selectable) return;
-                  if (confirmDecisions) setBriefId(openBrief ? null : option.id);
-                  else onChoose(option.id);
-                }}
-                className={`group flex min-h-[44px] w-full items-center justify-between gap-3 rounded-2xl border
-                  text-left transition-all duration-150
-                  ${compact === true ? 'px-3.5 py-2' : 'px-4 py-2.5 sm:py-3'}
-                  ${openBrief
-                    ? 'border-sky-400/70 bg-sky-400/15 shadow-[0_0_20px_-6px_rgba(56,189,248,0.4)]'
-                    : selectable
-                      ? 'border-white/12 bg-white/[.05] hover:border-sky-300/40 hover:bg-white/[.10] active:scale-[.99]'
-                      : 'cursor-not-allowed border-white/5 bg-white/[.02] opacity-60'}`}
-              >
-                <div className="min-w-0 flex-1">
-                  <span className={`flex items-center gap-2 font-bold
-                    ${compact === true ? 'text-[0.82rem] sm:text-sm' : 'text-sm sm:text-[0.92rem]'}
-                    ${selectable ? 'text-slate-100' : 'text-slate-400'}`}>
-                    {!selectable ? <Lock size={13} className="shrink-0 text-slate-400" aria-hidden /> : null}
-                    {label}
-                  </span>
-                  {!selectable && option.requires !== undefined ? (
-                    <span className="mt-0.5 block text-[0.7rem] font-semibold text-slate-300">
-                      {t('card.requires', { requirement: requirementText(option.requires) })}
-                    </span>
-                  ) : null}
-                </div>
-                {selectable ? (
-                  <ChevronRight
-                    size={16}
-                    className={`shrink-0 transition-transform duration-150
-                      ${openBrief ? 'rotate-90 text-sky-300' : 'text-slate-400 group-hover:translate-x-0.5 group-hover:text-sky-300'}`}
-                    aria-hidden
-                  />
-                ) : null}
-              </button>
-
-              {openBrief ? (
-                <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-sky-400/35 bg-sky-950/60 px-3.5 py-2.5 animate-fade-in">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[0.68rem] font-extrabold uppercase tracking-wider text-sky-300">
-                      {t('card.briefTitle')}
-                    </p>
-                    <p className="text-[0.72rem] leading-snug text-slate-300">
-                      {t('card.noReturn')}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => { setBriefId(null); }}
-                      className="btn-ghost min-h-[38px] rounded-xl px-3 py-1.5 text-[0.78rem]"
-                    >
-                      <X size={14} aria-hidden /> {t('card.cancel')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setBriefId(null); onChoose(option.id); }}
-                      className="btn-primary min-h-[38px] rounded-xl px-3.5 py-1.5 text-[0.78rem]"
-                    >
-                      <Check size={15} aria-hidden /> {t('card.confirm')}
-                    </button>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
+      {/* Base da moldura HeadXimage (hexágono inferior com a categoria do card, y=1740..2000) */}
+      <footer className="relative aspect-[1432/260] w-full select-none overflow-hidden">
+        <img
+          src={frame.image}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[769.23%] w-full max-w-none"
+        />
+        <div
+          className="absolute left-[25%] right-[25%] flex items-center justify-center px-2 text-center"
+          style={{ top: frame.footerTopPct, height: frame.footerHeightPct }}
+        >
+          <span className={`w-full truncate pt-[1.5px] text-center font-display text-[9.5px] font-extrabold uppercase leading-none tracking-wider ${frame.badgeTextClass}`}>
+            {t(frame.footerLabelKey)}
+          </span>
+        </div>
+      </footer>
     </article>
   );
 }
