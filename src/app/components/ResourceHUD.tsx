@@ -42,14 +42,14 @@ function StatRow({ row, value }: { row: Row; value: number }): JSX.Element {
   const isDanger = danger(row, value);
   const label = t(row.labelKey);
   return (
-    <div className={`flex items-center gap-3 rounded-2xl border px-3.5 py-2.5 sm:px-4 sm:py-3 transition-colors
+    <div className={`flex items-center gap-2.5 rounded-2xl border px-3 py-2 transition-colors
       ${isDanger ? 'border-radiation/40 bg-radiation/10' : 'border-white/8 bg-white/[.03]'}`}>
-      <span className={`grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl ${row.badgeBg}`}>
-        <Icon size={18} className={row.color} aria-hidden />
+      <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${row.badgeBg}`}>
+        <Icon size={16} className={row.color} aria-hidden />
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-1.5">
-          <span className="truncate text-[0.72rem] sm:text-xs font-extrabold uppercase tracking-wider text-slate-300">
+          <span className="truncate text-[0.68rem] font-extrabold uppercase tracking-wider text-slate-300">
             {label}
           </span>
           <div className="flex items-center gap-1">
@@ -57,7 +57,7 @@ function StatRow({ row, value }: { row: Row; value: number }): JSX.Element {
               <span
                 role="img"
                 aria-label={t('hud.dangerAria', { stat: label })}
-                className="shrink-0 rounded-md bg-radiation/25 px-1.5 py-0.5 text-[0.65rem] font-extrabold text-radiation animate-pulse"
+                className="shrink-0 rounded-md bg-radiation/25 px-1.5 py-0.5 text-[0.62rem] font-extrabold text-radiation animate-pulse"
               >
                 !
               </span>
@@ -65,13 +65,13 @@ function StatRow({ row, value }: { row: Row; value: number }): JSX.Element {
             <span
               role="img"
               aria-label={t('hud.valueAria', { label, value })}
-              className={`tabular-nums font-display text-base sm:text-lg font-extrabold leading-none ${isDanger ? 'text-radiation' : row.color}`}
+              className={`tabular-nums font-display text-[0.95rem] font-extrabold leading-none ${isDanger ? 'text-radiation' : row.color}`}
             >
               {value}
             </span>
           </div>
         </div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
           <div
             className={`h-full rounded-full ${row.bar} transition-[width] duration-500
                         ${row.inverted === true ? 'ml-auto' : ''}`}
@@ -95,13 +95,13 @@ export function ResourceHUD({
     : { stat: 'lifeSupport', labelKey: 'stat.lifeSupport', icon: HeartPulse, color: 'text-life', bar: 'bg-life', badgeBg: 'bg-life/15', goal: true };
 
   return (
-    <div className={`rounded-3xl glass bg-gradient-to-b ${THEME_ACCENT[theme]} to-transparent p-3.5 sm:p-4 lg:p-5`}>
-      <div data-tutorial="hud-basic" className="grid grid-cols-2 gap-2.5 sm:gap-3">
+    <div className={`rounded-3xl glass bg-gradient-to-b ${THEME_ACCENT[theme]} to-transparent p-3 sm:p-3.5`}>
+      <div data-tutorial="hud-basic" className="grid grid-cols-2 gap-2">
         {BASIC_ROWS.map((row) => (
           <StatRow key={row.stat} row={row} value={stats[row.stat]} />
         ))}
       </div>
-      <div data-tutorial="hud-tracks" className="mt-2.5 sm:mt-3 grid grid-cols-2 gap-2.5 sm:gap-3 border-t border-white/10 pt-2.5 sm:pt-3">
+      <div data-tutorial="hud-tracks" className="mt-2 grid grid-cols-2 gap-2 border-t border-white/10 pt-2">
         <StatRow
           row={{ stat: 'shielding', labelKey: 'stat.shielding', icon: Shield, color: 'text-slate-200', bar: 'bg-slate-300', badgeBg: 'bg-white/10' }}
           value={stats.shielding}

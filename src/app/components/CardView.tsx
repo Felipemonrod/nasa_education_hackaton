@@ -119,9 +119,17 @@ export function CardView({
     <>
       <article
         data-tutorial={isFirstCard ? 'card-header' : undefined}
-        className={`relative mx-auto flex w-full max-w-[min(100%,48dvh)] sm:max-w-[min(100%,51dvh)] flex-col overflow-hidden animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
+        className={`relative mx-auto flex w-full max-w-[23rem] flex-col overflow-hidden animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
                     ${dimmed === true ? 'opacity-70' : ''}`}
       >
+        {/* Ícone de áudio alinhado no canto superior direito */}
+        <div className="absolute right-2 top-2 z-20">
+          <SpeakButton
+            text={`${title}. ${text}. ${options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option)).join('. ')}`}
+            label={t('card.listenAria', { title })}
+          />
+        </div>
+
         {/* Topo da moldura HeadXimage (emblema superior + faixa do título, y=0..730) */}
         <header className="relative aspect-[1432/730] w-full select-none overflow-hidden">
           <img
@@ -142,7 +150,7 @@ export function CardView({
           >
             <h2
               className={`line-clamp-2 w-full pt-[1px] text-center font-display font-extrabold uppercase leading-tight tracking-tight ${frame.titleTextClass}
-                          ${compact === true ? 'text-xs sm:text-sm lg:text-[0.95rem]' : 'text-sm sm:text-base lg:text-lg'}`}
+                          ${compact === true ? 'text-[0.69rem] sm:text-xs' : 'text-xs sm:text-sm'}`}
             >
               {title}
             </h2>
@@ -159,24 +167,24 @@ export function CardView({
             backgroundRepeat: 'no-repeat',
           }}
         >
-          <div className="flex flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 p-3.5 shadow-lg sm:p-4 lg:p-5">
+          <div className="flex flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 p-3 shadow-lg">
             <div>
               {hasBadges ? (
-                <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
                   {card.role === 'extra' ? (
-                    <span className={`rounded-lg px-2.5 py-0.5 text-[0.7rem] font-extrabold uppercase tracking-wider sm:text-xs
+                    <span className={`rounded-lg px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wider
                       ${card.track === 'science' ? 'bg-science/20 text-science border border-science/30' : 'bg-life/20 text-life border border-life/30'}`}>
                       {t(card.track === 'science' ? 'stat.science' : 'stat.lifeSupport')}
                     </span>
                   ) : null}
                   {card.role === 'event' ? (
-                    <span className="inline-flex items-center gap-1 rounded-lg border border-power/30 bg-power/20 px-2.5 py-0.5 text-[0.7rem] font-extrabold uppercase tracking-wider text-power sm:text-xs">
-                      <Rocket size={12} aria-hidden /> {t('card.event')}
+                    <span className="inline-flex items-center gap-1 rounded-lg border border-power/30 bg-power/20 px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wider text-power">
+                      <Rocket size={11} aria-hidden /> {t('card.event')}
                     </span>
                   ) : null}
                   {badge !== null ? (
-                    <span className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/10 px-2.5 py-0.5 text-[0.7rem] font-bold uppercase tracking-wider text-slate-200 sm:text-xs">
-                      <badge.icon size={12} aria-hidden />
+                    <span className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/10 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-slate-200">
+                      <badge.icon size={11} aria-hidden />
                       {stage !== undefined
                         ? t('card.kindStage', { label: t(badge.key), stage: stage + 1 })
                         : t(badge.key)}
@@ -187,14 +195,14 @@ export function CardView({
 
               <GlossaryText
                 text={text}
-                className={`block leading-relaxed text-slate-200
-                            ${compact === true ? 'text-[0.86rem] sm:text-[0.94rem] lg:text-[0.98rem]' : 'text-[0.92rem] sm:text-base lg:text-[1.05rem]'}`}
+                className={`block leading-snug text-slate-200
+                            ${compact === true ? 'text-[0.78rem] sm:text-[0.82rem]' : 'text-[0.82rem] sm:text-[0.88rem]'}`}
               />
             </div>
 
             <div
               data-tutorial={isFirstCard ? 'card-options' : undefined}
-              className={`flex flex-col ${compact === true ? 'mt-3 gap-2' : 'mt-4 gap-2.5'}`}
+              className={`flex flex-col ${compact === true ? 'mt-2.5 gap-1.5' : 'mt-3 gap-1.5'}`}
             >
               {options.map(({ option, selectable }) => {
                 const label = content.optionLabel(card, option);
@@ -210,9 +218,9 @@ export function CardView({
                         if (confirmDecisions) setBriefId(openBrief ? null : option.id);
                         else onChoose(option.id);
                       }}
-                      className={`group flex min-h-[44px] sm:min-h-[48px] w-full items-center justify-between gap-2.5 rounded-2xl border
+                      className={`group flex min-h-[2.5rem] w-full items-center justify-between gap-2.5 rounded-xl border
                         text-left transition-all duration-150
-                        ${compact === true ? 'px-3.5 py-2 sm:px-4 sm:py-2.5' : 'px-4 py-2.5 sm:py-3'}
+                        ${compact === true ? 'px-3 py-1.5' : 'px-3.5 py-2'}
                         ${openBrief
                           ? 'border-sky-400/70 bg-sky-400/15 shadow-[0_0_20px_-6px_rgba(56,189,248,0.4)]'
                           : selectable
@@ -221,20 +229,20 @@ export function CardView({
                     >
                       <div className="min-w-0 flex-1">
                         <span className={`flex items-center gap-2 font-bold leading-snug
-                          ${compact === true ? 'text-[0.84rem] sm:text-[0.92rem] lg:text-[0.96rem]' : 'text-[0.9rem] sm:text-base'}
+                          ${compact === true ? 'text-[0.78rem]' : 'text-[0.82rem] sm:text-[0.86rem]'}
                           ${selectable ? 'text-slate-100' : 'text-slate-400'}`}>
-                          {!selectable ? <Lock size={14} className="shrink-0 text-slate-400" aria-hidden /> : null}
+                          {!selectable ? <Lock size={13} className="shrink-0 text-slate-400" aria-hidden /> : null}
                           {label}
                         </span>
                         {!selectable && option.requires !== undefined ? (
-                          <span className="mt-0.5 block text-[0.72rem] font-semibold text-slate-300">
+                          <span className="mt-0.5 block text-[0.68rem] font-semibold text-slate-300">
                             {t('card.requires', { requirement: requirementText(option.requires) })}
                           </span>
                         ) : null}
                       </div>
                       {selectable ? (
                         <ChevronRight
-                          size={16}
+                          size={15}
                           className={`shrink-0 transition-transform duration-150
                             ${openBrief ? 'rotate-90 text-sky-300' : 'text-slate-400 group-hover:translate-x-0.5 group-hover:text-sky-300'}`}
                           aria-hidden
@@ -260,19 +268,11 @@ export function CardView({
             className="absolute left-[25%] right-[25%] flex items-center justify-center px-2 text-center"
             style={{ top: frame.footerTopPct, height: frame.footerHeightPct }}
           >
-            <span className={`w-full truncate pt-[1.5px] text-center font-display text-[10.5px] sm:text-xs font-extrabold uppercase leading-none tracking-wider ${frame.badgeTextClass}`}>
+            <span className={`w-full truncate pt-[1.5px] text-center font-display text-[0.6rem] font-extrabold uppercase leading-none tracking-wider ${frame.badgeTextClass}`}>
               {t(frame.footerLabelKey)}
             </span>
           </div>
         </footer>
-
-        {/* Ícone de áudio alinhado no canto inferior direito com espaçamento */}
-        <div className="absolute bottom-2 right-2 z-20">
-          <SpeakButton
-            text={`${title}. ${text}. ${options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option)).join('. ')}`}
-            label={t('card.listenAria', { title })}
-          />
-        </div>
       </article>
 
       {confirmModal !== null && typeof document !== 'undefined'

@@ -9,6 +9,11 @@
 }
 
 @layer base {
+  html {
+    /* Escala responsiva proporcional a 150% de zoom em telas desktop (80rem x 45rem),
+       adaptando automaticamente em telas menores para nunca cortar ou sobrar espaco. */
+    font-size: clamp(14px, min(1.25vw, 2.22dvh), 24px);
+  }
   html, body, #root { height: 100%; width: 100%; }
   body {
     @apply bg-space-950 text-slate-100 font-sans antialiased overflow-x-hidden;
@@ -93,8 +98,8 @@
 
 /* Escala de texto: usa rem, entao TODA a interface cresce junto, incluindo
    alvos de toque -- que e o ponto. Aumentar so a fonte quebra o layout. */
-html[data-text-scale='large']  { font-size: 18.5px; }
-html[data-text-scale='xlarge'] { font-size: 21px; }
+html[data-text-scale='large']  { font-size: clamp(16px, min(1.4vw, 2.45dvh), 27px); }
+html[data-text-scale='xlarge'] { font-size: clamp(18px, min(1.55vw, 2.7dvh), 30px); }
 
 /* Alto contraste: fundo mais escuro, texto puro, bordas visiveis e vidro
    desligado. Glassmorphism e bonito e e inimigo de quem tem baixa visao. */
