@@ -175,7 +175,7 @@ export function CardView({
             backgroundRepeat: 'no-repeat',
           }}
         >
-          <div className={`flex flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 p-2.5 shadow-lg ${inModal ? '[@media(max-height:540px)]:p-2' : ''}`}>
+          <div className={`flex flex-1 flex-col justify-between rounded-2xl border border-white/15 bg-space-950/95 px-2.5 py-2 shadow-lg ${inModal ? '[@media(max-height:540px)]:p-2' : ''}`}>
             <div>
               {hasBadges ? (
                 <div className={`mb-1.5 flex flex-wrap items-center gap-1.5 ${inModal ? '[@media(max-height:540px)]:mb-1' : ''}`}>
@@ -211,7 +211,7 @@ export function CardView({
 
             <div
               data-tutorial={isFirstCard ? 'card-options' : undefined}
-              className={`flex flex-col ${compact === true ? 'mt-2.5 gap-1.5' : 'mt-3 gap-1.5'} ${inModal ? '[@media(max-height:540px)]:mt-1.5 [@media(max-height:540px)]:gap-1' : ''}`}
+              className={`flex flex-col ${compact === true ? 'mt-2 gap-1.5' : 'mt-2.5 gap-1.5'} ${inModal ? '[@media(max-height:540px)]:mt-1.5 [@media(max-height:540px)]:gap-1' : ''}`}
             >
               {options.map(({ option, selectable }) => {
                 const label = content.optionLabel(card, option);
@@ -232,7 +232,7 @@ export function CardView({
                         if (confirmDecisions) setBriefId(openBrief ? null : option.id);
                         else onChoose(option.id);
                       }}
-                      className={`group flex min-h-[2.5rem] w-full items-center justify-between gap-2.5 rounded-xl border
+                      className={`group flex min-h-[2.25rem] w-full items-center justify-between gap-2.5 rounded-xl border
                         text-left transition-all duration-150
                         ${compact === true ? 'px-3 py-1.5' : 'px-3.5 py-2'}
                         ${inModal ? '[@media(max-height:540px)]:min-h-[1.8rem] [@media(max-height:540px)]:px-2.5 [@media(max-height:540px)]:py-1' : ''}
