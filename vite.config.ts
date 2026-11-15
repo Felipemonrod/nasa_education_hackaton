@@ -1,10 +1,51 @@
 import { defineConfig } from 'vite';
+import type { Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+
+/**
+ * "Kill switch" do service worker, so no `npm run dev`.
+ *
+ * Dev e preview usam a mesma porta (5173, por causa do localStorage). Se o
+ * preview instalou um service worker, ele continua controlando
+ * localhost:5173 no dev e serve o JavaScript ANTIGO do cache: mudancas novas
+ * nao aparecem. Codigo no app nao resolve, porque o app que roda e o antigo.
+ *
+ * O navegador, porem, sempre volta ao servidor para conferir se o /sw.js
+ * mudou. Em dev, este plugin responde ali com um SW que se desinstala, apaga
+ * os caches e recarrega as abas. No build nada muda: o plugin so atua no
+ * servidor de desenvolvimento.
+ */
+function devServiceWorkerKillSwitch(): Plugin {
+  const body = `
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((k) => caches.delete(k)));
+    await self.registration.unregister();
+    const tabs = await self.clients.matchAll({ type: 'window' });
+    tabs.forEach((tab) => tab.navigate(tab.url));
+  })());
+});`;
+  return {
+    name: 'dev-sw-kill-switch',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (req.url !== '/sw.js') { next(); return; }
+        res.setHeader('Content-Type', 'application/javascript');
+        res.setHeader('Cache-Control', 'no-store');
+        res.end(body);
+      });
+    },
+  };
+}
 
 export default defineConfig({
   plugins: [
     react(),
+    devServiceWorkerKillSwitch(),
     VitePWA({
       registerType: 'prompt',
       // Service Worker DESLIGADO em dev de proposito: senao o cache faz

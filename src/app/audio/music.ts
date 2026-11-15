@@ -131,7 +131,8 @@ function loadTrack(index: number): HTMLAudioElement {
  */
 function tryPlay(): void {
   const el = s.el;
-  if (el === null || !el.paused) return;
+  // Ja bloqueado e esperando o toque: nao insistir a cada tick.
+  if (el === null || !el.paused || s.waitingGesture) return;
   el.play().then(() => { s.waitingGesture = false; }).catch(() => {
     if (s.waitingGesture) return;
     s.waitingGesture = true;
