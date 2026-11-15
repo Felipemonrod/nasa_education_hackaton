@@ -48,8 +48,13 @@ permanente** a cada 25 pontos, aplicado no fim de cada dia
 (`trackMilestones` em `balance.ts`, `grantTrackMilestones`/`milestoneRelief`
 em `run.ts`). É por isso que o trilho não declarado não é conteúdo morto:
 
-- `science` 25/50/75 → alívio de dreno de energia e oxigênio (conhecimento = eficiência)
-- `lifeSupport` 25/50/75 → alívio de dreno de oxigênio e comida
+- `science` 25/50/75 → +2 de energia por ciclo cada (conhecimento = eficiência)
+- `lifeSupport` 25/50/75 → +2, +1 e +1 de energia por ciclo
+
+Todos os marcos devolvem **energia**, o recurso que mais aperta: investir no
+trilho ajuda a sobreviver, então progresso pela metade vale algo mesmo na regra
+"tudo ou nada". Habitat devolve menos nos marcos 50/75 porque já ganha suporte
+de vida em muito mais cards básicos (`docs/balanceamento-analise.md` §7).
 
 ---
 
@@ -103,11 +108,18 @@ mede isso em cada rodada.
 Fixa e testada. Não reordenar sem atualizar `tests/engine.test.ts`:
 
 1. efeitos da opção escolhida
-2. efeitos por slot do card temporal, se ele ocupava o slot
-3. modificadores passivos ativos (e decremento de duração)
-4. dreno passivo do slot, por fase
+2. efeitos por slot do card temporal, se ele ocupava o slot — **escolhido ou
+   recusado no par**: recusar a tempestade não a faz ir embora
+3. modificadores passivos ativos (e decremento de duração); os modificadores
+   novos da opção entram **depois** deste passo e começam no slot seguinte
+4. dreno passivo do slot, por fase, + pressão de fim de missão
+   (`latePressure`: a partir do ciclo 7, +1 de energia por turno)
 5. **derrota antes de vitória** — base morta não publica artigo
-6. no fim do dia: dose absorvida → degradação da blindagem → alívio dos marcos de trilho
+6. no fim do dia: dose absorvida (menos a mitigação de dose × 2, a médica) →
+   degradação da blindagem → alívio dos marcos de trilho
+
+Card de par recusado volta ao pool, **exceto**: consequência (`sequentialOnly`)
+volta para a fila de sequenciais, e a tempestade ativa não volta.
 
 ---
 
@@ -190,8 +202,8 @@ Mais um teste de capacidade de pool: ≥20 saques possíveis por fase em 10 dias
 
 | Recurso | Início | Dreno passivo | Income disponível no baralho |
 |---|---|---|---|
-| `oxygen` | 75–90 | 6/dia (60 na missão) | 30 |
-| `power` | 75–90 | 4/dia (40) | 18 |
+| `oxygen` | 75–90 | 6/dia (60 na missão) | 28 |
+| `power` | **85–100** | 4/dia (40), **8/dia a partir do ciclo 7** (56) | 18 |
 | `food` | **62–75** | 6/dia (60) | 34 |
 | `dose` | 0 | +4/dia a blindagem 80 | — |
 
@@ -210,7 +222,7 @@ income agora calculado, ele fica abaixo do dreno nos três recursos; o que
 equilibra a missão são o estoque inicial, os bônus de local/loadout, os marcos
 de trilho, a cápsula de suprimentos e as rotinas que repetem.
 
-### Curva atual (3.000 partidas por política, `npm run sim 3000`, 2026-11-14)
+### Curva atual (3.000 partidas por política, `npm run sim 3000`, 2026-11-15)
 
 Como o app joga: clima espacial histórico verificado, local de pouso e loadout
 inicial (comandante, estrutura, equipamento de jogador novo) sorteados pela seed
@@ -219,10 +231,18 @@ inicial (comandante, estrutura, equipamento de jogador novo) sorteados pela seed
 
 | Política | Ciência | Habitat |
 |---|---|---|
-| `random` (baseline) | 0,2% | 0,3% |
-| `survival` (só sobreviver) | 84,3% | 86,0% |
-| `objective` (só o trilho, ignora a base) | 73,1% *(toda por objetivo)* | 33,8% *(toda por objetivo)* |
-| `adaptive` (jogador competente) | 51,0% | 55,5% |
+| `random` (baseline) | 2,0% | 1,5% |
+| `survival` (só sobreviver) | 91,0% | 90,9% |
+| `objective` (só o trilho, ignora a base) | 87,0% *(86,2% por objetivo)* | 90,1% *(toda por objetivo)* |
+| `adaptive` (jogador competente) | 88,6% *(0,5% por objetivo)* | 87,0% *(9,5% por objetivo)* |
+
+Rebalanceamento de 2026-11-15 (`docs/balanceamento-analise.md` §7). Antes:
+random 0,2/0,3, survival 84,3/86,0, objective 73,1/33,8, adaptive 51,0/55,5.
+
+Meta de dificuldade (decidida pelo time): o jogador adaptativo que **erra 20%**
+das decisões, proxy de uma criança atenta, vence **60–70%**. Medido: 66,3% em
+ciência e 60,7% em habitat. A política `random` fica em ~2% de propósito:
+subi-la a 5–15% exigiria sobrevivência acima de 99%.
 
 Até 2026-11-14 a simulação jogava **sem** local e loadout, coisa que o app não
 permite. Os números daquela configuração (adaptive 14,0% / 28,4%, survival
@@ -235,10 +255,11 @@ não há jogo. Fallback médio ≈ 0,7–1,2 de 40 slots.
 
 ## 9. Decisões ainda abertas
 
-1. **Alvo de dificuldade.** `survival` em ~85% e `adaptive` em ~51–56%.
-   Aceitável para "Iniciante"?
-2. **Assimetria entre trilhos.** Ciência vence por objetivo em 73,1%, habitat em
-   33,8%. Dois níveis de desafio dentro do mesmo nível, ou equalizar?
+1. **Alvo de dificuldade.** Decidido: criança que erra 20% vence 60–70%
+   (§8). Falta validar com crianças reais; os jogadores simulados não planejam.
+2. **Assimetria entre trilhos.** Equalizada: 86,2% × 90,1% por objetivo.
+   Pendentes: dia classe X ~24 p.p. mais difícil que dia calmo, e dosímetros
+   fracos contra o rover (`docs/balanceamento-analise.md` §8).
 3. **Texto enxuto × aprendizado.** Os dados já suportam as três saídas
    (`outcome.line` / `outcome.why` / `outcome.mistake`). Falta decidir a UI.
 4. **Quantos cards no MVP.** 43 hoje, sendo 39 jogáveis e 4 de fallback

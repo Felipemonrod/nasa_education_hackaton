@@ -59,7 +59,7 @@ npm run dev -- --host
 2. Seguir o `CORRECOES.md` §6, na ordem:
    1. bugs que quebram ou enganam a criança (A1, A2, D1, D2, D3, E4, E5, E6);
    2. layout do celular (E1, E2, E3);
-   3. energia e objetivos (C1 + C2 + C3), rodando `npm run sim` a cada ajuste;
+   3. energia e objetivos (C1 + C2 + C3): **feito** na `feat/balanceamento-marcos-pressao` (ver `balanceamento-analise.md` §8); falta jogar com crianças reais;
    4. o resto da lista.
 
 ## 6. Pedidos em aberto do Guilherme

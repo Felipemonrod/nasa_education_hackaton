@@ -10,6 +10,17 @@ da sessão (`scratchpad/games`, `games5`, `games5surv`, `bughunt`, `balance`, `r
 | 3 | `caio-main` | 10 partidas totalmente aleatórias + 20 mil partidas de fuzz + caça a bugs (app, engine, conteúdo) | 1.4, 4 |
 | 4 | `teste-erro` (cópia de `feat/tutorial-guiado`) | 10 partidas totalmente aleatórias + 20 mil de fuzz no engine + 3 mil pelo store real + testes no navegador (Edge headless) | 1.5, 5 |
 
+> **Status do balanceamento (2026-11-15, branch `feat/balanceamento-marcos-pressao`).**
+> Aplicados: A1, A3, B1 (decidido: a tempestade atinge a base mesmo recusada), C2, C3, C4, C7 e C11.
+> Aplicados em parte:
+> - A7: a tempestade ativa recusada não volta ao pool, mas `deck.used` ainda repete ids.
+> - C1/C8: 26 opções básicas passaram 1 ponto do custo de energia para O₂.
+> - C9: o jogador equilibrado já vence pelo objetivo em 9,5% das partidas de habitat.
+> - C10: a meta foi redefinida para o jogador que erra 20%.
+>
+> Pendentes: C5 (dosímetros e cofre fracos), C6, C12, D23 e D24. Números e método em
+> `docs/balanceamento-analise.md` §7 e §8. As seções abaixo descrevem o estado **antes** dessas mudanças.
+
 Na rodada 4 o engine, o conteúdo e o save são **idênticos** aos da `caio-main` (o diff só toca
 a camada de app). Todos os itens das seções 2, 3 e 4 continuam presentes em `teste-erro`;
 nenhum aparece corrigido.
