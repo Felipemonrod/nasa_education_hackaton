@@ -20,8 +20,8 @@ import { pruneKeys } from '../store/persistence.js';
  */
 
 export const NASA_API_KEY = (import.meta.env['VITE_NASA_API_KEY'] as string | undefined) ?? 'DEMO_KEY';
-const CACHE_PREFIX = 'lunar-outpost:nasa:v3:';
-const TIMEOUT_MS = 5000;
+const CACHE_PREFIX = 'lunar-outpost:nasa:v4:';
+export const SPACE_FETCH_TIMEOUT_MS = 2200;
 const CAPTION_MAX = 220;
 
 const GENERIC_TITLES = new Set(['nasa science', 'apod - nasa science']);
@@ -109,7 +109,7 @@ export function offlineView(): Extract<SpaceView, { kind: 'offline' }> {
 
 export async function fetchJson(url: string): Promise<unknown> {
   const controller = new AbortController();
-  const timer = setTimeout(() => { controller.abort(); }, TIMEOUT_MS);
+  const timer = setTimeout(() => { controller.abort(); }, SPACE_FETCH_TIMEOUT_MS);
   try {
     const response = await fetch(url, { signal: controller.signal });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -121,7 +121,7 @@ export async function fetchJson(url: string): Promise<unknown> {
 
 async function fetchImageAvailable(url: string): Promise<boolean> {
   const controller = new AbortController();
-  const timer = setTimeout(() => { controller.abort(); }, TIMEOUT_MS);
+  const timer = setTimeout(() => { controller.abort(); }, SPACE_FETCH_TIMEOUT_MS);
   try {
     const response = await fetch(url, { method: 'HEAD', signal: controller.signal });
     if (!response.ok) return false;
@@ -288,9 +288,9 @@ const PROVIDERS: readonly {
   readonly source: SpacePhotoSource;
   readonly load: () => Promise<Extract<SpaceView, { kind: 'photo' }> | null>;
 }[] = [
-  { source: 'NASA APOD', load: tryApod },
-  { source: 'NASA EPIC / DSCOVR', load: tryEpic },
   { source: 'NOAA GOES-19', load: tryGoes19 },
+  { source: 'NASA EPIC / DSCOVR', load: tryEpic },
+  { source: 'NASA APOD', load: tryApod },
   { source: 'NASA Image Library', load: tryNasaLibrary },
 ];
 

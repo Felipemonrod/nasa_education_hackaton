@@ -71,7 +71,7 @@ export const UI_EN: Dict = {
   'destination.title': 'Where are we going?',
   'destination.step1': 'Destination',
   'destination.step2': 'Landing Site',
-  'destination.step3': 'Objective & Duration',
+  'destination.step3': 'Objectives',
   'destination.stepOf': 'Step {step} of {total}',
   'destination.targetBody': 'Destination',
   'destination.moon': 'Moon',
@@ -113,6 +113,8 @@ export const UI_EN: Dict = {
   'destination.difficultyFactorObjective': 'Primary Objective',
   'destination.difficultyTiersTitle': 'Rating Scale',
   'destination.chooseCrew': 'Choose the crew',
+  'destination.openMapModal': 'View lunar map',
+  'destination.closeMapModal': 'Close map',
 
   // ----- tripulacao e carga (loadout) -----
   'loadout.title': 'What goes with you',
@@ -129,6 +131,7 @@ export const UI_EN: Dict = {
   'loadout.available': 'Options available: {commanders} commanders, {structures} structures, {equipment} pieces of equipment. More are unlocked by winning missions.',
   'loadout.ready': 'Prepare the descent',
   'loadout.pickFirst': 'Choose a commander',
+  'loadout.inspectCard': 'Inspect card',
 
   // ----- viagem -----
   'travel.preparing': 'Preparing…',
@@ -158,6 +161,9 @@ export const UI_EN: Dict = {
   'game.waiting': 'Waiting for the first call…',
   'game.missionOver': 'Mission over.',
   'game.noRun': 'No mission in progress.',
+  'game.newDecisions': 'New Decisions',
+  'game.closeDecisions': 'Close decisions',
+  'game.decisionCall': 'Call {index}',
   'game.pairNotice': 'Two calls at the same time. You handle {one} — the other goes back to the deck.',
   'game.pairNoticeOne': 'one',
   'game.lowWarning': 'Warning: {resources}.',
@@ -488,7 +494,7 @@ export const UI_PT: Dict = {
   'destination.title': 'Para onde vamos?',
   'destination.step1': 'Destino',
   'destination.step2': 'Local de Pouso',
-  'destination.step3': 'Objetivo e Duração',
+  'destination.step3': 'Objetivos',
   'destination.stepOf': 'Etapa {step} de {total}',
   'destination.targetBody': 'Destino',
   'destination.moon': 'Lua',
@@ -530,6 +536,8 @@ export const UI_PT: Dict = {
   'destination.difficultyFactorObjective': 'Objetivo Principal',
   'destination.difficultyTiersTitle': 'Escala de Classificação',
   'destination.chooseCrew': 'Escolher tripulação',
+  'destination.openMapModal': 'Ver mapa lunar',
+  'destination.closeMapModal': 'Fechar mapa',
 
   // ----- tripulacao e carga (loadout) -----
   'loadout.title': 'O que vai com você',
@@ -546,6 +554,7 @@ export const UI_PT: Dict = {
   'loadout.available': 'Opções disponíveis: {commanders} comandantes, {structures} estruturas, {equipment} equipamentos. Mais são desbloqueados vencendo missões.',
   'loadout.ready': 'Preparar descida',
   'loadout.pickFirst': 'Escolha um comandante',
+  'loadout.inspectCard': 'Ampliar carta',
 
   // ----- viagem -----
   'travel.preparing': 'Preparando…',
@@ -575,6 +584,9 @@ export const UI_PT: Dict = {
   'game.waiting': 'Aguardando a primeira ocorrência…',
   'game.missionOver': 'Missão encerrada.',
   'game.noRun': 'Sem missão em andamento.',
+  'game.newDecisions': 'Novas Decisões',
+  'game.closeDecisions': 'Fechar decisões',
+  'game.decisionCall': 'Chamado {index}',
   'game.pairNotice': 'Dois chamados ao mesmo tempo. Você resolve {one} — o outro volta para o baralho.',
   'game.pairNoticeOne': 'um',
   'game.lowWarning': 'Atenção: {resources}.',

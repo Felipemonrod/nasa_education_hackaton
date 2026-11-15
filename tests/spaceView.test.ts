@@ -150,6 +150,62 @@ describe('loadSpaceView (auditoria e fallbacks)', () => {
     }
   });
 
+  it('prioriza imagem on-time da Terra (GOES-19) mesmo quando APOD tambem responde', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.includes('cdn.star.nesdis.noaa.gov/GOES19')) {
+        return new Response(null, { status: 200, headers: { 'content-type': 'image/jpeg' } });
+      }
+      if (url.includes('planetary/apod')) {
+        return new Response(JSON.stringify({
+          title: 'Distant Nebula',
+          explanation: 'A nebula far away.',
+          media_type: 'image',
+          url: 'https://apod.nasa.gov/apod/image/nebula.jpg',
+          date: '2026-11-15',
+        }), { status: 200 });
+      }
+      return new Response('', { status: 404 });
+    }));
+
+    const view = await loadSpaceView();
+    expect(view.kind).toBe('photo');
+    if (view.kind === 'photo') {
+      expect(view.source).toBe('NOAA GOES-19');
+    }
+  });
+
+  it('corta provedor lento pelo timeout curto e segue para o proximo', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('fetch', vi.fn((url: string, init?: RequestInit) => {
+      if (url.includes('cdn.star.nesdis.noaa.gov/GOES19')) {
+        return new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => { reject(new Error('Aborted')); });
+        });
+      }
+      if (url.includes('epic.gsfc.nasa.gov/api/natural')) {
+        return Promise.resolve(new Response(JSON.stringify([
+          {
+            identifier: '20261112195658',
+            caption: 'EPIC view of Earth',
+            image: 'epic_1b_20261112195658',
+            date: '2026-11-12 19:52:09',
+          },
+        ]), { status: 200 }));
+      }
+      return Promise.resolve(new Response('', { status: 404 }));
+    }));
+
+    const promise = loadSpaceView();
+    await vi.advanceTimersByTimeAsync(2500);
+    const view = await promise;
+    vi.useRealTimers();
+
+    expect(view.kind).toBe('photo');
+    if (view.kind === 'photo') {
+      expect(view.source).toBe('NASA EPIC / DSCOVR');
+    }
+  });
+
   it('devolve fallback offline quando todos os provedores falham', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(new Error('offline'))));
     const view = await loadSpaceView();

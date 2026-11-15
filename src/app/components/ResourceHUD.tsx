@@ -42,14 +42,14 @@ function StatRow({ row, value }: { row: Row; value: number }): JSX.Element {
   const isDanger = danger(row, value);
   const label = t(row.labelKey);
   return (
-    <div className={`flex items-center gap-2.5 rounded-2xl border px-3 py-2 transition-colors
+    <div className={`flex items-center gap-2 rounded-2xl border px-2.5 py-1.5 transition-colors [@media(max-height:540px)]:px-2 [@media(max-height:540px)]:py-1 lg:gap-2.5 lg:px-3 lg:py-2
       ${isDanger ? 'border-radiation/40 bg-radiation/10' : 'border-white/8 bg-white/[.03]'}`}>
-      <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${row.badgeBg}`}>
+      <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-xl [@media(max-height:540px)]:h-6 [@media(max-height:540px)]:w-6 lg:h-8 lg:w-8 ${row.badgeBg}`}>
         <Icon size={16} className={row.color} aria-hidden />
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-1.5">
-          <span className="truncate text-[0.68rem] font-extrabold uppercase tracking-wider text-slate-300">
+          <span className="truncate text-[0.64rem] font-extrabold uppercase tracking-wider text-slate-300 [@media(max-height:540px)]:text-[0.6rem] lg:text-[0.68rem]">
             {label}
           </span>
           <div className="flex items-center gap-1">
@@ -65,13 +65,13 @@ function StatRow({ row, value }: { row: Row; value: number }): JSX.Element {
             <span
               role="img"
               aria-label={t('hud.valueAria', { label, value })}
-              className={`tabular-nums font-display text-[0.95rem] font-extrabold leading-none ${isDanger ? 'text-radiation' : row.color}`}
+              className={`tabular-nums font-display text-[0.88rem] font-extrabold leading-none [@media(max-height:540px)]:text-[0.82rem] lg:text-[0.95rem] ${isDanger ? 'text-radiation' : row.color}`}
             >
               {value}
             </span>
           </div>
         </div>
-        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
+        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10 lg:mt-1.5">
           <div
             className={`h-full rounded-full ${row.bar} transition-[width] duration-500
                         ${row.inverted === true ? 'ml-auto' : ''}`}
@@ -95,13 +95,13 @@ export function ResourceHUD({
     : { stat: 'lifeSupport', labelKey: 'stat.lifeSupport', icon: HeartPulse, color: 'text-life', bar: 'bg-life', badgeBg: 'bg-life/15', goal: true };
 
   return (
-    <div className={`flex h-full flex-col rounded-3xl glass bg-gradient-to-b ${THEME_ACCENT[theme]} to-transparent p-3 sm:p-3.5`}>
-      <div data-tutorial="hud-basic" className="grid flex-[2] grid-cols-2 gap-2">
+    <div className={`flex h-full flex-col rounded-3xl glass bg-gradient-to-b ${THEME_ACCENT[theme]} to-transparent p-2.5 [@media(max-height:540px)]:p-2 sm:p-3 lg:p-3.5`}>
+      <div data-tutorial="hud-basic" className="grid flex-[2] grid-cols-2 gap-1.5 [@media(max-height:540px)]:gap-1.5 lg:gap-2">
         {BASIC_ROWS.map((row) => (
           <StatRow key={row.stat} row={row} value={stats[row.stat]} />
         ))}
       </div>
-      <div data-tutorial="hud-tracks" className="mt-2 grid flex-1 grid-cols-2 gap-2 border-t border-white/10 pt-2">
+      <div data-tutorial="hud-tracks" className="mt-1.5 grid flex-1 grid-cols-2 gap-1.5 border-t border-white/10 pt-1.5 [@media(max-height:540px)]:mt-1.5 [@media(max-height:540px)]:pt-1.5 lg:mt-2 lg:gap-2 lg:pt-2">
         <StatRow
           row={{ stat: 'shielding', labelKey: 'stat.shielding', icon: Shield, color: 'text-slate-200', bar: 'bg-slate-300', badgeBg: 'bg-white/10' }}
           value={stats.shielding}
