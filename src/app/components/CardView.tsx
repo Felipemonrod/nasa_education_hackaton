@@ -119,14 +119,21 @@ export function CardView({
     <>
       <article
         data-tutorial={isFirstCard ? 'card-header' : undefined}
-        className={`relative mx-auto flex w-full ${compact === true ? 'max-w-[32rem]' : 'max-w-[23rem]'} flex-col overflow-hidden animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
+        className={`relative mx-auto flex w-full ${compact === true ? 'max-w-[32rem]' : 'max-w-[23rem]'} flex-col animate-card-in drop-shadow-[0_14px_28px_rgba(0,0,0,0.65)]
                     ${dimmed === true ? 'opacity-70' : ''}`}
       >
-        {/* Brilho suave, contínuo e mais lento percorrendo a imagem inteira da carta */}
+        {/* Brilho suave, contínuo e mais lento mascarado exatamente na silhueta real da carta (sem plástico torto) */}
         <div
           aria-hidden
           style={{
-            clipPath: 'polygon(26% 0%, 74% 0%, 74% 9.2%, 89% 9.2%, 95.5% 13.8%, 95.5% 98.5%, 4.5% 98.5%, 4.5% 13.8%, 11% 9.2%, 26% 9.2%)',
+            WebkitMaskImage: `url(${frame.image}), linear-gradient(#000, #000)`,
+            maskImage: `url(${frame.image}), linear-gradient(#000, #000)`,
+            WebkitMaskSize: '100% auto, 86.8% 55%',
+            maskSize: '100% auto, 86.8% 55%',
+            WebkitMaskPosition: 'top center, center 95%',
+            maskPosition: 'top center, center 95%',
+            WebkitMaskRepeat: 'no-repeat, no-repeat',
+            maskRepeat: 'no-repeat, no-repeat',
           }}
           className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
         >
@@ -138,8 +145,8 @@ export function CardView({
           />
         </div>
 
-        {/* Ícone de áudio posicionado na borda diagonal superior direita da carta */}
-        <div className="absolute right-[3%] top-[8.2%] z-20">
+        {/* Ícone de áudio mais para cima e na diagonal, longe da imagem da carta */}
+        <div className="absolute -right-1.5 -top-1 z-20">
           <SpeakButton
             text={`${title}. ${text}. ${options.filter((o) => o.selectable).map((o) => content.optionLabel(card, o.option)).join('. ')}`}
             label={t('card.listenAria', { title })}

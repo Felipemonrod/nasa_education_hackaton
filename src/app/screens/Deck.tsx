@@ -136,21 +136,28 @@ function DeckCardPreview({ card, known }: {
     >
       <article
         data-deck-keep-open
-        className={`relative mx-auto flex w-full max-w-[22.5rem] flex-col overflow-hidden animate-card-in drop-shadow-[0_18px_36px_rgba(0,0,0,0.72)] ${
+        className={`relative mx-auto flex w-full max-w-[22.5rem] flex-col animate-card-in drop-shadow-[0_18px_36px_rgba(0,0,0,0.72)] ${
           known ? '' : 'opacity-80'
         }`}
       >
         {/* Leve blur direto atrás apenas do corpo da carta (sem criar caixa no topo transparente) */}
         <div
           aria-hidden
-          className="pointer-events-none absolute bottom-[2%] left-[5%] right-[5%] top-[9.5%] -z-10 rounded-2xl bg-space-950/25 backdrop-blur-md"
+          className="pointer-events-none absolute bottom-[2%] left-[7%] right-[7%] top-[10%] -z-10 rounded-2xl bg-space-950/25 backdrop-blur-md"
         />
 
-        {/* Brilho suave, contínuo e mais lento percorrendo a imagem inteira da carta */}
+        {/* Brilho suave, contínuo e mais lento mascarado exatamente na silhueta real da carta (sem plástico torto) */}
         <div
           aria-hidden
           style={{
-            clipPath: 'polygon(26% 0%, 74% 0%, 74% 9.2%, 89% 9.2%, 95.5% 13.8%, 95.5% 98.5%, 4.5% 98.5%, 4.5% 13.8%, 11% 9.2%, 26% 9.2%)',
+            WebkitMaskImage: `url(${frame.image}), linear-gradient(#000, #000)`,
+            maskImage: `url(${frame.image}), linear-gradient(#000, #000)`,
+            WebkitMaskSize: '100% auto, 86.8% 55%',
+            maskSize: '100% auto, 86.8% 55%',
+            WebkitMaskPosition: 'top center, center 95%',
+            maskPosition: 'top center, center 95%',
+            WebkitMaskRepeat: 'no-repeat, no-repeat',
+            maskRepeat: 'no-repeat, no-repeat',
           }}
           className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
         >
@@ -162,9 +169,9 @@ function DeckCardPreview({ card, known }: {
           />
         </div>
 
-        {/* Ícone de text-to-speech posicionado exatamente na borda diagonal superior direita da carta */}
+        {/* Ícone de text-to-speech mais para cima e na diagonal, longe da imagem da carta */}
         {known ? (
-          <div className="absolute right-[3%] top-[8.2%] z-20">
+          <div className="absolute -right-1.5 -top-1 z-20">
             <SpeakButton
               text={`${title}. ${text}. ${card.options.map((o) => content.optionLabel(card, o)).join('. ')}`}
               label={t('card.listenAria', { title })}
