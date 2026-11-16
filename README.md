@@ -9,7 +9,7 @@ and picks one of up to three options. No option is free: each one costs somethin
 explains, in one or two sentences, *why* that happened. The mission's space weather comes from **real
 solar flares recorded by NASA and NOAA**, and it changes how likely solar storms are in that run.
 
-- **Play it:** https://head-x.felipemr.com/
+- **Live demo:** [https://head-x.felipemr.com/](https://head-x.felipemr.com/)
 - **Languages:** English (default) and Portuguese. Read-aloud for every card. Works offline as a PWA.
 - **Devices:** desktop, tablet and phone. On phones the game is played upright (portrait); turning the
   phone sideways shows a "turn your phone" notice.
