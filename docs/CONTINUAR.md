@@ -9,7 +9,6 @@ Estado final de 15/11/2026, depois da rodada de auditoria. Leia isto antes de me
 | Branch principal | `main` (igual à `feat/auditoria-nasa-p0`). Já inclui `caio-main`, `joao-main` e o rebalanceamento |
 | `guilherme-main` | Local igual à `feat/auditoria-nasa-p0`; a cópia do GitHub está atrasada |
 | Branch `feat/nasa-data` | Só local, **fora do escopo** (seção 5) |
-| Formulário do Space Apps | Respostas prontas em [`SUBMISSAO.md`](SUBMISSAO.md) |
 | Jogo publicado | https://head-x.felipemr.com/ |
 
 ## 2. Primeiros comandos
@@ -47,7 +46,6 @@ npm run dev -- --host
 | `../README.md` | Visão geral, como jogar, dados da NASA, uso de IA, como rodar (em inglês, para os jurados) |
 | `../CREDITS.md` | Todas as fontes, APIs, bibliotecas e licenças |
 | `ASSETS.md` | Cada imagem, som e fonte: origem, licença e uso de IA. A §5 lista o que **só a equipe** pode responder |
-| `SUBMISSAO.md` | Texto pronto para o formulário de submissão do Space Apps |
 | `../DESIGN.md` | Modelo formal do engine (recursos, slots, ordem de resolução, determinismo, balanceamento) |
 | `../AUDIT.md` | Auditoria de dados, decisões e código; a §12 é a rodada final |
 | `prompt.md` | Especificação original do jogo |
@@ -67,7 +65,6 @@ janela do espaço com GIBS, uma cutscene com Framer Motion e um teste de traduç
   autoria dos modelos 3D (e se usaram IA) e do mascote, plano do Canva, IDs NASA das fotos de destino e
   da cutscene. Já respondido: música feita no Moreka.ai; logo feito parcialmente com IA; repositório
   público.
-- **Vídeo ou slides de demonstração** para o formulário.
 - **Testar com crianças** (a meta de dificuldade foi definida com jogadores simulados).
 
 ## 7. Melhorias conhecidas, se houver tempo
