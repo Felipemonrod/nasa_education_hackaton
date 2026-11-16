@@ -46,12 +46,11 @@ TODO(team): link do vídeo (YouTube, Google Drive...) ou dos slides
 ### Project * (URL completa, pública, sem senha)
 
 ```
-https://github.com/Felipemonrod/nasa_education_hackaton
+https://head-x.felipemr.com/
 ```
 
-Se a demo jogável for publicada a tempo (Netlify, Vercel ou Cloudflare Pages), dá para pôr o link do jogo aqui
-e o do repositório no texto do *Project Details*. A versão final está na branch `feat/auditoria-nasa-p0`:
-leve-a para a `main` antes do envio, porque o jurado abre a branch padrão.
+É o jogo publicado (versão final, conferida). O link do repositório já está no fim do *Project Details*.
+A versão final do código está na `main`.
 
 ---
 
@@ -89,6 +88,7 @@ FACTORS WE CONSIDERED
 TOOLS
 TypeScript, React 18, Vite, Tailwind CSS, Zustand, Zod, three.js, Vitest, vite-plugin-pwa (Workbox), the Web Speech API for read-aloud, Blender (3D models) and Canva (card frames). Runs in any modern browser on desktop, tablet or phone. Original code under the MIT license.
 
+Play: https://head-x.felipemr.com/
 Source code: https://github.com/Felipemonrod/nasa_education_hackaton
 ```
 

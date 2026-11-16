@@ -6,11 +6,11 @@ Estado final de 15/11/2026, depois da rodada de auditoria. Leia isto antes de me
 
 | Item | Estado |
 |---|---|
-| Branch principal de trabalho | `feat/auditoria-nasa-p0` (no GitHub). Já inclui `caio-main`, `joao-main` e o rebalanceamento |
+| Branch principal | `main` (igual à `feat/auditoria-nasa-p0`). Já inclui `caio-main`, `joao-main` e o rebalanceamento |
 | `guilherme-main` | Local igual à `feat/auditoria-nasa-p0`; a cópia do GitHub está atrasada |
 | Branch `feat/nasa-data` | Só local, **fora do escopo** (seção 5) |
 | Formulário do Space Apps | Respostas prontas em [`SUBMISSAO.md`](SUBMISSAO.md) |
-| Demo publicada | **Ainda não.** Ver "Deploy" no README |
+| Jogo publicado | https://head-x.felipemr.com/ |
 
 ## 2. Primeiros comandos
 
@@ -63,8 +63,6 @@ janela do espaço com GIBS, uma cutscene com Framer Motion e um teste de traduç
 
 ## 6. O que falta (só a equipe resolve)
 
-- **Publicar a demo** (Netlify, Vercel ou Cloudflare Pages, na raiz do domínio) e pôr o link no README
-  e no formulário.
 - **Responder o que falta em `ASSETS.md` §5**: ferramenta de IA dos retratos dos comandantes e do logo,
   autoria dos modelos 3D (e se usaram IA) e do mascote, plano do Canva, IDs NASA das fotos de destino e
   da cutscene. Já respondido: música feita no Moreka.ai; logo feito parcialmente com IA; repositório
