@@ -77,11 +77,11 @@ I/O v4.5.47" in each file).
 | `public/models/solar.glb` | Solar panel model | Made in Blender. `TODO(team)`: author / source | `TODO(team)` | `TODO(team)` |
 | `public/textures/DoorTexture.jpg` | Door texture | File carries a **Google C2PA manifest** with `digitalSourceType` = `trainedAlgorithmicMedia` and a SynthID mark | Google generative AI terms (`TODO(team)`: tool name) | **Yes** (proven by metadata). **Visible watermark:** an always-visible "AI textures" label in the corner of every 3D scene; tapping it shows "Some textures made with AI" (`src/app/components/AiTexturesBadge.tsx`) |
 | `public/textures/solarPanel.jpg` | Solar panel texture | Same Google C2PA manifest (`trainedAlgorithmicMedia`, SynthID) | Same | **Yes** (proven by metadata). Same icon |
-| `public/textures/world.topo.200401.3x5400x2700.jpg` | Earth texture (resized to 2048×1024; the file name keeps NASA's original name) | File name matches NASA's **Blue Marble Next Generation** (January 2004, with topography), NASA Earth Observatory / Visible Earth. `TODO(team)`: confirm download page | NASA, public domain | No |
+| `public/textures/world.topo.200401.3x5400x2700.jpg` | Earth texture (resized to 2048×1024; the file name keeps NASA's original name) | NASA's **Blue Marble Next Generation** (January 2004, with topography), NASA Earth Observatory: <https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography/> | NASA, public domain | No |
 | `public/textures/2k_moon.jpg` | Moon surface texture | Name and size (2048×1024) match the **Solar System Scope** texture set, which is based on NASA data. `TODO(team)`: confirm | Solar System Scope textures are CC BY 4.0 (credit required) | No |
 | `public/textures/stars_milky_way_4k.jpg`, `stars_milky_way_8k.jpg` | Star field / Milky Way sky (8K where the GPU supports it, else 4K) | Probably Solar System Scope ("stars_milky_way") or ESO's Milky Way panorama (eso0932a, ESO/S. Brunier). `TODO(team)`: confirm which | Both are CC BY 4.0 (credit required) | No |
-| `public/textures/white_metal.jpg` | Metal texture (original 1000×1000; now 512×512) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
-| `public/textures/black-road-texture.jpg` | Rover tire texture (original 5616×3744, 13.6 MB; now 1024 px, 0.4 MB) | Edited in Photoshop; no author in metadata. `TODO(team)`: source | `TODO(team)` | `TODO(team)` |
+| `public/textures/white_metal.jpg` | Metal texture (original 1000×1000; now 512×512) | SketchUp Texture Club, "White painted metal plate texture seamless": <https://www.sketchuptextureclub.com/textures/materials/metals/plates/white-painted-metal-plate-texture-seamless-10706> (edited in Photoshop) | Site's texture license; `TODO(team)`: confirm attribution terms | No |
+| `public/textures/black-road-texture.jpg` | Rover tire texture (original 5616×3744, 13.6 MB; now 1024 px, 0.4 MB) | Magnific free photo "Black road texture": <https://www.magnific.com/free-photo/black-road-texture_946256.htm> (edited in Photoshop) | Magnific free license; `TODO(team)`: confirm attribution terms | No |
 
 **Size and quality (15/11/2026).** The 3D **models** (`.glb`) and the two **sky** images
 (`stars_milky_way_*`) are the **original files**, untouched: a compressed version of the models was tried
@@ -143,7 +143,8 @@ The "look at space" window loads live images; each shows its own credit on scree
 5. Commander portraits (section 1.3): which Google tool made them, and were the four NASA photos listed
    there the visual reference?
 6. 3D models (section 1.5): who made them, and was AI used? Source and license of `2k_moon.jpg`, the
-   star-field textures, `white_metal.jpg` and `black-road-texture.jpg`; which Google tool made the two
-   AI textures.
+   star-field textures (answered: `white_metal.jpg` from SketchUp Texture Club, `black-road-texture.jpg`
+   from Magnific, Earth from NASA Blue Marble Next Generation); which Google tool made the two AI
+   textures.
 7. The MP3 metadata still says "Declared by the Lunar Outpost team" (the game's old name). The
    declaration is still valid; rewrite the tag only if the team wants the new name in it.

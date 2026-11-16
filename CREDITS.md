@@ -56,6 +56,20 @@ these sources. Cards that rest on a specific fact show a "real-world fact" line 
 | Canadian Space Agency (CSA) — food production in space | <https://www.asc-csa.gc.ca/eng/sciences/food-production/growing-healthy-food-in-space-and-remote-areas.asp>, <https://www.asc-csa.gc.ca/eng/sciences/food-production/deep-space-food-challenge.asp>, <https://www.asc-csa.gc.ca/eng/astronauts/living-in-space/eating-in-space.asp> | Fresh-food resupply vs. growing food on the Moon, the Deep Space Food Challenge, astronaut calorie needs. Free bilingual educational material. |
 | NASA — other pages behind "real-world fact" lines | Vertical solar arrays for the lunar south pole, Fission Surface Power, Apollo lunar sample curation (JSC), DONKI event FLR 13098 | The exact URL used by each card is in [`src/content/cardSources.ts`](src/content/cardSources.ts); all 20 were opened and checked on 15/11/2026. |
 
+### Other references used by the team
+
+Listed in the project submission form as well. They were used as general reference or visual inspiration;
+nothing from the Pinterest pins is shipped in the game.
+
+| Reference | Link | Used for |
+|---|---|---|
+| Wikipedia (PT) — Lua | <https://pt.wikipedia.org/wiki/Lua> | General reference about the Moon |
+| Metrópoles — how we know what the Sun is made of | <https://www.metropoles.com/ciencia/sabemos-sol-feito-se-ninguem-nunca-foi> | General reference about the Sun |
+| Pinterest — visual reference pins | <https://br.pinterest.com/pin/1068760555310519098/>, <https://br.pinterest.com/pin/518476975872404538/>, <https://br.pinterest.com/pin/1029283689834402890/> | Visual inspiration only |
+| NASA Earth Observatory — Blue Marble Next Generation (Base Topography) | <https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography/> | Earth texture of the 3D scene |
+| Magnific — "Black road texture" (free photo) | <https://www.magnific.com/free-photo/black-road-texture_946256.htm> | Rover tire texture (`black-road-texture.jpg`) |
+| SketchUp Texture Club — "White painted metal plate texture seamless" | <https://www.sketchuptextureclub.com/textures/materials/metals/plates/white-painted-metal-plate-texture-seamless-10706> | Rover body texture (`white_metal.jpg`) |
+
 ## 3. Software
 
 Installed versions from `node_modules/<package>/package.json`.
