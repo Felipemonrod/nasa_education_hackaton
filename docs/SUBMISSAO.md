@@ -134,6 +134,7 @@ precisam estar no jogo e nos arquivos. Ver a seção "Atenção" no fim deste ar
 | NASA LRO / LROC (landing sites) | https://www.lroc.asu.edu/ |
 | NASA SVS 12142 (July 2012 far-side eruption, flare-day label) | https://svs.gsfc.nasa.gov/12142/ |
 | NASA Visible Earth — Blue Marble (Earth texture of the 3D scene) | https://visibleearth.nasa.gov/collection/1484/blue-marble |
+| NASA Earth Observatory — Blue Marble Next Generation: Base Topography | https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography/ |
 
 ### Space Agency Partner & Other Data (lista de links: Link Text | Link Url)
 
@@ -150,6 +151,13 @@ O formulário pede **todo** recurso externo, inclusive código aberto, textos, i
 | ESA — biggest solar X-ray flare classified as X28 (Nov 2003 label) | https://www.esa.int/Science_Exploration/Space_Science/Extreme_space/The_biggest_solar_X-ray_flare_ever_is_classified_as_X28 |
 | arXiv 2202.07927 — GLE73 ground-level event (Oct 2021 label) | https://arxiv.org/abs/2202.07927 |
 | Solar System Scope textures (Moon surface and star field, CC BY 4.0) | https://www.solarsystemscope.com/textures/ |
+| Wikipedia (PT) — Moon (Lua) reference | https://pt.wikipedia.org/wiki/Lua |
+| Metrópoles — How we know what the Sun is made of | https://www.metropoles.com/ciencia/sabemos-sol-feito-se-ninguem-nunca-foi |
+| Pinterest — visual reference pin (1068760555310519098) | https://br.pinterest.com/pin/1068760555310519098/ |
+| Pinterest — visual reference pin (518476975872404538) | https://br.pinterest.com/pin/518476975872404538/ |
+| Pinterest — visual reference pin (1029283689834402890) | https://br.pinterest.com/pin/1029283689834402890/ |
+| Magnific — Black road / rubber texture | https://www.magnific.com/free-photo/black-road-texture_946256.htm#fromView=keyword&page=1&position=0&uuid=cf5d97ed-b182-4392-b6fd-863e000b771a&track=ais_hybrid&query=Rubber+texture |
+| SketchUp Texture Club — White painted metal plate seamless texture | https://www.sketchuptextureclub.com/textures/materials/metals/plates/white-painted-metal-plate-texture-seamless-10706 |
 | React (MIT) | https://react.dev/ |
 | three.js (MIT) | https://threejs.org/ |
 | Zustand (MIT) | https://github.com/pmndrs/zustand |
@@ -163,6 +171,17 @@ O formulário pede **todo** recurso externo, inclusive código aberto, textos, i
 | Google Fonts — Baloo 2 and Nunito (SIL OFL 1.1) | https://fonts.google.com/ |
 | Blender (3D models of the base) | https://www.blender.org/ |
 | Canva (card frames) | https://www.canva.com/ |
+| Canva — "Y2K Star Element" by The Halal Design Studio | https://www.canva.com |
+| Canva — "Rocket Icon" by Dima Lagunov | https://www.canva.com |
+| Canva — "Painterly Textured Semi Real..." by Jea Gaviña | https://www.canva.com |
+| Canva — "Hologram projector" by Icons8 | https://www.canva.com |
+| Canva — "Settings" by Roundicons Pro | https://www.canva.com |
+| Canva — "Vector Image" by OpenClipart-Vectors | https://www.canva.com |
+| Canva — "Atom gradient icon" by Eucalyp | https://www.canva.com |
+| Canva — "DNA Double Helix Illustration" by Mark Specter | https://www.canva.com |
+| Canva — "Cross Medical Icon" by Vectoryzen | https://www.canva.com |
+| Canva — "Surface cracked ground" by Totok Haryanto | https://www.canva.com |
+| Canva — "Adhesive Cure Free Form Sty..." by Iconsy | https://www.canva.com |
 | SI: Claude Code by Anthropic (code, texts, research) | https://www.anthropic.com/claude-code |
 | SI: Google generative AI (commander portraits, 2 textures; C2PA + SynthID in the files) | https://gemini.google.com/ |
 | SI: Moreka.ai (background music) | https://moreka.ai/ |
